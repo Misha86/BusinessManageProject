@@ -9,9 +9,7 @@ class UserManager(BaseUserManager):
     """This class provides tools for creating and managing CustomUser model."""
 
     def _create_user(self, email, password=None, group_name=None, **additional_fields):
-        """
-        Create and save a user with the given email, and password.
-        """
+        """Create and save a user with the given email, and password."""
         if not email:
             raise ValueError("Users must have an email address")
         email = self.normalize_email(email)
@@ -26,12 +24,21 @@ class UserManager(BaseUserManager):
 
     def create_specialist(self, **additional_fields):
         """Creates Specialist.
+
         Saves user instance with given fields values.
         """
         return self._create_user(group_name="Specialist", **additional_fields)
 
+    def create_admin(self, password, **additional_fields):
+        """Creates Admin.
+
+        Saves user instance with given fields values.
+        """
+        return self._create_user(group_name="Admin", password=password, **additional_fields)
+
     def create_superuser(self, email: str, password=None, **additional_fields):
         """Creates superuser.
+
         Saves instance with given fields values
         """
         additional_fields.setdefault("is_staff", True)
@@ -69,7 +76,12 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     updated_at = models.DateTimeField(auto_now=True, editable=False)
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     bio = models.TextField("bio", max_length=255, blank=True, null=True)
-    avatar = models.ImageField("avatar", blank=True, default="default_avatar.jpeg", upload_to="images")
+    avatar = models.ImageField(
+        "avatar",
+        blank=True,
+        default="default_avatar.jpeg",
+        upload_to="images",
+    )
 
     is_staff = models.BooleanField(
         "staff status",
@@ -99,9 +111,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         verbose_name_plural = "Users"
 
     def get_full_name(self):
-        """
-        Return the first_name plus the last_name, with a space in between.
-        """
+        """Return the first_name plus the last_name, with a space in between."""
         return f"{self.first_name} {self.last_name}"
 
     def get_short_name(self):

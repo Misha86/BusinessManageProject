@@ -17,7 +17,6 @@ class GroupListingField(serializers.RelatedField):
         Returns:
             object.name (str): attribute-name of an instance
         """
-
         return value.name
 
     def to_internal_value(self, data: str) -> int:
@@ -36,6 +35,13 @@ class SpecialistSerializer(serializers.ModelSerializer):
     """Serializer to receive and create a specific user."""
 
     groups = GroupListingField(many=True, read_only=True)
+    is_active = serializers.BooleanField(
+        initial=True,
+        help_text=(
+            "Designates whether this user should be treated as active. "
+            "Unselect this instead of deleting accounts."
+        )
+    )
 
     class Meta:
         """Class with a model and model fields for serialization."""
@@ -43,4 +49,3 @@ class SpecialistSerializer(serializers.ModelSerializer):
         model = CustomUser
         fields = ["email", "first_name", "last_name", "patronymic",
                   "position", "bio", "avatar", "is_active", "groups"]
-
