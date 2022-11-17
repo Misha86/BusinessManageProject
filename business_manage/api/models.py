@@ -36,6 +36,13 @@ class UserManager(BaseUserManager):
         """
         return self._create_user(group_name="Admin", password=password, **additional_fields)
 
+    def create_manager(self, password, **additional_fields):
+        """Creates Manager.
+
+        Saves user instance with given fields values.
+        """
+        return self._create_user(group_name="Manager", password=password, **additional_fields)
+
     def create_superuser(self, email: str, password=None, **additional_fields):
         """Creates superuser.
 
