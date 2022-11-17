@@ -1,6 +1,6 @@
 """Module for all project models."""
 from django.contrib.auth.base_user import BaseUserManager, AbstractBaseUser
-from django.contrib.auth.models import AbstractUser, PermissionsMixin, Group
+from django.contrib.auth.models import PermissionsMixin, Group
 from django.db import models
 from django.utils import timezone
 
@@ -8,7 +8,7 @@ from django.utils import timezone
 class UserManager(BaseUserManager):
     """This class provides tools for creating and managing CustomUser model."""
 
-    def _create_user(self, email, password, group_name=None, **additional_fields):
+    def _create_user(self, email, password=None, group_name=None, **additional_fields):
         """
         Create and save a user with the given email, and password.
         """
@@ -16,28 +16,19 @@ class UserManager(BaseUserManager):
             raise ValueError("Users must have an email address")
         email = self.normalize_email(email)
         user = self.model(email=email, **additional_fields)
-        user.set_password(password)
+        if password:
+            user.set_password(password)
         user.save(using=self._db)
         if group_name:
-            user_group = Group.objects.get_or_create(name=group_name)
-            user_group.user_set.add(group_name)
+            user_group, created = Group.objects.get_or_create(name=group_name.title())
+            user_group.user_set.add(user)
         return user
 
-    def create_specialist(self, email: str, first_name: str, last_name: str, position: str,
-                          password=None, **additional_fields):
+    def create_specialist(self, **additional_fields):
         """Creates Specialist.
         Saves user instance with given fields values.
         """
-        specialist = self._create_user(
-            email=email,
-            password=password,
-            first_name=first_name,
-            last_name=last_name,
-            position=position,
-            group_name="Specialist",
-            **additional_fields,
-        )
-        return specialist
+        return self._create_user(group_name="Specialist", **additional_fields)
 
     def create_superuser(self, email: str, password=None, **additional_fields):
         """Creates superuser.
@@ -70,15 +61,15 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     """
 
     email = models.EmailField(max_length=100, unique=True)
-    first_name = models.CharField("first name", max_length=150, blank=True)
-    last_name = models.CharField("last name", max_length=150, blank=True)
+    first_name = models.CharField("first name", max_length=150)
+    last_name = models.CharField("last name", max_length=150)
     date_joined = models.DateTimeField("date joined", default=timezone.now)
     patronymic = models.CharField("patronymic", max_length=150, blank=True)
     position = models.CharField("position", max_length=150)
     updated_at = models.DateTimeField(auto_now=True, editable=False)
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     bio = models.TextField("bio", max_length=255, blank=True, null=True)
-    avatar = models.ImageField("avatar", blank=True, default="default_avatar.jpeg", upload_to="images/")
+    avatar = models.ImageField("avatar", blank=True, default="default_avatar.jpeg", upload_to="images")
 
     is_staff = models.BooleanField(
         "staff status",
@@ -98,7 +89,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     objects = UserManager()
 
-    REQUIRED_FIELDS = ("password",)
+    REQUIRED_FIELDS = ("first_name", "last_name")
 
     class Meta:
         """This class meta stores verbose names ordering data."""

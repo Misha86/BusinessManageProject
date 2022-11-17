@@ -28,8 +28,9 @@ class CustomUserAdmin(BaseUserAdmin):
         (None, {
             "classes": ("wide",),
             "fields": ("email", "first_name", "last_name", "patronymic",
-                       "position", "groups", "avatar", "password1", "password2"),
+                       "position", "groups", "avatar", "is_active"),
         }),
+        ("Set only for Admins and Managers", {"fields": ("password1", "password2")}),
     )
     search_fields = ("email",)
     ordering = ("email",)

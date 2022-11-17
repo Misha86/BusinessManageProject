@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # my apps
-    'business',
+    'api',
 
     # third apps
     'rest_framework',
@@ -136,4 +136,4 @@ MEDIA_ROOT = BASE_DIR / "mediafiles"
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-AUTH_USER_MODEL = "business.CustomUser"
+AUTH_USER_MODEL = "api.CustomUser"
