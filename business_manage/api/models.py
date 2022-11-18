@@ -125,6 +125,16 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         """Return the short name for the user."""
         return self.first_name
 
+    @property
+    def is_admin(self):
+        """Determines whether user is admin."""
+        return self.groups.filter(name="Admin").exists()
+
+    @property
+    def is_manager(self):
+        """Determines whether user is manager."""
+        return self.groups.filter(name="Manager").exists()
+
     def __str__(self):
         """str: Returns full name of the user."""
         return self.get_full_name()
