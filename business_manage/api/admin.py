@@ -5,8 +5,7 @@ from django.contrib.auth.models import Group
 from django.contrib.auth.admin import (UserAdmin as BaseUserAdmin,
                                        GroupAdmin as BaseGroupAdmin)
 from .forms import CustomUserChangeForm, CustomUserCreationForm
-from .models import CustomUser
-
+from .models import CustomUser, Location
 
 admin.site.unregister(Group)
 
@@ -21,8 +20,10 @@ class CustomUserAdmin(BaseUserAdmin):
     list_filter = ("groups", "position")
     fieldsets = (
         (None, {"fields": ("email", "password", "groups")}),
-        ("Personal info", {"fields": ("first_name", "last_name", "patronymic", "position", "bio", "avatar")}),
-        ("Permissions", {"fields": ("is_active", )}),
+        ("Personal info", {"fields": (
+            "first_name", "last_name", "patronymic", "position", "bio", "avatar")
+        }),
+        ("Permissions", {"fields": ("is_active",)}),
     )
     add_fieldsets = (
         (None, {
@@ -49,3 +50,10 @@ class CustomGroupAdmin(BaseGroupAdmin):
     inlines = [
         CustomUserInline,
     ]
+
+
+@admin.register(Location)
+class LocationAdmin(admin.ModelAdmin):
+    """Class for specifing Location fields in admin."""
+    model = Location
+    fields = ["name", "address", "working_time"]

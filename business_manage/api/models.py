@@ -137,8 +137,37 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         """str: Returns full name of the user."""
-        return self.get_full_name()
+        return f"{self.get_full_name()} ({self.position})"
 
     def __repr__(self):
         """str: Returns CustomUser name and its id."""
+        return f"{self.__class__.__name__}(id={self.id})"
+
+
+class Location(models.Model):
+    """Class Location provides tools for creating and managing appointments places."""
+
+    name = models.CharField("location name", max_length=200, unique=True)
+    address = models.CharField("Address", max_length=100, blank=True)
+    working_time = models.JSONField(
+        default=dict,
+        blank=True,
+        null=True,
+    )
+    updated_at = models.DateTimeField(auto_now=True, editable=False)
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
+
+    class Meta:
+        """This class meta stores verbose names ordering data."""
+
+        ordering = ["id"]
+        verbose_name = "Location"
+        verbose_name_plural = "Locations"
+
+    def __str__(self):
+        """str: Returns name of the location place."""
+        return self.name
+
+    def __repr__(self):
+        """str: Returns Location name and its id."""
         return f"{self.__class__.__name__}(id={self.id})"

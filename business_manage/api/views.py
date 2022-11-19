@@ -1,4 +1,4 @@
-"""Business_manage project views."""
+"""Business_manage projects views."""
 
 from rest_framework import generics, status
 from rest_framework.response import Response
@@ -6,6 +6,8 @@ from rest_framework.response import Response
 from .serializers.customuser_serializers import SpecialistSerializer
 from api.services import custom_user_services as us
 from .permissions import ReadOnly, IsBusinessOwnerOrManager
+from .serializers.location_serializers import LocationSerializer
+from .services.location_services import get_locations_with_working_days
 
 
 class SpecialistList(generics.ListCreateAPIView):
@@ -22,3 +24,11 @@ class SpecialistList(generics.ListCreateAPIView):
         specialist = self.get_serializer(us.create_specialist(serializer.validated_data))
         headers = self.get_success_headers(specialist.data)
         return Response(specialist.data, status=status.HTTP_201_CREATED, headers=headers)
+
+
+class LocationsList(generics.ListCreateAPIView):
+    """Location class for creating and reviewing locations."""
+
+    queryset = get_locations_with_working_days()
+    serializer_class = LocationSerializer
+    permission_classes = [ReadOnly | IsBusinessOwnerOrManager]
