@@ -15,6 +15,18 @@ class IsBusinessOwnerOrManager(permissions.BasePermission):
         return user.is_authenticated and (user.is_manager or user.is_superuser)
 
 
+class IsBusinessOwnerOrAdmin(permissions.BasePermission):
+    """IsBusinessOwnerOrAdmin permission class.
+
+    Permission to only allow owners of a business or admins to review and edit it.
+    """
+
+    def has_permission(self, request, view):
+        """Checks if user belongs to owner or manager group."""
+        user = request.user
+        return user.is_authenticated and (user.is_admin or user.is_superuser)
+
+
 class ReadOnly(permissions.BasePermission):
     """ReadOnly permission class.
 

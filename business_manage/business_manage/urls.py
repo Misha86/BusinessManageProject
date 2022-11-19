@@ -33,6 +33,16 @@ def api_root(request, reverse_format=None):
             "api:specialists-list-create",
             request=request,
             format=reverse_format,
+        ),
+        "locations": reverse(
+            "api:locations-list-create",
+            request=request,
+            format=reverse_format,
+        ),
+        "appointments": reverse(
+            "api:appointments-list-create",
+            request=request,
+            format=reverse_format,
         )},
     )
 

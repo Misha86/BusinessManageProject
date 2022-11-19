@@ -4,6 +4,8 @@ from django.contrib.auth.models import PermissionsMixin, Group
 from django.db import models
 from django.utils import timezone
 
+from api.utils import validate_rounded_minutes
+
 
 class UserManager(BaseUserManager):
     """This class provides tools for creating and managing CustomUser model."""
@@ -171,3 +173,75 @@ class Location(models.Model):
     def __repr__(self):
         """str: Returns Location name and its id."""
         return f"{self.__class__.__name__}(id={self.id})"
+
+
+class Appointment(models.Model):
+    """This class represents a basic Appointment (for an appointment system).
+
+    Attributes:
+        is_active (BooleanField): Status of the appointment
+        start_time (datetime): Appointment time and date of it
+        end_time (datetime): Time that is calculated according to the duration of service
+        created_at (datetime): Time of creation of the appointment
+        specialist (CustomUser): An appointed specialist for the appointment
+        note (TextField): Additional note for a specialist
+    """
+
+    is_active = models.BooleanField("active", default=True)
+    start_time = models.DateTimeField(
+        "Start time",
+        validators=[validate_rounded_minutes],
+    )
+    end_time = models.DateTimeField(
+        "End time",
+        validators=[validate_rounded_minutes],
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="Created at",
+    )
+    update_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name="Updated at",
+    )
+    specialist = models.ForeignKey(
+        CustomUser,
+        related_name="specialist_appointments",
+        on_delete=models.CASCADE,
+        verbose_name="Specialist",
+    )
+    customer_firstname = models.CharField("customer firstname", max_length=150)
+    customer_lastname = models.CharField("customer lastname", max_length=150)
+    customer_email = models.EmailField("customer email", max_length=100)
+    location = models.ForeignKey(
+        Location,
+        related_name="location_appointments",
+        on_delete=models.CASCADE,
+        verbose_name="Location",
+    )
+    note = models.TextField(
+        max_length=300,
+        null=True,
+        blank=True,
+        verbose_name="Additional note",
+    )
+
+    class Meta:
+        """This class meta stores verbose names ordering data."""
+
+        ordering = ["id"]
+        verbose_name = "Appointment"
+        verbose_name_plural = "Appointments"
+
+    def mark_as_completed(self):
+        """Marks appointment as completed."""
+        self.is_status = False
+        self.save(update_fields=["is_status"])
+
+    def __str__(self) -> str:
+        """str: Returns a verbose title of the appointment."""
+        return f"Appointment #{self.id}"
+
+    def __repr__(self) -> str:
+        """str: Returns a string representation of the appointment."""
+        return f"Appointment #{self.id} ({self.is_active})"

@@ -5,7 +5,7 @@ from django.contrib.auth.models import Group
 from django.contrib.auth.admin import (UserAdmin as BaseUserAdmin,
                                        GroupAdmin as BaseGroupAdmin)
 from .forms import CustomUserChangeForm, CustomUserCreationForm
-from .models import CustomUser, Location
+from .models import CustomUser, Location, Appointment
 
 admin.site.unregister(Group)
 
@@ -57,3 +57,9 @@ class LocationAdmin(admin.ModelAdmin):
     """Class for specifing Location fields in admin."""
     model = Location
     fields = ["name", "address", "working_time"]
+
+
+@admin.register(Appointment)
+class AppointmentAdmin(admin.ModelAdmin):
+    """Class for specifing Appointment fields in admin."""
+    model = Appointment

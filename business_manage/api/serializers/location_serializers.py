@@ -20,7 +20,7 @@ class WorkingTimeSerializer(serializers.Serializer):
     sun = serializers.ListField(max_length=2, default=[])
 
     def to_representation(self, instance):
-        """Remove not working days."""
+        """Remove week days without schedule."""
         return {k: v for k, v in instance.items() if v}
 
 
