@@ -7,10 +7,16 @@ from django.utils import timezone
 from api.validators import validate_rounded_minutes, validate_rounded_minutes_seconds
 
 
+def check_password_existing(user_role, password: str):
+    """Check if password exists."""
+    if not password:
+        raise ValueError(f"{user_role} must have an password.")
+
+
 class UserManager(BaseUserManager):
     """This class provides tools for creating and managing CustomUser model."""
 
-    def _create_user(self, email, password=None, group_name=None, **additional_fields):
+    def create_user(self, email, password=None, group_name=None, **additional_fields):
         """Create and save a user with the given email, and password."""
         if not email:
             raise ValueError("Users must have an email address")
@@ -29,23 +35,27 @@ class UserManager(BaseUserManager):
 
         Saves user instance with given fields values.
         """
-        return self._create_user(group_name="Specialist", **additional_fields)
+        return self.create_user(group_name="Specialist", **additional_fields)
 
     def create_admin(self, password, **additional_fields):
         """Creates Admin.
 
         Saves user instance with given fields values.
         """
-        return self._create_user(group_name="Admin", password=password, **additional_fields)
+        role = "Admin"
+        check_password_existing(role, password)
+        return self.create_user(group_name=role, password=password, **additional_fields)
 
     def create_manager(self, password, **additional_fields):
         """Creates Manager.
 
         Saves user instance with given fields values.
         """
-        return self._create_user(group_name="Manager", password=password, **additional_fields)
+        role = "Manager"
+        check_password_existing(role, password)
+        return self.create_user(group_name=role, password=password, **additional_fields)
 
-    def create_superuser(self, email: str, password=None, **additional_fields):
+    def create_superuser(self, email: str, password: str, **additional_fields):
         """Creates superuser.
 
         Saves instance with given fields values
@@ -58,8 +68,9 @@ class UserManager(BaseUserManager):
             raise ValueError("Superuser must have is_staff=True.")
         if additional_fields.get("is_superuser") is not True:
             raise ValueError("Superuser must have is_superuser=True.")
+        check_password_existing("Superuser", password)
 
-        return self._create_user(email, password, **additional_fields)
+        return self.create_user(email, password, **additional_fields)
 
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
