@@ -2,7 +2,7 @@
 
 from rest_framework import serializers
 from api.models import Appointment
-from api.utils import validate_start_end_time
+from api.validators import validate_start_end_time
 
 
 class AppointmentSerializer(serializers.ModelSerializer):
@@ -14,18 +14,22 @@ class AppointmentSerializer(serializers.ModelSerializer):
         """Class with a model and model fields for serialization."""
 
         model = Appointment
-        fields = "__all__"
+        exclude = ["id"]
+        read_only_fields = ["end_time"]
 
-    def validate(self, attrs):
-        """Validate fields before save."""
-        start_time = attrs.get("start_time")
-        end_time = attrs.get("end_time")
+    def validate(self, data):
+        """Validate data before saving."""
+        start_time = data.get("start_time")
+        duration = data.get("duration")
+        end_time = start_time + duration
         validate_start_end_time("time range", [start_time, end_time])
-        return attrs
+        return data
 
     def to_representation(self, instance):
         """Change displaying specialist id to full name."""
         specialist = instance.specialist
+        location = instance.location
         appointment = super().to_representation(instance)
         appointment["specialist"] = specialist.get_full_name()
+        appointment["location"] = location.name
         return appointment

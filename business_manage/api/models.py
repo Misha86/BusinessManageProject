@@ -4,7 +4,7 @@ from django.contrib.auth.models import PermissionsMixin, Group
 from django.db import models
 from django.utils import timezone
 
-from api.utils import validate_rounded_minutes
+from api.validators import validate_rounded_minutes, validate_rounded_minutes_seconds
 
 
 class UserManager(BaseUserManager):
@@ -196,6 +196,12 @@ class Appointment(models.Model):
         "End time",
         validators=[validate_rounded_minutes],
     )
+    duration = models.DurationField(
+        "duration",
+        blank=False,
+        validators=[validate_rounded_minutes_seconds],
+        help_text="Input only hours and minutes HH:MM:00"
+    )
     created_at = models.DateTimeField(
         auto_now_add=True,
         verbose_name="Created at",
@@ -232,6 +238,11 @@ class Appointment(models.Model):
         ordering = ["id"]
         verbose_name = "Appointment"
         verbose_name_plural = "Appointments"
+
+    def save(self, *args, **kwargs):
+        """Reimplemented save method for end_time calculation."""
+        self.end_time = self.start_time + self.duration
+        return super().save(*args, **kwargs)
 
     def mark_as_completed(self):
         """Marks appointment as completed."""

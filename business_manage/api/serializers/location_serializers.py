@@ -2,7 +2,7 @@
 
 from rest_framework import serializers
 from api.models import Location
-from api.utils import validate_working_time
+from api.validators import validate_working_time
 
 
 class WorkingTimeSerializer(serializers.Serializer):
