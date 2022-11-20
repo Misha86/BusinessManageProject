@@ -1,10 +1,13 @@
 """The module includes tests for CustomUser models, serializers and views."""
 
 from django.contrib.auth.hashers import check_password
+from rest_framework.reverse import reverse
+from rest_framework.test import APIClient
 from django.contrib.auth.models import Group
 from django.test import TestCase
 from ..models import CustomUser
 from ..serializers.customuser_serializers import SpecialistSerializer
+from ..services.custom_user_services import add_user_to_group_specialist
 
 
 class CustomUserModelTest(TestCase):
@@ -157,3 +160,51 @@ class CustomUserSerializerTest(TestCase):
         serializer = self.sp_serializer(data=data)
         self.assertFalse(serializer.is_valid())
         self.assertEqual(serializer.errors, {"non_field_errors": ["No data provided"]})
+
+
+class CustomUserViewTest(TestCase):
+    """Class CustomUserViewTest for testing CustomUser view."""
+
+    def setUp(self):
+        """This method adds needed info for tests."""
+        self.client = APIClient()
+        self.valid_data = {"first_name": "UserF",
+                           "last_name": "UserL",
+                           "position": "dentist",
+                           "bio": "",
+                           "email": "user@com.ua"}
+
+    def test_get_all_specialists(self):
+        """Test for getting all specialists."""
+        user = CustomUser.objects.create_user(**self.valid_data)
+        add_user_to_group_specialist(user)
+        response = self.client.get(reverse("api:specialists-list-create"), format="json")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 1)
+
+    def test_create_specialists_by_admin_fail(self):
+        """Test for creating specialist by admin."""
+        admin = CustomUser.objects.create_admin(password="password", **self.valid_data)
+        self.client.force_authenticate(admin)
+        self.valid_data.update(dict(email="specialist@com.ua"))
+        response = self.client.post(reverse("api:specialists-list-create"),
+                                    self.valid_data, format="json")
+        self.assertEqual(response.status_code, 403)
+
+    def test_create_specialists_by_manager_success(self):
+        """Test for creating specialist by manager."""
+        manager = CustomUser.objects.create_manager(password="password", **self.valid_data)
+        self.client.force_authenticate(manager)
+        self.valid_data.update(dict(email="specialist@com.ua"))
+        response = self.client.post(reverse("api:specialists-list-create"),
+                                    self.valid_data, format="json")
+        self.assertEqual(response.status_code, 201)
+
+    def test_create_specialists_by_superuser_success(self):
+        """Test for creating specialist by superuser."""
+        manager = CustomUser.objects.create_superuser(password="password", **self.valid_data)
+        self.client.force_authenticate(manager)
+        self.valid_data.update(dict(email="specialist@com.ua"))
+        response = self.client.post(reverse("api:specialists-list-create"),
+                                    self.valid_data, format="json")
+        self.assertEqual(response.status_code, 201)
