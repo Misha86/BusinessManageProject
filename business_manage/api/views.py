@@ -23,9 +23,9 @@ class SpecialistList(generics.ListCreateAPIView):
         """Post method for creating specialists."""
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        specialist = self.get_serializer(us.create_specialist(serializer.validated_data))
-        headers = self.get_success_headers(specialist.data)
-        return Response(specialist.data, status=status.HTTP_201_CREATED, headers=headers)
+        us.add_user_to_group_specialist(serializer.save())
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 class LocationList(generics.ListCreateAPIView):

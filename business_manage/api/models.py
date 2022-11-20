@@ -30,13 +30,6 @@ class UserManager(BaseUserManager):
             user_group.user_set.add(user)
         return user
 
-    def create_specialist(self, **additional_fields):
-        """Creates Specialist.
-
-        Saves user instance with given fields values.
-        """
-        return self.create_user(group_name="Specialist", **additional_fields)
-
     def create_admin(self, password, **additional_fields):
         """Creates Admin.
 

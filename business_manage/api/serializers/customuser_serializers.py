@@ -37,6 +37,7 @@ class SpecialistSerializer(serializers.ModelSerializer):
     groups = GroupListingField(many=True, read_only=True)
     is_active = serializers.BooleanField(
         initial=True,
+        default=True,
         help_text=(
             "Designates whether this user should be treated as active. "
             "Unselect this instead of deleting accounts."
