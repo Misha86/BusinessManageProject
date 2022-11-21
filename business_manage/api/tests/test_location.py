@@ -1,10 +1,13 @@
 """The module includes tests for Location model, serializers and views."""
-
+from django.db import IntegrityError
 from django.test import TestCase
 from rest_framework.exceptions import ValidationError, ErrorDetail
+from rest_framework.reverse import reverse
+from rest_framework.test import APIClient
 
-from ..models import Location
+from ..models import Location, CustomUser
 from ..serializers.location_serializers import LocationSerializer
+from ..services.custom_user_services import add_user_to_group_specialist
 from ..utils import generate_working_time
 
 
@@ -18,14 +21,20 @@ class LocationModelTest(TestCase):
             "address": "234 New st.",
             "working_time": generate_working_time(),
         }
+        self.location = Location.objects.create(**self.valid_data)
 
     def test_create_location_valid_data(self):
         """Test for creating location with  data."""
-        location = Location.objects.create(**self.valid_data)
+        self.assertEqual(self.location.name, self.valid_data.get("name"))
+        self.assertEqual(self.location.address, self.valid_data.get("address"))
+        self.assertEqual(self.location.working_time, self.valid_data.get("working_time"))
 
-        self.assertEqual(location.name, self.valid_data.get("name"))
-        self.assertEqual(location.address, self.valid_data.get("address"))
-        self.assertEqual(location.working_time, self.valid_data.get("working_time"))
+    def test_location_name_uniqe(self):
+        """Test for creating location with  uniqe name."""
+        with self.assertRaises(IntegrityError) as ex:
+            Location.objects.create(**self.valid_data)
+        message = ex.exception
+        self.assertEqual(str(message), "UNIQUE constraint failed: api_location.name")
 
 
 class LocationSerializerTest(TestCase):
@@ -184,3 +193,66 @@ class LocationSerializerTest(TestCase):
                         }
                     }
                 )
+
+
+class LocationViewTest(TestCase):
+    """Class LocationViewTest for testing Location view."""
+
+    def setUp(self):
+        """This method adds needed info for tests."""
+        self.client = APIClient()
+        self.user = CustomUser.objects
+        self.valid_data = {
+            "name": "office #1",
+            "address": "234 New st.",
+            "working_time": {
+                "mon": ["10:30", "10:50"],
+                "tue": ["10:30", "10:50"],
+                "wed": ["10:30", "10:50"],
+                "thu": ["10:30", "10:50"],
+                "fri": ["10:30", "10:50"],
+                "sat": [],
+                "sun": []
+            }
+        }
+
+    def test_get_all_locations(self):
+        """Test for getting all locations."""
+        location = Location.objects.create(**self.valid_data)
+        response = self.client.get(reverse("api:locations-list-create"), format="json")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["name"], location.name)
+
+    def test_create_location_by_specialist_fail(self):
+        """Test for creating location by specialist is forbidden."""
+        specialist = self.user.create_user(password="password", email="user@com.ua")
+        add_user_to_group_specialist(specialist)
+        self.client.force_authenticate(specialist)
+        response = self.client.post(reverse("api:locations-list-create"),
+                                    self.valid_data, format="json")
+        self.assertEqual(response.status_code, 403)
+
+    def test_create_location_by_admin_fail(self):
+        """Test for creating location by admin is forbidden."""
+        admin = self.user.create_admin(password="password", email="user@com.ua")
+        self.client.force_authenticate(admin)
+        response = self.client.post(reverse("api:locations-list-create"),
+                                    self.valid_data, format="json")
+        self.assertEqual(response.status_code, 403)
+
+    def test_create_location_by_manager(self):
+        """Test for creating location by manager is allowed."""
+        manager = self.user.create_manager(password="password", email="user@com.ua")
+        self.client.force_authenticate(manager)
+        response = self.client.post(reverse("api:locations-list-create"),
+                                    self.valid_data, format="json")
+        self.assertEqual(response.status_code, 201)
+
+    def test_create_location_by_superuser(self):
+        """Test for creating location by manager is allowed."""
+        superuser = self.user.create_superuser(password="password", email="user@com.ua")
+        self.client.force_authenticate(superuser)
+        response = self.client.post(reverse("api:locations-list-create"),
+                                    self.valid_data, format="json")
+        self.assertEqual(response.status_code, 201)
