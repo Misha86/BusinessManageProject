@@ -7,7 +7,7 @@ from django.contrib.auth.models import Group
 from django.test import TestCase
 from ..models import CustomUser
 from ..serializers.customuser_serializers import SpecialistSerializer
-from ..services.custom_user_services import add_user_to_group_specialist
+from ..services.customuser_services import add_user_to_group_specialist
 
 
 class CustomUserModelTest(TestCase):

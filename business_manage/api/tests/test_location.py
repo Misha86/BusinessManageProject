@@ -8,7 +8,7 @@ from rest_framework.test import APIClient
 
 from ..models import Location, CustomUser
 from ..serializers.location_serializers import LocationSerializer
-from ..services.custom_user_services import add_user_to_group_specialist
+from ..services.customuser_services import add_user_to_group_specialist
 from ..utils import generate_working_time
 
 
@@ -81,7 +81,7 @@ class LocationSerializerTest(TestCase):
                     message,
                     {
                         "working_time": {
-                            invalid_time: [
+                            f"{invalid_time}:00": [
                                 ErrorDetail(
                                     string="Time value must have zero seconds and "
                                            "minutes multiples of 5.",
