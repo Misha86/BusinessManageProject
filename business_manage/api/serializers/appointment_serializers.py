@@ -14,7 +14,7 @@ class AppointmentSerializer(serializers.ModelSerializer):
         """Class with a model and model fields for serialization."""
 
         model = Appointment
-        exclude = ["id"]
+        exclude = ["id", "created_at", "update_at"]
         read_only_fields = ["end_time"]
 
     def validate(self, data):

@@ -1,4 +1,5 @@
 """Services for CustomUser model."""
+
 from django.contrib.auth.models import Group
 
 from api.models import CustomUser

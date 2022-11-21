@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from .models import Appointment
 from .serializers.appointment_serializers import AppointmentSerializer
 from .serializers.customuser_serializers import SpecialistSerializer
-from api.services import custom_user_services as us
+from .services import customuser_services as us
 from .permissions import ReadOnly, IsBusinessOwnerOrManager, IsBusinessOwnerOrAdmin
 from .serializers.location_serializers import LocationSerializer
 from .services import location_services as ls

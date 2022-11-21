@@ -6,7 +6,7 @@ from django.utils import timezone
 
 from api.validators import (validate_rounded_minutes,
                             validate_rounded_minutes_seconds,
-                            validate_working_time)
+                            validate_working_time, validate_specialist)
 
 
 def check_password_existing(user_role, password: str):
@@ -217,6 +217,7 @@ class Appointment(models.Model):
     )
     end_time = models.DateTimeField(
         "End time",
+        blank=True,
         validators=[validate_rounded_minutes],
     )
     duration = models.DurationField(
@@ -238,6 +239,7 @@ class Appointment(models.Model):
         related_name="specialist_appointments",
         on_delete=models.CASCADE,
         verbose_name="Specialist",
+        validators=[validate_specialist]
     )
     customer_firstname = models.CharField("customer firstname", max_length=150)
     customer_lastname = models.CharField("customer lastname", max_length=150)

@@ -1,8 +1,10 @@
 """Validators for business_manage project."""
 
 from datetime import timedelta, datetime, time
+
+from django.contrib.auth import get_user_model
 from rest_framework.exceptions import ValidationError
-from .utils import time_to_string, string_to_time
+from .utils import string_to_time
 
 
 def validate_rounded_minutes(time_value):
@@ -16,8 +18,8 @@ def validate_rounded_minutes(time_value):
 
         if time_value.minute % 5 or time_value.second != 0:
             raise ValidationError(
-                {time_to_string(time_value): "Time value must have zero "
-                                             "seconds and minutes multiples of 5."}
+                {time_value.strftime("%H:%M:%S"): "Time value must have zero "
+                                                  "seconds and minutes multiples of 5."}
             )
 
 
@@ -31,7 +33,7 @@ def validate_rounded_minutes_seconds(delta_time_value):
             raise ValidationError(
                 {
                     f"{delta_time_value}":
-                        "Duration value must have zero seconds and minutes multiples of 5"
+                        "Duration value must have zero seconds and minutes multiples of 5."
                 }
             )
 
@@ -73,3 +75,16 @@ def validate_working_time(json):
         list_time_data = validate_match_format(key, value)
         validate_start_end_time(key, list_time_data)
         [validate_rounded_minutes(time_data) for time_data in list_time_data]
+
+
+def validate_specialist(user_data):
+    """Validate user is specialist."""
+    try:
+        user_model = get_user_model()
+        user = user_model.objects.get(id=user_data)
+    except TypeError:
+        user = user_data
+    if not user.groups.filter(name="Specialist"):
+        full_name = user.get_full_name().title()
+        raise ValidationError(
+            {full_name: f"{full_name} should be specialist."})
