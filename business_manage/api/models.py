@@ -18,12 +18,16 @@ def check_password_existing(user_role, password: str):
 class UserManager(BaseUserManager):
     """This class provides tools for creating and managing CustomUser model."""
 
-    def create_user(self, email, password=None, group_name=None, **additional_fields):
+    def create_user(self, email, first_name, last_name, password=None,
+                    group_name=None, **additional_fields):
         """Create and save a user with the given email, and password."""
         if not email:
             raise ValueError("Users must have an email address")
         email = self.normalize_email(email)
-        user = self.model(email=email, **additional_fields)
+        user = self.model(email=email,
+                          first_name=first_name,
+                          last_name=last_name,
+                          **additional_fields)
         if password:
             user.set_password(password)
         user.save(using=self._db)
@@ -32,25 +36,35 @@ class UserManager(BaseUserManager):
             user_group.user_set.add(user)
         return user
 
-    def create_admin(self, password, **additional_fields):
+    def _create_user_with_role(self, role, password, first_name, last_name, **additional_fields):
+        """Creates user with role.
+
+        Saves user instance with given fields values.
+        """
+        check_password_existing(role, password)
+        return self.create_user(group_name=role, password=password,
+                                first_name=first_name, last_name=last_name,
+                                **additional_fields)
+
+    def create_admin(self, password, first_name, last_name, **additional_fields):
         """Creates Admin.
 
         Saves user instance with given fields values.
         """
         role = "Admin"
-        check_password_existing(role, password)
-        return self.create_user(group_name=role, password=password, **additional_fields)
+        return self._create_user_with_role(role, password, first_name,
+                                           last_name, **additional_fields)
 
-    def create_manager(self, password, **additional_fields):
+    def create_manager(self, password, first_name, last_name, **additional_fields):
         """Creates Manager.
 
         Saves user instance with given fields values.
         """
         role = "Manager"
-        check_password_existing(role, password)
-        return self.create_user(group_name=role, password=password, **additional_fields)
+        return self._create_user_with_role(role, password, first_name,
+                                           last_name, **additional_fields)
 
-    def create_superuser(self, email: str, password: str, **additional_fields):
+    def create_superuser(self, email, password, first_name, last_name, **additional_fields):
         """Creates superuser.
 
         Saves instance with given fields values
@@ -65,7 +79,9 @@ class UserManager(BaseUserManager):
             raise ValueError("Superuser must have is_superuser=True.")
         check_password_existing("Superuser", password)
 
-        return self.create_user(email, password, **additional_fields)
+        return self.create_user(email=email, password=password,
+                                first_name=first_name, last_name=last_name,
+                                **additional_fields)
 
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):

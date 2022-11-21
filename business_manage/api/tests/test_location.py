@@ -1,4 +1,5 @@
 """The module includes tests for Location model, serializers and views."""
+
 from django.db import IntegrityError
 from django.test import TestCase
 from rest_framework.exceptions import ValidationError, ErrorDetail
@@ -24,13 +25,13 @@ class LocationModelTest(TestCase):
         self.location = Location.objects.create(**self.valid_data)
 
     def test_create_location_valid_data(self):
-        """Test for creating location with  data."""
+        """Test for creating location with valid data."""
         self.assertEqual(self.location.name, self.valid_data.get("name"))
         self.assertEqual(self.location.address, self.valid_data.get("address"))
         self.assertEqual(self.location.working_time, self.valid_data.get("working_time"))
 
     def test_location_name_uniqe(self):
-        """Test for creating location with  uniqe name."""
+        """Test for creating location with uniqe name."""
         with self.assertRaises(IntegrityError) as ex:
             Location.objects.create(**self.valid_data)
         message = ex.exception
@@ -215,6 +216,12 @@ class LocationViewTest(TestCase):
                 "sun": []
             }
         }
+        self.user_data = {
+            "password": "password",
+            "email": "user@com.ua",
+            "first_name": "first_name",
+            "last_name": "last_name"
+        }
 
     def test_get_all_locations(self):
         """Test for getting all locations."""
@@ -226,7 +233,7 @@ class LocationViewTest(TestCase):
 
     def test_create_location_by_specialist_fail(self):
         """Test for creating location by specialist is forbidden."""
-        specialist = self.user.create_user(password="password", email="user@com.ua")
+        specialist = self.user.create_user(**self.user_data)
         add_user_to_group_specialist(specialist)
         self.client.force_authenticate(specialist)
         response = self.client.post(reverse("api:locations-list-create"),
@@ -235,7 +242,7 @@ class LocationViewTest(TestCase):
 
     def test_create_location_by_admin_fail(self):
         """Test for creating location by admin is forbidden."""
-        admin = self.user.create_admin(password="password", email="user@com.ua")
+        admin = self.user.create_admin(**self.user_data)
         self.client.force_authenticate(admin)
         response = self.client.post(reverse("api:locations-list-create"),
                                     self.valid_data, format="json")
@@ -243,7 +250,7 @@ class LocationViewTest(TestCase):
 
     def test_create_location_by_manager(self):
         """Test for creating location by manager is allowed."""
-        manager = self.user.create_manager(password="password", email="user@com.ua")
+        manager = self.user.create_manager(**self.user_data)
         self.client.force_authenticate(manager)
         response = self.client.post(reverse("api:locations-list-create"),
                                     self.valid_data, format="json")
@@ -251,7 +258,7 @@ class LocationViewTest(TestCase):
 
     def test_create_location_by_superuser(self):
         """Test for creating location by manager is allowed."""
-        superuser = self.user.create_superuser(password="password", email="user@com.ua")
+        superuser = self.user.create_superuser(**self.user_data)
         self.client.force_authenticate(superuser)
         response = self.client.post(reverse("api:locations-list-create"),
                                     self.valid_data, format="json")
