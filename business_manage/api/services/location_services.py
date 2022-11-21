@@ -8,3 +8,8 @@ def get_locations_with_working_days():
     """Get all locations which have at least one working day."""
     default_dict = generate_working_time()
     return Location.objects.exclude(working_time=default_dict)
+
+
+def get_all_locations():
+    """Get all locations."""
+    return Location.objects.all()

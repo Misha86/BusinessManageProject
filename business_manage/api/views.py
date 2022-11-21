@@ -9,7 +9,7 @@ from .serializers.customuser_serializers import SpecialistSerializer
 from api.services import custom_user_services as us
 from .permissions import ReadOnly, IsBusinessOwnerOrManager, IsBusinessOwnerOrAdmin
 from .serializers.location_serializers import LocationSerializer
-from .services.location_services import get_locations_with_working_days
+from .services import location_services as ls
 
 
 class SpecialistList(generics.ListCreateAPIView):
@@ -31,7 +31,7 @@ class SpecialistList(generics.ListCreateAPIView):
 class LocationList(generics.ListCreateAPIView):
     """LocationList class for creating and reviewing locations."""
 
-    queryset = get_locations_with_working_days()
+    queryset = ls.get_all_locations()
     serializer_class = LocationSerializer
     permission_classes = [ReadOnly | IsBusinessOwnerOrManager]
 

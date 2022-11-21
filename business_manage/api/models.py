@@ -4,7 +4,9 @@ from django.contrib.auth.models import PermissionsMixin, Group
 from django.db import models
 from django.utils import timezone
 
-from api.validators import validate_rounded_minutes, validate_rounded_minutes_seconds
+from api.validators import (validate_rounded_minutes,
+                            validate_rounded_minutes_seconds,
+                            validate_working_time)
 
 
 def check_password_existing(user_role, password: str):
@@ -159,6 +161,7 @@ class Location(models.Model):
         default=dict,
         blank=True,
         null=True,
+        validators=(validate_working_time, ),
     )
     updated_at = models.DateTimeField(auto_now=True, editable=False)
     created_at = models.DateTimeField(auto_now_add=True, editable=False)

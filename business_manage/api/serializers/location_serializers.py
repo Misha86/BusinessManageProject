@@ -19,9 +19,9 @@ class WorkingTimeSerializer(serializers.Serializer):
     sat = serializers.ListField(max_length=2, default=[])
     sun = serializers.ListField(max_length=2, default=[])
 
-    def to_representation(self, instance):
-        """Remove week days without schedule."""
-        return {k: v for k, v in instance.items() if v}
+    # def to_representation(self, instance):
+    #     """Remove week days without schedule."""
+    #     return {k: v for k, v in instance.items() if v}
 
 
 class LocationSerializer(serializers.ModelSerializer):
@@ -33,4 +33,4 @@ class LocationSerializer(serializers.ModelSerializer):
         """Class with a model and model fields for serialization."""
 
         model = Location
-        fields = "__all__"
+        fields = ["name", "address", "working_time"]

@@ -17,7 +17,7 @@ def validate_rounded_minutes(time_value):
         if time_value.minute % 5 or time_value.second != 0:
             raise ValidationError(
                 {time_to_string(time_value): "Time value must have zero "
-                                             "seconds and minutes multiples of 5"}
+                                             "seconds and minutes multiples of 5."}
             )
 
 
