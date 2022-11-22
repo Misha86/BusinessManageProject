@@ -1,6 +1,8 @@
 """The module includes tests for Appointment model, serializers and views."""
 
 from django.utils.timezone import datetime, timedelta, get_current_timezone, make_aware
+from rest_framework.reverse import reverse
+from rest_framework.test import APIClient
 from django.test import TestCase
 from rest_framework.exceptions import ValidationError, ErrorDetail
 
@@ -10,38 +12,51 @@ from ..services.customuser_services import add_user_to_group_specialist
 from ..utils import string_to_time
 
 
+def get_data_for_tests():
+    """Set up data for tests."""
+    user_data = {
+        "email": "specialist@com.ua",
+        "first_name": "Fn",
+        "last_name": "Ln"
+    }
+    specialist = CustomUser.objects.create_user(**user_data)
+    add_user_to_group_specialist(specialist)
+
+    user_data.update(dict(email="user@com.ua"))
+
+    user = CustomUser.objects.create_user(**user_data)
+
+    location = Location.objects.create(name="office #1", working_time={})
+
+    start_time = datetime.combine(datetime.now().date() + timedelta(days=1),
+                                  string_to_time("09:15"),
+                                  tzinfo=get_current_timezone())
+
+    # valid data for models and views tests
+    valid_data = {
+        "start_time": start_time,
+        "duration": timedelta(minutes=20),
+        "specialist": specialist,
+        "location": location,
+        "customer_firstname": "customer_firstname",
+        "customer_lastname": "customer_lastname",
+        "customer_email": "customer@com.ua",
+        "note": "",
+        "is_active": True
+    }
+    # valid data for serializers tests
+    valid_data_s = {**valid_data, "specialist": specialist.pk, "location": location.pk}
+    return user_data, specialist, user, location, valid_data, valid_data_s
+
+
 class AppointmentModelTest(TestCase):
     """Class AppointmentModelTest for testing Appointment model."""
 
     def setUp(self):
         """This method adds needed info for tests."""
-        self.user_data = {
-            "email": "specialist@com.ua",
-            "first_name": "Fn",
-            "last_name": "Ln"
-        }
-        specialist = CustomUser.objects.create_user(**self.user_data)
-        add_user_to_group_specialist(specialist)
-
-        self.user_data.update(dict(email="user@com.ua"))
-        self.user = CustomUser.objects.create_user(**self.user_data)
-
-        location = Location.objects.create(name="office #1", working_time={})
-
-        start_time = datetime.combine(datetime.now().date() + timedelta(days=1),
-                                      string_to_time("09:15"),
-                                      tzinfo=get_current_timezone())
-
-        self.valid_data = {
-            "start_time": start_time,
-            "duration": timedelta(minutes=20),
-            "specialist": specialist,
-            "location": location,
-            "customer_firstname": "customer_firstname",
-            "customer_lastname": "customer_lastname",
-            "customer_email": "customer@com.ua",
-            "note": "",
-        }
+        data_for_tests = get_data_for_tests()
+        (self.user_data, self.specialist, self.user,
+         self.location, self.valid_data, _) = data_for_tests
 
         self.appointment = Appointment.objects.create(**self.valid_data)
 
@@ -209,31 +224,9 @@ class AppointmentSerializerTest(TestCase):
 
     def setUp(self):
         """This method adds needed info for tests."""
-        self.user_data = {
-            "email": "specialist@com.ua",
-            "first_name": "Fn",
-            "last_name": "Ln"
-        }
-        self.specialist = CustomUser.objects.create_user(**self.user_data)
-        add_user_to_group_specialist(self.specialist)
-
-        self.location = Location.objects.create(name="office #1", working_time={})
-
-        start_time = datetime.combine(datetime.now().date() + timedelta(days=1),
-                                      string_to_time("09:15"),
-                                      tzinfo=get_current_timezone())
-
-        self.valid_data = {
-            "start_time": start_time,
-            "duration": timedelta(minutes=20),
-            "specialist": 1,
-            "location": 1,
-            "customer_firstname": "customer_firstname",
-            "customer_lastname": "customer_lastname",
-            "customer_email": "customer@com.ua",
-            "note": "",
-            "is_active": True,
-        }
+        data_for_tests = get_data_for_tests()
+        (self.user_data, self.specialist, self.user,
+         self.location, _, self.valid_data) = data_for_tests
 
         self.a_serializer = AppointmentSerializer
         self.serializer = self.a_serializer(data=self.valid_data)
@@ -333,3 +326,75 @@ class AppointmentSerializerTest(TestCase):
 
         self.assertEqual(self.serializer.data["specialist"], specialist_full_name)
         self.assertEqual(self.serializer.data["location"], self.location.name)
+
+
+class LocationViewTest(TestCase):
+    """Class LocationViewTest for testing Location view."""
+
+    def setUp(self):
+        """This method adds needed info for tests."""
+        self.client = APIClient()
+
+        data_for_tests = get_data_for_tests()
+        (self.user_data, self.specialist, self.user,
+         self.location, self.valid_data, _) = data_for_tests
+
+    def test_get_all_appointments(self):
+        """Test for getting all appointments."""
+        appointment = Appointment.objects.create(**self.valid_data)
+        response = self.client.get(reverse("api:appointments-list-create"), format="json")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["specialist"],
+                         appointment.specialist.get_full_name())
+        self.assertEqual(response.data[0]["location"],
+                         appointment.location.name)
+
+    def test_create_appointment_by_specialist_fail(self):
+        """Test for creating appointment by specialist is forbidden."""
+        self.client.force_authenticate(self.specialist)
+
+        self.valid_data.update(dict(specialist=self.specialist.id, location=self.location.id))
+
+        response = self.client.post(reverse("api:appointments-list-create"),
+                                    self.valid_data, format="json")
+        self.assertEqual(response.status_code, 403)
+
+    def test_create_appointment_by_admin(self):
+        """Test for creating appointment by admin."""
+        self.user_data.update(dict(email="admin@com.ua"))
+        admin = CustomUser.objects.create_admin(password="password", **self.user_data)
+
+        self.client.force_authenticate(admin)
+
+        self.valid_data.update(dict(specialist=self.specialist.id, location=self.location.id))
+
+        response = self.client.post(reverse("api:appointments-list-create"),
+                                    self.valid_data, format="json")
+        self.assertEqual(response.status_code, 201)
+
+    def test_create_appointment_by_manager_fail(self):
+        """Test for creating appointment by manager is forbidden."""
+        self.user_data.update(dict(email="manager@com.ua"))
+        manager = CustomUser.objects.create_manager(password="password", **self.user_data)
+
+        self.client.force_authenticate(manager)
+
+        self.valid_data.update(dict(specialist=self.specialist.id, location=self.location.id))
+
+        response = self.client.post(reverse("api:appointments-list-create"),
+                                    self.valid_data, format="json")
+        self.assertEqual(response.status_code, 403)
+
+    def test_create_appointment_by_superuser(self):
+        """Test for creating appointment by superuser."""
+        self.user_data.update(dict(email="superuser@com.ua"))
+        superuser = CustomUser.objects.create_superuser(password="password", **self.user_data)
+
+        self.client.force_authenticate(superuser)
+
+        self.valid_data.update(dict(specialist=self.specialist.id, location=self.location.id))
+
+        response = self.client.post(reverse("api:appointments-list-create"),
+                                    self.valid_data, format="json")
+        self.assertEqual(response.status_code, 201)
