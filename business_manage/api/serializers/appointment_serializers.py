@@ -8,7 +8,7 @@ from api.validators import validate_start_end_time
 class AppointmentSerializer(serializers.ModelSerializer):
     """Serializer to receive and create a specific appointments."""
 
-    is_active = serializers.BooleanField(initial=True)
+    is_active = serializers.BooleanField(initial=True, default=True)
 
     class Meta:
         """Class with a model and model fields for serialization."""

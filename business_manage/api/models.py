@@ -308,7 +308,8 @@ class SpecialistSchedule(models.Model):
     specialist = models.OneToOneField(
         CustomUser,
         related_name="schedule",
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        validators=(validate_specialist,),
     )
     created_at = models.DateTimeField(
         auto_now_add=True,

@@ -37,8 +37,10 @@ class CustomUserModelTest(TestCase):
         self.assertEqual(user.email, self.user_data.get("email"))
         self.assertEqual(user.avatar.url, "/media/default_avatar.jpeg")
         self.assertTrue(check_password(self.user_data.get("password"), user.password))
-        self.assertEqual(user.get_full_name(),
-                         f"{self.user_data.get('first_name')} {self.user_data.get('last_name')}")
+        self.assertEqual(
+            user.get_full_name(),
+            f"{self.user_data.get('first_name')} {self.user_data.get('last_name')}".title()
+        )
         self.assertEqual(user.get_short_name(), f"{self.user_data.get('first_name')}")
 
     def test_create_superuser(self):

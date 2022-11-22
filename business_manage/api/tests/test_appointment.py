@@ -2,9 +2,10 @@
 
 from django.utils.timezone import datetime, timedelta, get_current_timezone, make_aware
 from django.test import TestCase
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import ValidationError, ErrorDetail
 
 from ..models import Location, CustomUser, Appointment
+from ..serializers.appointment_serializers import AppointmentSerializer
 from ..services.customuser_services import add_user_to_group_specialist
 from ..utils import string_to_time
 
@@ -16,8 +17,8 @@ class AppointmentModelTest(TestCase):
         """This method adds needed info for tests."""
         self.user_data = {
             "email": "specialist@com.ua",
-            "first_name": "FN",
-            "last_name": "LN"
+            "first_name": "Fn",
+            "last_name": "Ln"
         }
         specialist = CustomUser.objects.create_user(**self.user_data)
         add_user_to_group_specialist(specialist)
@@ -27,9 +28,12 @@ class AppointmentModelTest(TestCase):
 
         location = Location.objects.create(name="office #1", working_time={})
 
+        start_time = datetime.combine(datetime.now().date() + timedelta(days=1),
+                                      string_to_time("09:15"),
+                                      tzinfo=get_current_timezone())
+
         self.valid_data = {
-            "start_time": datetime.combine(datetime.now().date(), string_to_time("09:15"),
-                                           tzinfo=get_current_timezone()),
+            "start_time": start_time,
             "duration": timedelta(minutes=20),
             "specialist": specialist,
             "location": location,
@@ -192,3 +196,134 @@ class AppointmentModelTest(TestCase):
                     invalid_date.strftime("%H:%M:%S"):
                         f"DateTime value {invalid_date} should have future datetime."
                 })
+
+
+class AppointmentSerializerTest(TestCase):
+    """Class LocationSerializerTest for testing Location serializers."""
+
+    def setUp(self):
+        """This method adds needed info for tests."""
+        self.user_data = {
+            "email": "specialist@com.ua",
+            "first_name": "Fn",
+            "last_name": "Ln"
+        }
+        self.specialist = CustomUser.objects.create_user(**self.user_data)
+        add_user_to_group_specialist(self.specialist)
+
+        self.location = Location.objects.create(name="office #1", working_time={})
+
+        start_time = datetime.combine(datetime.now().date() + timedelta(days=1),
+                                      string_to_time("09:15"),
+                                      tzinfo=get_current_timezone())
+
+        self.valid_data = {
+            "start_time": start_time,
+            "duration": timedelta(minutes=20),
+            "specialist": 1,
+            "location": 1,
+            "customer_firstname": "customer_firstname",
+            "customer_lastname": "customer_lastname",
+            "customer_email": "customer@com.ua",
+            "note": "",
+            "is_active": True,
+        }
+
+        self.a_serializer = AppointmentSerializer
+        self.serializer = self.a_serializer(data=self.valid_data)
+
+    def test_serialize_valid_data(self):
+        """Check serializer with valid data."""
+        self.serializer.is_valid(raise_exception=True)
+
+        self.assertEqual(
+            self.serializer.validated_data["start_time"], self.valid_data["start_time"]
+        )
+        self.assertEqual(
+            self.serializer.validated_data["duration"], self.valid_data["duration"]
+        )
+        self.assertEqual(
+            self.serializer.validated_data["customer_firstname"],
+            self.valid_data["customer_firstname"]
+        )
+        self.assertEqual(
+            self.serializer.validated_data["customer_lastname"],
+            self.valid_data["customer_lastname"]
+        )
+        self.assertEqual(
+            self.serializer.validated_data["customer_email"], self.valid_data["customer_email"]
+        )
+        self.assertEqual(
+            self.serializer.validated_data["note"], self.valid_data["note"]
+        )
+        self.assertEqual(
+            self.serializer.validated_data["is_active"], self.valid_data["is_active"]
+        )
+
+    def test_serialize_validate_method_success(self):
+        """Check serializer validate method when data is valid."""
+        self.serializer.is_valid(raise_exception=True)
+
+        appointment = self.serializer.save()
+        end_time = appointment.start_time + appointment.duration
+        self.assertEqual(appointment.end_time, end_time)
+
+    def test_serialize_validate_method_invalid_duration(self):
+        """Check serializer validate method with invalid duration."""
+        invalid_duration = timedelta(days=-1)
+        self.valid_data.update(dict(duration=invalid_duration))
+
+        with self.assertRaises(ValidationError) as ex:
+            self.serializer.is_valid(raise_exception=True)
+
+        message = ex.exception.args[0]
+        self.assertEqual(message, {
+            "time range": [
+                ErrorDetail(
+                    string="Start time should be more than end time.", code="invalid"
+                )
+            ]
+        })
+
+    def test_serialize_invalid_start_time(self):
+        """Check serializer validate method with invalid start time."""
+        invalid_start_time = datetime.combine(datetime.now().date() + timedelta(days=-1),
+                                              string_to_time("09:15"),
+                                              tzinfo=get_current_timezone())
+        self.valid_data.update(dict(start_time=invalid_start_time))
+
+        with self.assertRaises(ValidationError) as ex:
+            self.serializer.is_valid(raise_exception=True)
+
+        message = ex.exception.args[0]
+        self.assertEqual(message, {
+            "start_time": {
+                "09:15:00": ErrorDetail(
+                    string="DateTime value 2022-11-21 09:15:00+02:00 should have future datetime.",
+                    code="invalid"
+                )
+            }
+        })
+
+    def test_serialize_start_time_is_none(self):
+        """Check serializer validate method with null start time."""
+        invalid_start_time = None
+        self.valid_data.update(dict(start_time=invalid_start_time))
+
+        with self.assertRaises(ValidationError) as ex:
+            self.serializer.is_valid(raise_exception=True)
+
+        message = ex.exception.args[0]
+        self.assertEqual(message, {"start_time": [
+            ErrorDetail(string="This field may not be null.", code="null")
+        ]})
+
+    def test_to_representation_method(self):
+        """Check serializer a to_representation method."""
+        self.serializer.is_valid(raise_exception=True)
+
+        self.serializer.save()
+        specialist_full_name = self.specialist.get_full_name()
+
+        self.assertEqual(self.serializer.data["specialist"], specialist_full_name)
+        self.assertEqual(self.serializer.data["location"], self.location.name)
