@@ -38,7 +38,7 @@ def validate_rounded_minutes_seconds(delta_time_value):
             )
 
 
-def validate_match_format(field_name, values_list):
+def validate_match_time_format(field_name, values_list):
     """Validate format for value from time range."""
     time_data = []
     for value in values_list:
@@ -72,7 +72,7 @@ def validate_start_end_time(field_name, list_time_data):
 def validate_working_time(json):
     """Validate json for working time for every day."""
     for key, value in json.items():
-        list_time_data = validate_match_format(key, value)
+        list_time_data = validate_match_time_format(key, value)
         validate_start_end_time(key, list_time_data)
         [validate_rounded_minutes(time_data) for time_data in list_time_data]
 
@@ -91,7 +91,7 @@ def validate_specialist(user_data):
 
 
 def validate_datetime_is_future(value):
-    """Datetime values should have current or future date."""
+    """Datetime values should have future date."""
     if timezone.now() > value:
         raise ValidationError(
             {
