@@ -1,6 +1,6 @@
 """The module includes tests for Appointment model, serializers and views."""
 
-from django.utils.timezone import datetime, timedelta, get_current_timezone
+from django.utils.timezone import datetime, timedelta, get_current_timezone, make_aware
 from django.test import TestCase
 from rest_framework.exceptions import ValidationError
 
@@ -170,3 +170,25 @@ class AppointmentModelTest(TestCase):
                 str(seconds):
                     "Duration value must have zero seconds and minutes multiples of 5."
             })
+
+    def test_appointment_time_range_past_datetime_error(self):
+        """Test for appointment start and end times format.
+
+        DateTime values should have current or future date.
+        """
+        invalid_date = make_aware(datetime.strptime("21/11/1900 11:10:00", "%d/%m/%Y %H:%M:%S"))
+        for date_time_value in ["start_time", "end_time"]:
+            self.valid_data.update({f"{date_time_value}": invalid_date})
+
+            with self.subTest(date_time_value=date_time_value):
+                invalid_data = self.valid_data
+
+                with self.assertRaises(ValidationError) as ex:
+                    appointment = Appointment(**invalid_data)
+                    appointment.full_clean()
+
+                message = ex.exception.args[0]
+                self.assertEqual(message, {
+                    invalid_date.strftime("%H:%M:%S"):
+                        f"DateTime value {invalid_date} should have future datetime."
+                })

@@ -1,7 +1,7 @@
 """Validators for business_manage project."""
 
-from datetime import timedelta, datetime, time
-
+from django.utils import timezone
+from datetime import time
 from django.contrib.auth import get_user_model
 from rest_framework.exceptions import ValidationError
 from .utils import string_to_time
@@ -12,8 +12,8 @@ def validate_rounded_minutes(time_value):
 
     Time must have zero seconds and minutes multiples of 5
     """
-    if isinstance(time_value, (datetime, time)):
-        if isinstance(time_value, datetime):
+    if isinstance(time_value, (timezone.datetime, time)):
+        if isinstance(time_value, timezone.datetime):
             time_value = time_value.time()
 
         if time_value.minute % 5 or time_value.second != 0:
@@ -28,7 +28,7 @@ def validate_rounded_minutes_seconds(delta_time_value):
 
     Time must have zero seconds and minutes multiples of 5
     """
-    if isinstance(delta_time_value, timedelta):
+    if isinstance(delta_time_value, timezone.timedelta):
         if (delta_time_value.seconds / 60) % 5:
             raise ValidationError(
                 {
@@ -88,3 +88,14 @@ def validate_specialist(user_data):
         full_name = user.get_full_name().title()
         raise ValidationError(
             {full_name: f"{full_name} should be specialist."})
+
+
+def validate_datetime_is_future(value):
+    """Datetime values should have current or future date."""
+    if timezone.now() > value:
+        raise ValidationError(
+            {
+                value.strftime("%H:%M:%S"):
+                    f"DateTime value {value} should have future datetime."
+            }
+        )
