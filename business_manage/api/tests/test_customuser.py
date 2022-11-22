@@ -43,6 +43,15 @@ class CustomUserModelTest(TestCase):
         )
         self.assertEqual(user.get_short_name(), f"{self.user_data.get('first_name')}")
 
+    def test_create_user_without_email_error(self):
+        """Test for creating user without email."""
+        self.user_data.update(dict(email=None))
+
+        with self.assertRaises(ValueError) as ex:
+            CustomUser.objects.create_user(**self.user_data)
+        message = ex.exception
+        self.assertEqual(str(message), "Users must have an email address")
+
     def test_create_superuser(self):
         """Test for creating superuser."""
         super_user = CustomUser.objects.create_superuser(**self.user_data)
@@ -50,6 +59,20 @@ class CustomUserModelTest(TestCase):
         self.assertTrue(super_user.is_staff)
         self.assertTrue(super_user.is_superuser)
         self.assertEqual(super_user.position, "Owner")
+
+    def test_create_superuser_is_staff_false_error(self):
+        """Test for creating superuser with is_staff=False."""
+        with self.assertRaises(ValueError) as ex:
+            CustomUser.objects.create_superuser(is_staff=False, **self.user_data)
+        message = ex.exception
+        self.assertEqual(str(message), "Superuser must have is_staff=True.")
+
+    def test_create_superuser_is_superuser_false_error(self):
+        """Test for creating superuser with is_superuser=False."""
+        with self.assertRaises(ValueError) as ex:
+            CustomUser.objects.create_superuser(is_superuser=False, **self.user_data)
+        message = ex.exception
+        self.assertEqual(str(message), "Superuser must have is_superuser=True.")
 
     def test_create_superuser_without_password(self):
         """Test for creating superuser without password, should be error."""
