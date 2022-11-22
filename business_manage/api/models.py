@@ -143,7 +143,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     def get_full_name(self):
         """Return the first_name plus the last_name, with a space in between."""
-        return f"{self.first_name} {self.last_name}"
+        return f"{self.first_name} {self.last_name}".title()
 
     def get_short_name(self):
         """Return the short name for the user."""
@@ -172,12 +172,13 @@ class Location(models.Model):
     """Class Location provides tools for creating and managing appointments places."""
 
     name = models.CharField("location name", max_length=200, unique=True)
-    address = models.CharField("Address", max_length=100, blank=True)
+    address = models.CharField("address", max_length=100, blank=True)
     working_time = models.JSONField(
+        "working time",
         default=dict,
         blank=True,
         null=True,
-        validators=(validate_working_time, ),
+        validators=(validate_working_time,),
     )
     updated_at = models.DateTimeField(auto_now=True, editable=False)
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
@@ -204,9 +205,13 @@ class Appointment(models.Model):
     Attributes:
         is_active (BooleanField): Status of the appointment
         start_time (datetime): Appointment time and date of it
-        end_time (datetime): Time that is calculated according to the duration of service
+        end_time (datetime): Time that is calculated according to the duration
+        duration (timedelta): The time during which service is provided
         created_at (datetime): Time of creation of the appointment
         specialist (CustomUser): An appointed specialist for the appointment
+        customer_firstname (str): Customer first name
+        customer_lastname (str): Customer last name
+        customer_email (str): Customer email
         note (TextField): Additional note for a specialist
     """
 
@@ -281,3 +286,50 @@ class Appointment(models.Model):
     def __repr__(self) -> str:
         """str: Returns a string representation of the appointment."""
         return f"Appointment #{self.id} ({self.is_active})"
+
+
+class SpecialistSchedule(models.Model):
+    """This class represents a specialist schedule (for a schedule system).
+
+    Attributes:
+        working_time (JSONField): Specialist working time for a week
+        created_at (datetime): Time of creation of the schedule
+        update_at (datetime): Time of update of the schedule
+        specialist (CustomUser): An appointed specialist for the schedule
+    """
+
+    working_time = models.JSONField(
+        "working time",
+        default=dict,
+        blank=True,
+        null=True,
+        validators=(validate_working_time,),
+    )
+    specialist = models.OneToOneField(
+        CustomUser,
+        related_name="schedule",
+        on_delete=models.CASCADE
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="Created at"
+    )
+    update_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name="Updated at",
+    )
+
+    class Meta:
+        """This class meta stores verbose names ordering data."""
+
+        ordering = ["id"]
+        verbose_name = "Schedule"
+        verbose_name_plural = "Schedules"
+
+    def __str__(self) -> str:
+        """str: Returns a specialist full name with id."""
+        return f"Schedule for {self.specialist.get_full_name()} #{self.specialist.id}"
+
+    def __repr__(self) -> str:
+        """str: Returns a string representation of the schedule."""
+        return f"Schedule #{self.id}"
