@@ -3,9 +3,10 @@
 from rest_framework import generics, status
 from rest_framework.response import Response
 
-from .models import Appointment
+from .models import Appointment, SpecialistSchedule
 from .serializers.appointment_serializers import AppointmentSerializer
 from .serializers.customuser_serializers import SpecialistSerializer
+from .serializers.schedule_serializers import SpecialistScheduleSerializer
 from .services import customuser_services as us
 from .permissions import ReadOnly, IsBusinessOwnerOrManager, IsBusinessOwnerOrAdmin
 from .serializers.location_serializers import LocationSerializer
@@ -42,3 +43,11 @@ class AppointmentList(generics.ListCreateAPIView):
     queryset = Appointment.objects.all()
     serializer_class = AppointmentSerializer
     permission_classes = [ReadOnly | IsBusinessOwnerOrAdmin]
+
+
+class SpecialistScheduleList(generics.ListCreateAPIView):
+    """SpecialistScheduleList class for creating and reviewing schedules."""
+
+    queryset = SpecialistSchedule.objects.all()
+    serializer_class = SpecialistScheduleSerializer
+    permission_classes = [ReadOnly | IsBusinessOwnerOrManager]
