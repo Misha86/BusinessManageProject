@@ -148,29 +148,30 @@ class CustomUserSerializerTest(TestCase):
                   "email": "user@com.ua",
                   "password": "password"}
 
-    ecxpect_data = {"email": "user@com.ua",
-                    "first_name": "UserF",
-                    "last_name": "UserL",
-                    "patronymic": "",
-                    "position": "dentist",
-                    "bio": "",
-                    "groups": [],
-                    "avatar": "/media/default_avatar.jpeg",
-                    "is_active": True}
+    expect_specialist_data = {"email": "user@com.ua",
+                              "first_name": "UserF",
+                              "last_name": "UserL",
+                              "patronymic": "",
+                              "position": "dentist",
+                              "bio": "",
+                              "groups": ["Specialist"],
+                              "avatar": "/media/default_avatar.jpeg",
+                              "is_active": True}
 
     def setUp(self):
         """This method adds needed info for tests."""
         self.sp_serializer = SpecialistSerializer
-        self.user = CustomUser.objects.create_user(**self.valid_data)
         self.groups = Group.objects.all()
 
     def test_valid_specialist_serializer(self):
         """Check serializer with valid data."""
-        serializer = self.sp_serializer(instance=self.user)
-
-        self.assertEqual(serializer.data, self.ecxpect_data)
+        serializer = self.sp_serializer(data=self.valid_data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        add_user_to_group_specialist(user)
+        self.assertEqual(serializer.data, self.expect_specialist_data)
         self.assertQuerysetEqual(self.groups.values_list("name", flat=True),
-                                 self.ecxpect_data["groups"])
+                                 self.expect_specialist_data["groups"])
 
     def test_empty_serializer(self):
         """Check serializer without data."""

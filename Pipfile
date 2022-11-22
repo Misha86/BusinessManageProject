@@ -28,6 +28,7 @@ mypy-lang = "*"
 pyflakes = "*"
 pep8 = "*"
 coverage = "*"
+pygments = "*"
 
 [requires]
 python_version = "3.10"
