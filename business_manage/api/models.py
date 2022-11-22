@@ -276,8 +276,8 @@ class Appointment(models.Model):
 
     def mark_as_completed(self):
         """Marks appointment as completed."""
-        self.is_status = False
-        self.save(update_fields=["is_status"])
+        self.is_active = False
+        self.save(update_fields=["is_active"])
 
     def __str__(self) -> str:
         """str: Returns a verbose title of the appointment."""

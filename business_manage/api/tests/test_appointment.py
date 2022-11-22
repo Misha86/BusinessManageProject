@@ -197,6 +197,12 @@ class AppointmentModelTest(TestCase):
                         f"DateTime value {invalid_date} should have future datetime."
                 })
 
+    def test_appointment_method_mark_as_completed(self):
+        """Test for appointment mark_as_completed method."""
+        self.appointment.mark_as_completed()
+
+        self.assertFalse(self.appointment.is_active)
+
 
 class AppointmentSerializerTest(TestCase):
     """Class LocationSerializerTest for testing Location serializers."""
