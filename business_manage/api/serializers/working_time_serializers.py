@@ -9,13 +9,13 @@ class WorkingTimeSerializer(serializers.Serializer):
     Provides proper business creation and validation based on set working hours.
     """
 
-    mon = serializers.ListField(max_length=2, default=[])
-    tue = serializers.ListField(max_length=2, default=[])
-    wed = serializers.ListField(max_length=2, default=[])
-    thu = serializers.ListField(max_length=2, default=[])
-    fri = serializers.ListField(max_length=2, default=[])
-    sat = serializers.ListField(max_length=2, default=[])
-    sun = serializers.ListField(max_length=2, default=[])
+    Mon = serializers.ListField(max_length=3, default=[])
+    Tue = serializers.ListField(max_length=3, default=[])
+    Wed = serializers.ListField(max_length=3, default=[])
+    Thu = serializers.ListField(max_length=3, default=[])
+    Fri = serializers.ListField(max_length=3, default=[])
+    Sat = serializers.ListField(max_length=3, default=[])
+    Sun = serializers.ListField(max_length=3, default=[])
 
     # def to_representation(self, instance):
     #     """Remove week days without schedule."""

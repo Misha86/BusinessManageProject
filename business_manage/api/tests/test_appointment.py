@@ -298,7 +298,7 @@ class AppointmentSerializerTest(TestCase):
         self.assertEqual(message, {
             "start_time": {
                 "09:15:00": ErrorDetail(
-                    string="DateTime value 2022-11-21 09:15:00+02:00 should have future datetime.",
+                    string=f"DateTime value {invalid_start_time} should have future datetime.",
                     code="invalid"
                 )
             }

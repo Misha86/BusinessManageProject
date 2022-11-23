@@ -48,13 +48,13 @@ class LocationSerializerTest(TestCase):
             "name": "office #1",
             "address": "234 New st.",
             "working_time": {
-                "mon": ["10:30", "10:50"],
-                "tue": ["10:30", "10:50"],
-                "wed": ["10:30", "10:50"],
-                "thu": ["10:30", "10:50"],
-                "fri": ["10:30", "10:50"],
-                "sat": [],
-                "sun": []
+                "Mon": ["10:30", "10:50"],
+                "Tue": ["10:30", "10:50"],
+                "Wed": ["10:30", "10:50"],
+                "Thu": ["10:30", "10:50"],
+                "Fri": ["10:30", "10:50"],
+                "Sat": [],
+                "Sun": []
             }
         }
 
@@ -71,7 +71,7 @@ class LocationSerializerTest(TestCase):
         """Check serializer with invalid working time when minutes don't multiples of 5."""
         for i in range(1, 5):
             invalid_time = f"10:5{i}"
-            self.valid_data.update(dict(working_time={"mon": ["10:30", invalid_time]}))
+            self.valid_data.update(dict(working_time={"Mon": ["10:30", invalid_time]}))
             with self.subTest(i=i):
                 serializer = self.l_serializer(data=self.valid_data)
                 with self.assertRaises(ValidationError) as ex:
@@ -95,7 +95,7 @@ class LocationSerializerTest(TestCase):
     def test_serialize_invalid_working_time_seconds_exist(self):
         """Check serializer with invalid working time when seconds exist."""
         invalid_time = "10:50:10"
-        self.valid_data.update(dict(working_time={"mon": ["10:30", invalid_time]}))
+        self.valid_data.update(dict(working_time={"Mon": ["10:30", invalid_time]}))
         serializer = self.l_serializer(data=self.valid_data)
 
         with self.assertRaises(ValidationError) as ex:
@@ -105,7 +105,7 @@ class LocationSerializerTest(TestCase):
             message,
             {
                 "working_time": {
-                    "mon": [
+                    "Mon": [
                         ErrorDetail(string="unconverted data remains: :10", code="invalid")
                     ]
                 }
@@ -121,7 +121,7 @@ class LocationSerializerTest(TestCase):
         start_time = "10:50"
         invalid_end_time = "10:40"
         for invalid_time_range in [invalid_end_time, start_time]:
-            self.valid_data.update(dict(working_time={"mon": [start_time, invalid_end_time]}))
+            self.valid_data.update(dict(working_time={"Mon": [start_time, invalid_end_time]}))
 
             with self.subTest(invalid_time_range=invalid_time_range):
                 serializer = self.l_serializer(data=self.valid_data)
@@ -134,7 +134,7 @@ class LocationSerializerTest(TestCase):
                     message,
                     {
                         "working_time": {
-                            "mon": [
+                            "Mon": [
                                 ErrorDetail(string="Start time should be more than end time.",
                                             code="invalid")
                             ]
@@ -144,7 +144,7 @@ class LocationSerializerTest(TestCase):
 
     def test_serialize_invalid_working_time_not_end_time(self):
         """Check serializer with invalid working time when end time doesn't exist."""
-        self.valid_data.update(dict(working_time={"mon": ["10:40"]}))
+        self.valid_data.update(dict(working_time={"Mon": ["10:40"]}))
 
         serializer = self.l_serializer(data=self.valid_data)
 
@@ -155,7 +155,7 @@ class LocationSerializerTest(TestCase):
             message,
             {
                 "working_time": {
-                    "mon": [
+                    "Mon": [
                         ErrorDetail(
                             string="Time range should be contain start and "
                                    "end time together or empty range.", code="invalid"
@@ -172,7 +172,7 @@ class LocationSerializerTest(TestCase):
         end time is empty string.
         """
         for invalid_time_range in [["", "10:40"], ["10:40", ""]]:
-            self.valid_data.update(dict(working_time={"mon": invalid_time_range}))
+            self.valid_data.update(dict(working_time={"Mon": invalid_time_range}))
 
             with self.subTest(invalid_time_range=invalid_time_range):
                 serializer = self.l_serializer(data=self.valid_data)
@@ -185,7 +185,7 @@ class LocationSerializerTest(TestCase):
                     message,
                     {
                         "working_time": {
-                            "mon": [
+                            "Mon": [
                                 ErrorDetail(
                                     string="time data '' does not match format '%H:%M'",
                                     code="invalid"
@@ -207,13 +207,13 @@ class LocationViewTest(TestCase):
             "name": "office #1",
             "address": "234 New st.",
             "working_time": {
-                "mon": ["10:30", "10:50"],
-                "tue": ["10:30", "10:50"],
-                "wed": ["10:30", "10:50"],
-                "thu": ["10:30", "10:50"],
-                "fri": ["10:30", "10:50"],
-                "sat": [],
-                "sun": []
+                "Mon": ["10:30", "10:50"],
+                "Tue": ["10:30", "10:50"],
+                "Wed": ["10:30", "10:50"],
+                "Thu": ["10:30", "10:50"],
+                "Fri": ["10:30", "10:50"],
+                "Sat": [],
+                "Sun": []
             }
         }
         self.user_data = {

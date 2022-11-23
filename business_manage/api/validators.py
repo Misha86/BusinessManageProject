@@ -1,4 +1,5 @@
 """Validators for business_manage project."""
+import itertools
 
 from django.utils import timezone
 from datetime import time
@@ -69,12 +70,42 @@ def validate_start_end_time(field_name, list_time_data):
             )
 
 
+def validate_working_time_range(week_day, time_range):
+    """Validate single time range (["10:30", "11:40"])."""
+    list_time_data = validate_match_time_format(week_day, time_range)
+    validate_start_end_time(week_day, list_time_data)
+    [validate_rounded_minutes(time_data) for time_data in list_time_data]
+
+
 def validate_working_time(json):
     """Validate json for working time for every day."""
     for key, value in json.items():
-        list_time_data = validate_match_time_format(key, value)
-        validate_start_end_time(key, list_time_data)
-        [validate_rounded_minutes(time_data) for time_data in list_time_data]
+        validate_working_time_range(key, value)
+
+
+def validate_working_time_ranges(w_time):
+    """Validate time ranges for working time for every day.
+
+    Specialist can have more than one time range during working day.
+    """
+    for key, blocks in w_time.items():
+        for time_block in blocks:
+            validate_working_time_range(key, time_block)
+
+
+def validate_working_time_values(w_time):
+    """Validate time ranges values for working time for every day.
+
+    Time ranges should not be covering each other.
+    """
+    for key, blocks in w_time.items():
+        t_ranges_list = sorted(blocks, key=lambda x: x[0])
+        chain_values = list(itertools.chain(*t_ranges_list))
+        chain_values_sorted = sorted(chain_values)
+        if chain_values != chain_values_sorted:
+            raise ValidationError(
+                {key: "Time ranges cannot cover each other."}
+            )
 
 
 def validate_specialist(user_data):
