@@ -21,3 +21,8 @@ def generate_working_time(start_time: str = "", end_time: str = ""):
     if not start_time and not end_time:
         working_time = dict.fromkeys(week_days, [])
     return working_time
+
+
+def string_interval_to_time_interval(str_interval: list):
+    """Returns list of time objects."""
+    return list(map(string_to_time, str_interval))

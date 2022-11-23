@@ -7,7 +7,7 @@ from django.utils import timezone
 from api.validators import (validate_rounded_minutes,
                             validate_rounded_minutes_seconds,
                             validate_working_time, validate_specialist, validate_datetime_is_future,
-                            validate_working_time_ranges, validate_working_time_values)
+                            validate_working_time_intervals, validate_working_time_values)
 
 
 def check_password_existing(user_role, password: str):
@@ -305,7 +305,7 @@ class SpecialistSchedule(models.Model):
         blank=True,
         null=True,
         validators=(
-            validate_working_time_ranges,
+            validate_working_time_intervals,
             validate_working_time_values),
     )
     specialist = models.OneToOneField(

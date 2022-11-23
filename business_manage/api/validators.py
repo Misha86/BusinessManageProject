@@ -5,7 +5,7 @@ from django.utils import timezone
 from datetime import time
 from django.contrib.auth import get_user_model
 from rest_framework.exceptions import ValidationError
-from .utils import string_to_time
+from .utils import string_interval_to_time_interval
 
 
 def validate_rounded_minutes(time_value):
@@ -39,30 +39,25 @@ def validate_rounded_minutes_seconds(delta_time_value):
             )
 
 
-def validate_match_time_format(field_name, values_list):
-    """Validate format for value from time range."""
-    time_data = []
-    for value in values_list:
-        try:
-            time_data.append(string_to_time(value))
-        except ValueError as ex_massage:
-            if ex_massage.__str__().count("unconverted data remains."):
-                raise ValidationError(
-                    {field_name: "Time value must have zero seconds and minutes multiples of 5."}
-                )
-            raise ValidationError({field_name: ex_massage})
-    return time_data
+def validate_match_time_format(field_name: str, str_interval: list[str]):
+    """Validate format for value from time interval."""
+    try:
+        string_interval_to_time_interval(str_interval)
+    except ValueError as ex_massage:
+        raise ValidationError({field_name: ex_massage})
 
 
-def validate_start_end_time(field_name, list_time_data):
+def validate_start_end_time(field_name, time_interval: list[time]):
     """Validate start time and end time."""
-    if list_time_data:
+    if time_interval:
         try:
-            start_time, end_time = list_time_data
+            start_time, end_time = time_interval
         except ValueError:
             raise ValidationError(
-                {field_name: "Time range should be contain "
-                             "start and end time together or empty range."}
+                {
+                    field_name: "Time range should be contain "
+                                "start and end time together or empty range."
+                }
             )
         if start_time >= end_time:
             raise ValidationError(
@@ -70,45 +65,49 @@ def validate_start_end_time(field_name, list_time_data):
             )
 
 
-def validate_working_time_range(week_day, time_range):
-    """Validate single time range (["10:30", "11:40"])."""
-    list_time_data = validate_match_time_format(week_day, time_range)
-    validate_start_end_time(week_day, list_time_data)
-    [validate_rounded_minutes(time_data) for time_data in list_time_data]
+def validate_working_time_interval(week_day: str, str_interval: list[str]):
+    """Validate single time interval (["10:30", "11:40"])."""
+    validate_match_time_format(week_day, str_interval)
+
+    time_interval = string_interval_to_time_interval(str_interval)
+
+    validate_start_end_time(week_day, time_interval)
+    [validate_rounded_minutes(time_data) for time_data in time_interval]
 
 
-def validate_working_time(json):
+def validate_working_time(json: dict):
     """Validate json for working time for every day."""
-    for key, value in json.items():
-        validate_working_time_range(key, value)
+    for day, intervals in json.items():
+        validate_working_time_interval(day, intervals)
 
 
-def validate_working_time_ranges(w_time):
+def validate_working_time_intervals(json: dict):
     """Validate time ranges for working time for every day.
 
     Specialist can have more than one time range during working day.
     """
-    for key, blocks in w_time.items():
-        for time_block in blocks:
-            validate_working_time_range(key, time_block)
+    for day, intervals in json.items():
+        for interval in intervals:
+            validate_working_time_interval(day, interval)
 
 
-def validate_working_time_values(w_time):
-    """Validate time ranges values for working time for every day.
+def validate_working_time_values(json: dict):
+    """Validate time intervals values for working time for every day.
 
-    Time ranges should not be covering each other.
+    Time intervals should not be covering each other.
     """
-    for key, blocks in w_time.items():
-        t_ranges_list = sorted(blocks, key=lambda x: x[0])
-        chain_values = list(itertools.chain(*t_ranges_list))
-        chain_values_sorted = sorted(chain_values)
-        if chain_values != chain_values_sorted:
+    for day, intervals in json.items():
+        sorted_intervals = sorted(intervals, key=lambda x: x[0])
+        intervals_values = list(itertools.chain(*sorted_intervals))
+        sorted_intervals_values = sorted(intervals_values)
+
+        if intervals_values != sorted_intervals_values:
             raise ValidationError(
-                {key: "Time ranges cannot cover each other."}
+                {day: "Time ranges cannot cover each other."}
             )
 
 
-def validate_specialist(user_data):
+def validate_specialist(user_data: object | int):
     """Validate user is specialist."""
     try:
         user_model = get_user_model()
@@ -116,7 +115,7 @@ def validate_specialist(user_data):
     except TypeError:
         user = user_data
     if not user.groups.filter(name="Specialist"):
-        full_name = user.get_full_name().title()
+        full_name = user.get_full_name()
         raise ValidationError(
             {full_name: f"{full_name} should be specialist."})
 
