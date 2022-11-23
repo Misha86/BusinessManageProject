@@ -3,6 +3,7 @@
 from rest_framework import serializers
 
 from api.models import CustomUser
+from api.serializers.schedule_serializers import SpecialistScheduleSerializer
 
 
 class GroupListingField(serializers.RelatedField):
@@ -43,10 +44,17 @@ class SpecialistSerializer(serializers.ModelSerializer):
             "Unselect this instead of deleting accounts."
         )
     )
+    schedule = SpecialistScheduleSerializer(read_only=True)
 
     class Meta:
         """Class with a model and model fields for serialization."""
 
         model = CustomUser
         fields = ["email", "first_name", "last_name", "patronymic",
-                  "position", "bio", "avatar", "is_active", "groups"]
+                  "position", "bio", "avatar", "is_active", "groups", "schedule"]
+
+    def to_representation(self, instance):
+        """Change displaying schedule (remove specialist from schedule)."""
+        data = super().to_representation(instance)
+        data["schedule"].pop("specialist")
+        return data
