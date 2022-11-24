@@ -29,6 +29,7 @@ pyflakes = "*"
 pep8 = "*"
 coverage = "*"
 pygments = "*"
+django-filter = "*"
 
 [requires]
 python_version = "3.10"

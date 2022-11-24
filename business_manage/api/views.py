@@ -19,6 +19,7 @@ class SpecialistList(generics.ListCreateAPIView):
     queryset = us.get_all_specialists()
     serializer_class = SpecialistSerializer
     permission_classes = [ReadOnly | IsBusinessOwnerOrManager]
+    filterset_fields = ["position"]
 
     def post(self, request, *args, **kwargs):
         """Post method for creating specialists."""
@@ -27,6 +28,14 @@ class SpecialistList(generics.ListCreateAPIView):
         us.add_user_to_group_specialist(serializer.save())
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+
+class SpecialistDetail(generics.RetrieveUpdateDestroyAPIView):
+    """SpecialistDetail class for updating and reviewing specialist."""
+
+    queryset = us.get_all_specialists()
+    serializer_class = SpecialistSerializer
+    permission_classes = [ReadOnly | IsBusinessOwnerOrManager]
 
 
 class LocationList(generics.ListCreateAPIView):
@@ -44,22 +53,13 @@ class AppointmentList(generics.ListCreateAPIView):
     serializer_class = AppointmentSerializer
     permission_classes = [ReadOnly | IsBusinessOwnerOrAdmin]
 
-    # def post(self, request, *args, **kwargs):
-    #     """Post method for creating specialists."""
-    #     serializer = self.get_serializer(data=request.data)
-    #     serializer.is_valid(raise_exception=True)
-    #     a_data = serializer.validated_data
-    #
-    #     start_time = a_data.get("start_time")
-    #     end_time = start_time + a_data.get("duration")
-    #     location = a_data.get("location")
-    #     specialist = a_data.get("specialist")
-    #
-    #     validate_free_time_interval((start_time, end_time), specialist, location)
-    #
-    #     self.perform_create(serializer)
-    #     headers = self.get_success_headers(serializer.data)
-    #     return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+class AppointmentDetail(generics.RetrieveUpdateDestroyAPIView):
+    """AppointmentList class for updating and reviewing appointment detail."""
+
+    queryset = Appointment.objects.all()
+    serializer_class = AppointmentSerializer
+    permission_classes = [ReadOnly | IsBusinessOwnerOrAdmin]
 
 
 class SpecialistScheduleList(generics.ListCreateAPIView):
