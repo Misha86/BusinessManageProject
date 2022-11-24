@@ -286,7 +286,7 @@ class Appointment(models.Model):
 
     def __repr__(self) -> str:
         """str: Returns a string representation of the appointment."""
-        return f"Appointment #{self.id} ({self.is_active})"
+        return f"Appointment #{self.id}"
 
 
 class SpecialistSchedule(models.Model):

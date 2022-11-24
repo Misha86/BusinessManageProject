@@ -26,3 +26,12 @@ def generate_working_time(start_time: str = "", end_time: str = ""):
 def string_interval_to_time_interval(str_interval: list):
     """Returns list of time objects."""
     return list(map(string_to_time, str_interval))
+
+
+def is_inside_interval(main_interval: tuple, inner_interval: tuple):
+    """Return True if inner interval is inside main_interval."""
+    return (
+        inner_interval[0] >= main_interval[0]
+    ) and (
+        inner_interval[1] <= main_interval[1]
+    )

@@ -2,6 +2,7 @@
 
 from rest_framework import serializers
 from api.models import Appointment
+from api.services.appointment_services import validate_free_time_interval
 from api.validators import validate_start_end_time
 
 
@@ -20,13 +21,16 @@ class AppointmentSerializer(serializers.ModelSerializer):
     def validate(self, data):
         """Validate data before saving."""
         start_time = data.get("start_time")
+        specialist = data.get("specialist")
+        location = data.get("location")
         duration = data.get("duration")
         end_time = start_time + duration
         validate_start_end_time("time range", [start_time, end_time])
+        validate_free_time_interval((start_time, end_time), specialist, location)
         return data
 
     def to_representation(self, instance):
-        """Change displaying specialist id to full name."""
+        """Change displaying specialist id to the full name and location id to the name."""
         specialist = instance.specialist
         location = instance.location
         appointment = super().to_representation(instance)

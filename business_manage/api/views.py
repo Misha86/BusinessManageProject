@@ -44,6 +44,23 @@ class AppointmentList(generics.ListCreateAPIView):
     serializer_class = AppointmentSerializer
     permission_classes = [ReadOnly | IsBusinessOwnerOrAdmin]
 
+    # def post(self, request, *args, **kwargs):
+    #     """Post method for creating specialists."""
+    #     serializer = self.get_serializer(data=request.data)
+    #     serializer.is_valid(raise_exception=True)
+    #     a_data = serializer.validated_data
+    #
+    #     start_time = a_data.get("start_time")
+    #     end_time = start_time + a_data.get("duration")
+    #     location = a_data.get("location")
+    #     specialist = a_data.get("specialist")
+    #
+    #     validate_free_time_interval((start_time, end_time), specialist, location)
+    #
+    #     self.perform_create(serializer)
+    #     headers = self.get_success_headers(serializer.data)
+    #     return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
 
 class SpecialistScheduleList(generics.ListCreateAPIView):
     """SpecialistScheduleList class for creating and reviewing schedules."""
