@@ -1,12 +1,14 @@
 """Business_manage projects views."""
 
 from rest_framework import generics, status
+from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
-from .models import Appointment, SpecialistSchedule
+from .models import Appointment, SpecialistSchedule, CustomUser
 from .serializers.appointment_serializers import AppointmentSerializer
 from .serializers.customuser_serializers import SpecialistSerializer
-from .serializers.schedule_serializers import SpecialistScheduleSerializer
+from .serializers.schedule_serializers import (SpecialistScheduleSerializer,
+                                               SpecialistScheduleDetailSerializer)
 from .services import customuser_services as us
 from .permissions import ReadOnly, IsBusinessOwnerOrManager, IsBusinessOwnerOrAdmin
 from .serializers.location_serializers import LocationSerializer
@@ -68,3 +70,18 @@ class SpecialistScheduleList(generics.ListCreateAPIView):
     queryset = SpecialistSchedule.objects.all()
     serializer_class = SpecialistScheduleSerializer
     permission_classes = [ReadOnly | IsBusinessOwnerOrManager]
+
+
+class SpecialistScheduleDetail(generics.RetrieveUpdateDestroyAPIView):
+    """SpecialistScheduleDetail class for updating and reviewing specialist schedules."""
+
+    serializer_class = SpecialistScheduleDetailSerializer
+    permission_classes = [ReadOnly | IsBusinessOwnerOrManager]
+
+    def get_object(self):
+        """Get schedule for specific specialist."""
+        specialist_id = self.kwargs["pk"]
+        specialist = get_object_or_404(CustomUser,
+                                       id=specialist_id,
+                                       groups__name__icontains="Specialist")
+        return specialist.schedule
