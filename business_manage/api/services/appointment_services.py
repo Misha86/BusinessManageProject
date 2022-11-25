@@ -7,6 +7,7 @@ from django.utils.timezone import localtime
 from rest_framework.exceptions import ValidationError
 
 from api.models import Appointment, CustomUser, Location
+from api.services.schedule_services import get_working_day
 from api.utils import is_inside_interval, string_interval_to_time_interval
 
 
@@ -22,7 +23,7 @@ def is_appointment_fit_datetime(a_interval: tuple,
         | Q(end_time__range=a_interval),
         location=location, specialist=specialist
     )
-    return appointments.exists()
+    return not appointments.exists()
 
 
 def is_appointment_fit_specialist_time(a_interval: tuple, specialist: CustomUser) -> bool:
@@ -33,8 +34,7 @@ def is_appointment_fit_specialist_time(a_interval: tuple, specialist: CustomUser
     """
     start_time, end_time = a_interval
     working_time = specialist.schedule.working_time
-    week_day = start_time.strftime("%a")
-    string_intervals = working_time.get(week_day)
+    string_intervals = get_working_day(working_time, start_time)
 
     if not string_intervals:
         return True
@@ -43,7 +43,8 @@ def is_appointment_fit_specialist_time(a_interval: tuple, specialist: CustomUser
         map(string_interval_to_time_interval, string_intervals)
     )
 
-    appointment_interval = (start_time.time(), end_time.time())
+    appointment_interval = (localtime(start_time).time(),
+                            localtime(end_time).time())
 
     return any(map(lambda x: is_inside_interval(x, appointment_interval),
                    specialists_intervals))
@@ -56,9 +57,7 @@ def is_appointment_fit_location_time(a_interval: tuple, location: Location) -> b
     location working time interval.
     """
     start_time, end_time = a_interval
-    working_time = location.working_time
-    week_day = start_time.strftime("%a")
-    string_interval = working_time.get(week_day)
+    string_interval = get_working_day(location.working_time, start_time)
 
     if not string_interval:
         return True
@@ -72,18 +71,18 @@ def is_appointment_fit_location_time(a_interval: tuple, location: Location) -> b
 
 def validate_free_time_interval(a_interval: tuple, specialist: CustomUser, location: Location):
     """Check time interval for creating new appointment."""
-    if is_appointment_fit_datetime(a_interval, specialist, location):
+    if not is_appointment_fit_datetime(a_interval, specialist, location):
         raise ValidationError(
             {"datetime interval": "Appointments have already created for this datetime."}
         )
 
-    if is_appointment_fit_specialist_time(a_interval, specialist):
+    if not is_appointment_fit_specialist_time(a_interval, specialist):
         specialist_name = specialist.get_full_name()
         raise ValidationError(
             {"time interval": f"{specialist_name} doesn't work at this time interval."}
         )
 
-    if is_appointment_fit_location_time(a_interval, location):
+    if not is_appointment_fit_location_time(a_interval, location):
         raise ValidationError(
             {"time interval": f"{location.name} doesn't work at this time interval."}
         )
@@ -97,5 +96,4 @@ def get_appointments_time_intervals(specialist: CustomUser, date: datetime) -> l
     a_intervals = [[localtime(appointment.start_time).time(),
                     localtime(appointment.end_time).time()]
                    for appointment in appointments]
-
     return a_intervals

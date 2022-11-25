@@ -109,8 +109,8 @@ class SpecialistDateScheduleView(APIView):
                 {"detail": "You can't see schedule of the past days."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-
-        schedule_intervals = get_working_day(specialist, a_date)
+        working_time = specialist.schedule.working_time
+        schedule_intervals = get_working_day(working_time, a_date)
 
         if not schedule_intervals:
             return Response(
@@ -122,7 +122,9 @@ class SpecialistDateScheduleView(APIView):
 
         free_time_intervals = get_free_time_intervals(schedule_intervals, a_intervals)
 
+        all_intervals = {"appointments intervals": a_intervals,
+                         "free intervals": free_time_intervals}
         return Response(
-            free_time_intervals,
+            all_intervals,
             status=status.HTTP_200_OK,
         )
