@@ -119,7 +119,6 @@ class SpecialistDateScheduleView(APIView):
             )
 
         a_intervals = get_appointments_time_intervals(specialist, a_date)
-        print(a_intervals)
 
         free_time_intervals = get_free_time_intervals(schedule_intervals, a_intervals)
 

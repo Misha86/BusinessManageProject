@@ -3,6 +3,7 @@
 import datetime
 
 from django.db.models import Q
+from django.utils.timezone import localtime
 from rest_framework.exceptions import ValidationError
 
 from api.models import Appointment, CustomUser, Location
@@ -73,7 +74,7 @@ def validate_free_time_interval(a_interval: tuple, specialist: CustomUser, locat
     """Check time interval for creating new appointment."""
     if is_appointment_fit_datetime(a_interval, specialist, location):
         raise ValidationError(
-            {"datetime interval": "Appointments have already created for this datetime interval."}
+            {"datetime interval": "Appointments have already created for this datetime."}
         )
 
     if is_appointment_fit_specialist_time(a_interval, specialist):
@@ -93,8 +94,8 @@ def get_appointments_time_intervals(specialist: CustomUser, date: datetime) -> l
     appointments = Appointment.objects.filter(specialist=specialist,
                                               start_time__date=date)
 
-    a_intervals = [[appointment.start_time.time(),
-                    appointment.end_time.time()]
+    a_intervals = [[localtime(appointment.start_time).time(),
+                    localtime(appointment.end_time).time()]
                    for appointment in appointments]
 
     return a_intervals
