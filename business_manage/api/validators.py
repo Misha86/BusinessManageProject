@@ -114,7 +114,7 @@ def validate_specialist(user_data: object | int):
         user = user_model.objects.get(id=user_data)
     except TypeError:
         user = user_data
-    if not user.groups.filter(name="Specialist"):
+    if not user.is_specialist:
         full_name = user.get_full_name()
         raise ValidationError(
             {full_name: f"{full_name} should be specialist."})

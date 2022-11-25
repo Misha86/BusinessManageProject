@@ -28,7 +28,7 @@ def is_appointment_fit_datetime(a_interval: tuple,
 
 
 def is_specialist_schedule(specialist):
-    """Check specialist has schedule."""
+    """Check the specialist has schedule."""
     if hasattr(specialist, "schedule"):
         return True
 

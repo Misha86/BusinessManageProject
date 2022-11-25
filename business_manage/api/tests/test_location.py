@@ -44,18 +44,11 @@ class LocationSerializerTest(TestCase):
     def setUp(self):
         """This method adds needed info for tests."""
         self.l_serializer = LocationSerializer
+        working_time = generate_working_time("10:30", "10:50")
         self.valid_data = {
             "name": "office #1",
             "address": "234 New st.",
-            "working_time": {
-                "Mon": ["10:30", "10:50"],
-                "Tue": ["10:30", "10:50"],
-                "Wed": ["10:30", "10:50"],
-                "Thu": ["10:30", "10:50"],
-                "Fri": ["10:30", "10:50"],
-                "Sat": [],
-                "Sun": []
-            }
+            "working_time": working_time
         }
 
     def test_serialize_valid_data(self):

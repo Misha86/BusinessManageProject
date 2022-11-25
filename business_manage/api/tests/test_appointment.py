@@ -9,7 +9,7 @@ from rest_framework.exceptions import ValidationError, ErrorDetail
 from ..models import Location, CustomUser, Appointment, SpecialistSchedule
 from ..serializers.appointment_serializers import AppointmentSerializer
 from ..services.customuser_services import add_user_to_group_specialist
-from ..utils import string_to_time, generate_working_time
+from ..utils import string_to_time, generate_working_time_intervals
 
 
 def get_data_for_tests():
@@ -33,8 +33,8 @@ def get_data_for_tests():
                                   tzinfo=get_current_timezone())
     duration = timedelta(minutes=20)
 
-    working_time = generate_working_time(start_time.strftime("%H:%M"),
-                                         (start_time + duration).strftime("%H:%M"))
+    working_time = generate_working_time_intervals(start_time.strftime("%H:%M"),
+                                                   (start_time + duration).strftime("%H:%M"))
     SpecialistSchedule.objects.create(specialist=specialist, working_time=working_time)
 
     # valid data for models and views tests
