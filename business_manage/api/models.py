@@ -169,7 +169,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         """str: Returns full name of the user."""
-        return f"{self.get_full_name()} ({self.position})"
+        return f"{self.get_full_name()} #{self.id}"
 
     def __repr__(self):
         """str: Returns CustomUser name and its id."""
