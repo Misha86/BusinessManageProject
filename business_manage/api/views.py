@@ -1,8 +1,10 @@
 """Business_manage projects views."""
 
+from django.utils import timezone
 from rest_framework import generics, status
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from .models import Appointment, SpecialistSchedule, CustomUser
 from .serializers.appointment_serializers import AppointmentSerializer
@@ -13,6 +15,8 @@ from .services import customuser_services as us
 from .permissions import ReadOnly, IsBusinessOwnerOrManager, IsBusinessOwnerOrAdmin
 from .serializers.location_serializers import LocationSerializer
 from .services import location_services as ls
+from .services.appointment_services import get_appointments_time_intervals
+from .services.schedule_services import get_working_day, get_free_time_intervals
 
 
 class SpecialistList(generics.ListCreateAPIView):
@@ -85,3 +89,41 @@ class SpecialistScheduleDetail(generics.RetrieveUpdateDestroyAPIView):
                                        id=specialist_id,
                                        groups__name__icontains="Specialist")
         return specialist.schedule
+
+
+class SpecialistDateScheduleView(APIView):
+    """View for displaying specialist's schedule for concrete day."""
+
+    def get(self, request, s_id, a_date):
+        """GET method for retrieving schedule."""
+        specialist = get_object_or_404(CustomUser, id=s_id)
+        name = specialist.get_full_name()
+        if not specialist.is_specialist:
+            return Response(
+                {"detail": f"User {name} is not specialist."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        if a_date < timezone.now():
+            return Response(
+                {"detail": "You can't see schedule of the past days."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        schedule_intervals = get_working_day(specialist, a_date)
+
+        if not schedule_intervals:
+            return Response(
+                {"detail": f"{name} is not working on this day"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        a_intervals = get_appointments_time_intervals(specialist, a_date)
+        print(a_intervals)
+
+        free_time_intervals = get_free_time_intervals(schedule_intervals, a_intervals)
+
+        return Response(
+            free_time_intervals,
+            status=status.HTTP_200_OK,
+        )

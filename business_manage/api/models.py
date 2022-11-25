@@ -160,6 +160,11 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         """Determines whether user is manager."""
         return self.groups.filter(name="Manager").exists()
 
+    @property
+    def is_specialist(self):
+        """Determines whether user is manager."""
+        return self.groups.filter(name="Specialist").exists()
+
     def __str__(self):
         """str: Returns full name of the user."""
         return f"{self.get_full_name()} ({self.position})"

@@ -1,5 +1,7 @@
 """Services for Appointment model."""
 
+import datetime
+
 from django.db.models import Q
 from rest_framework.exceptions import ValidationError
 
@@ -84,3 +86,15 @@ def validate_free_time_interval(a_interval: tuple, specialist: CustomUser, locat
         raise ValidationError(
             {"time interval": f"{location.name} doesn't work at this time interval."}
         )
+
+
+def get_appointments_time_intervals(specialist: CustomUser, date: datetime) -> list[[str, str]]:
+    """Get all appointments working intervals for a specific specialist and concrete date."""
+    appointments = Appointment.objects.filter(specialist=specialist,
+                                              start_time__date=date)
+
+    a_intervals = [[appointment.start_time.time(),
+                    appointment.end_time.time()]
+                   for appointment in appointments]
+
+    return a_intervals
