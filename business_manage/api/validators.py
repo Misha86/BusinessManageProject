@@ -72,6 +72,7 @@ def validate_working_time_interval(week_day: str, str_interval: list[str]):
     time_interval = string_interval_to_time_interval(str_interval)
 
     validate_start_end_time(week_day, time_interval)
+
     [validate_rounded_minutes(time_data) for time_data in time_interval]
 
 
