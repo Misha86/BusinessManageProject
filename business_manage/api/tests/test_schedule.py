@@ -42,12 +42,14 @@ class SpecialistScheduleModelTest(TestCase):
         schedule = SpecialistSchedule.objects.create(specialist=user,
                                                      working_time=self.working_time)
 
+        full_name = user.get_full_name()
+
         with self.assertRaises(ValidationError) as ex:
             schedule.full_clean()
         message = ex.exception.args[0]
         self.assertEqual(message, {
-            "Fn Ln": ErrorDetail(
-                string="Fn Ln should be specialist.", code="invalid"
+            f"{full_name}": ErrorDetail(
+                string=f"{full_name} should be specialist.", code="invalid"
             )
         })
 
