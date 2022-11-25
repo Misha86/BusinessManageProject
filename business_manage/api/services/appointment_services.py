@@ -5,8 +5,9 @@ import datetime
 from django.db.models import Q
 from django.utils.timezone import localtime
 from rest_framework.exceptions import ValidationError
+from rest_framework.generics import get_object_or_404
 
-from api.models import Appointment, CustomUser, Location
+from api.models import Appointment, CustomUser, Location, SpecialistSchedule
 from api.services.schedule_services import get_working_day
 from api.utils import is_inside_interval, string_interval_to_time_interval
 
@@ -26,6 +27,12 @@ def is_appointment_fit_datetime(a_interval: tuple,
     return not appointments.exists()
 
 
+def is_specialist_schedule(specialist):
+    """Check specialist has schedule."""
+    if hasattr(specialist, "schedule"):
+        return True
+
+
 def is_appointment_fit_specialist_time(a_interval: tuple, specialist: CustomUser) -> bool:
     """Check an appointment time interval.
 
@@ -33,8 +40,8 @@ def is_appointment_fit_specialist_time(a_interval: tuple, specialist: CustomUser
     one of specialist schedule working time intervals.
     """
     start_time, end_time = a_interval
-    working_time = specialist.schedule.working_time
-    string_intervals = get_working_day(working_time, start_time)
+    schedule = get_object_or_404(SpecialistSchedule, specialist=specialist)
+    string_intervals = get_working_day(schedule.working_time, start_time)
 
     if not string_intervals:
         return True
@@ -76,8 +83,13 @@ def validate_free_time_interval(a_interval: tuple, specialist: CustomUser, locat
             {"datetime interval": "Appointments have already created for this datetime."}
         )
 
+    specialist_name = specialist.get_full_name()
+    if not is_specialist_schedule(specialist):
+        raise ValidationError(
+            {"schedule": f"{specialist_name} hasn't had schedule jet."}
+        )
+
     if not is_appointment_fit_specialist_time(a_interval, specialist):
-        specialist_name = specialist.get_full_name()
         raise ValidationError(
             {"time interval": f"{specialist_name} doesn't work at this time interval."}
         )

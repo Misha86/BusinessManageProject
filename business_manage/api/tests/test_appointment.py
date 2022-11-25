@@ -6,10 +6,10 @@ from rest_framework.test import APIClient
 from django.test import TestCase
 from rest_framework.exceptions import ValidationError, ErrorDetail
 
-from ..models import Location, CustomUser, Appointment
+from ..models import Location, CustomUser, Appointment, SpecialistSchedule
 from ..serializers.appointment_serializers import AppointmentSerializer
 from ..services.customuser_services import add_user_to_group_specialist
-from ..utils import string_to_time
+from ..utils import string_to_time, generate_working_time
 
 
 def get_data_for_tests():
@@ -31,18 +31,23 @@ def get_data_for_tests():
     start_time = datetime.combine(datetime.now().date() + timedelta(days=1),
                                   string_to_time("09:15"),
                                   tzinfo=get_current_timezone())
+    duration = timedelta(minutes=20)
+
+    working_time = generate_working_time(start_time.strftime("%H:%M"),
+                                         (start_time + duration).strftime("%H:%M"))
+    SpecialistSchedule.objects.create(specialist=specialist, working_time=working_time)
 
     # valid data for models and views tests
     valid_data = {
         "start_time": start_time,
-        "duration": timedelta(minutes=20),
+        "duration": duration,
         "specialist": specialist,
         "location": location,
         "customer_firstname": "customer_firstname",
         "customer_lastname": "customer_lastname",
         "customer_email": "customer@com.ua",
         "note": "",
-        "is_active": True
+        "is_active": True,
     }
     # valid data for serializers tests
     valid_data_s = {**valid_data, "specialist": specialist.pk, "location": location.pk}
@@ -284,6 +289,22 @@ class AppointmentSerializerTest(TestCase):
             ]
         })
 
+    def test_serialize_specialist_schedule_none(self):
+        """Check serializer when specialist doesn't have schedule."""
+        self.specialist.schedule.delete()
+
+        with self.assertRaises(ValidationError) as ex:
+            self.serializer.is_valid(raise_exception=True)
+
+        message = ex.exception.args[0]
+        self.assertEqual(message, {
+            "schedule": [
+                ErrorDetail(
+                    string="Fn Ln hasn't had schedule jet.", code="invalid"
+                )
+            ]
+        })
+
     def test_serialize_invalid_start_time(self):
         """Check serializer validate method with invalid start time."""
         invalid_start_time = datetime.combine(datetime.now().date() + timedelta(days=-1),
@@ -398,3 +419,18 @@ class LocationViewTest(TestCase):
         response = self.client.post(reverse("api:appointments-list-create"),
                                     self.valid_data, format="json")
         self.assertEqual(response.status_code, 201)
+
+    def test_create_appointment_not_specialist_schedule_error(self):
+        """Test for creating appointment with specialist without schedule (Bad request 400)."""
+        self.user_data.update(dict(email="admin@com.ua"))
+        admin = CustomUser.objects.create_admin(password="password", **self.user_data)
+
+        self.client.force_authenticate(admin)
+
+        self.specialist.schedule.delete()
+
+        self.valid_data.update(dict(specialist=self.specialist.id, location=self.location.id))
+
+        response = self.client.post(reverse("api:appointments-list-create"),
+                                    self.valid_data, format="json")
+        self.assertEqual(response.status_code, 400)

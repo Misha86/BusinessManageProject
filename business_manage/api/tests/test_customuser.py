@@ -89,6 +89,7 @@ class CustomUserModelTest(TestCase):
 
         self.assertFalse(specialist.is_staff)
         self.assertFalse(specialist.is_superuser)
+        self.assertTrue(specialist.is_specialist)
         self.assertTrue(specialist.groups.filter(name="Specialist"))
         self.assertQuerysetEqual(specialist.groups.all(), self.groups)
 
@@ -156,7 +157,8 @@ class CustomUserSerializerTest(TestCase):
                               "bio": "",
                               "groups": ["Specialist"],
                               "avatar": "/media/default_avatar.jpeg",
-                              "is_active": True}
+                              "is_active": True,
+                              "schedule": None}
 
     def setUp(self):
         """This method adds needed info for tests."""
