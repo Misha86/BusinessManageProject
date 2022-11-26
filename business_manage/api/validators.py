@@ -114,7 +114,7 @@ def validate_working_time_values(json: dict):
             )
 
 
-def validate_specialist(user_data: object | int):
+def validate_specialist(user_data):
     """Validate user is specialist."""
     try:
         user_model = get_user_model()

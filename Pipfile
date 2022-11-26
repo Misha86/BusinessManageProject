@@ -8,6 +8,7 @@ django = "*"
 pillow = "*"
 djangorestframework = "*"
 python-decouple = "*"
+django-filter = "*"
 
 [dev-packages]
 flake8 = "*"
@@ -29,7 +30,6 @@ pyflakes = "*"
 pep8 = "*"
 coverage = "*"
 pygments = "*"
-django-filter = "*"
 
 [requires]
 python_version = "3.10"

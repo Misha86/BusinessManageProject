@@ -1,0 +1,25 @@
+version: '3.7'
+
+services:  
+  app:
+    build:
+      context: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/src
+    command: sh -c "python business_manage/manage.py makemigrations && python business_manage/manage.py migrate && python business_manage/manage.py runserver 0.0.0.0:8000"
+    depends_on: 
+      - db
+    env_file:
+      - .env
+
+  db:
+    image: postgres:13-alpine
+    ports:
+      - "5432:5432"
+    volumes:
+      - django_db:/var/lib/postgresql/data
+
+volumes:
+  django_db:

@@ -27,7 +27,8 @@ def get_free_time_intervals(schedule_intervals: list,
 
     a_intervals_values = sorted(
         itertools.chain(
-            *appointments_time_intervals, *schedule_time_intervals,
+            *appointments_time_intervals,
+            *schedule_time_intervals,
         )
     )
 
@@ -36,6 +37,6 @@ def get_free_time_intervals(schedule_intervals: list,
         return len(set(item)) != 1 and inside_intervals
 
     free_intervals = zip(a_intervals_values[::2], a_intervals_values[1::2])
-    free_working_intervals = list(filter(filter_intervals, free_intervals))
+    free_working_intervals = filter(filter_intervals, free_intervals)
 
     return list(map(time_interval_to_string_interval, free_working_intervals))
