@@ -249,7 +249,7 @@ class Appointment(models.Model):
     )
     specialist = models.ForeignKey(
         CustomUser,
-        related_name="specialist_appointments",
+        related_name="appointments",
         on_delete=models.CASCADE,
         verbose_name="Specialist",
         validators=[validate_specialist]

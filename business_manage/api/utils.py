@@ -35,6 +35,11 @@ def string_interval_to_time_interval(str_interval: list):
     return list(map(string_to_time, str_interval))
 
 
+def time_interval_to_string_interval(str_interval: list):
+    """Returns list of string objects."""
+    return list(map(time_to_string, str_interval))
+
+
 def is_inside_interval(main_interval: tuple, inner_interval: tuple):
     """Return True if inner interval is inside main_interval."""
     return (

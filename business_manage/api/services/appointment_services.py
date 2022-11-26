@@ -9,7 +9,9 @@ from rest_framework.generics import get_object_or_404
 
 from api.models import Appointment, CustomUser, Location, SpecialistSchedule
 from api.services.schedule_services import get_working_day
-from api.utils import is_inside_interval, string_interval_to_time_interval
+from api.utils import (is_inside_interval,
+                       string_interval_to_time_interval,
+                       time_interval_to_string_interval)
 
 
 def is_appointment_fit_datetime(a_interval: tuple,
@@ -105,7 +107,9 @@ def get_appointments_time_intervals(specialist: CustomUser, date: datetime) -> l
     appointments = Appointment.objects.filter(specialist=specialist,
                                               start_time__date=date)
 
-    a_intervals = [[localtime(appointment.start_time).time(),
-                    localtime(appointment.end_time).time()]
-                   for appointment in appointments]
+    a_intervals = [
+        time_interval_to_string_interval([localtime(appointment.start_time).time(),
+                                          localtime(appointment.end_time).time()])
+        for appointment in appointments
+    ]
     return a_intervals

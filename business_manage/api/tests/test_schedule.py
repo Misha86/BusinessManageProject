@@ -1,13 +1,41 @@
 """The module includes tests for Schedule model, serializers and views."""
 
+from datetime import datetime, timedelta
 from django.db import IntegrityError
 from django.test import TestCase
+from django.utils.timezone import get_current_timezone
 from rest_framework.exceptions import ValidationError, ErrorDetail
 
-from ..models import CustomUser, SpecialistSchedule
+from ..models import CustomUser, SpecialistSchedule, Location, Appointment
 from ..serializers.schedule_serializers import SpecialistScheduleSerializer
 from ..services.customuser_services import add_user_to_group_specialist
-from ..utils import generate_working_time_intervals
+from ..utils import (generate_working_time_intervals,
+                     string_to_time,
+                     generate_working_time,
+                     time_to_string)
+from rest_framework.reverse import reverse
+from rest_framework.test import APIClient
+
+
+def get_appointment_data(specialist):
+    """Get data to create appointment."""
+    start_time = datetime.combine(datetime.now().date() + timedelta(days=1),
+                                  string_to_time("12:15"),
+                                  tzinfo=get_current_timezone())
+    duration = timedelta(minutes=20)
+
+    working_time = generate_working_time("9:00", "20:00")
+    location = Location.objects.create(name="office #1", working_time=working_time)
+    valid_data = {
+        "start_time": start_time,
+        "duration": duration,
+        "specialist": specialist,
+        "location": location,
+        "customer_firstname": "customer_firstname",
+        "customer_lastname": "customer_lastname",
+        "customer_email": "customer@com.ua",
+    }
+    return valid_data
 
 
 class SpecialistScheduleModelTest(TestCase):
@@ -181,3 +209,128 @@ class SpecialistScheduleSerializerTest(TestCase):
                         ]
                     }
                 })
+
+
+class SpecialistScheduleViewTest(TestCase):
+    """Class SpecialistScheduleViewTest for testing SpecialistSchedule views."""
+
+    def setUp(self):
+        """This method adds needed info for tests."""
+        self.client = APIClient()
+
+        self.user_data = {
+            "email": "specialist@com.ua",
+            "first_name": "Fn",
+            "last_name": "Ln"
+        }
+        self.specialist = CustomUser.objects.create_user(**self.user_data)
+        add_user_to_group_specialist(self.specialist)
+
+        self.working_time = generate_working_time_intervals("10:00", "20:00")
+
+        self.valid_data = {
+            "specialist": self.specialist,
+            "working_time": self.working_time
+        }
+        self.schedule = SpecialistSchedule.objects.create(**self.valid_data)
+
+    def test_get_all_schedules(self):
+        """Test for getting all schedules."""
+        response = self.client.get(reverse("api:schedules-list-create"), format="json")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["specialist"],
+                         self.schedule.specialist.get_full_name())
+
+    def test_get_specialist_schedule(self):
+        """Test to get a specialist schedule."""
+        response = self.client.get(
+            reverse(
+                "api:specialist-schedule", args=(self.specialist.id,)
+            ),
+            format="json"
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["working_time"], self.schedule.working_time)
+        with self.assertRaises(KeyError):
+            response.data["specialist"]
+
+    def test_get_specialist_schedule_for_date(self):
+        """Test to get a specialist schedule for concrete date."""
+        valid_data = get_appointment_data(self.specialist)
+        appointment = Appointment.objects.create(**valid_data)
+        start_time = appointment.start_time
+        end_time = appointment.end_time
+
+        response = self.client.get(
+            reverse(
+                "api:specialist-schedule-date", kwargs={
+                    "s_id": self.specialist.id,
+                    "a_date": start_time.date()
+                }
+            ), format="json"
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {
+            "appointments intervals": [
+                [f"{time_to_string(start_time)}",
+                 f"{time_to_string(end_time)}"]
+            ],
+            "free intervals": [
+                ["10:00", "12:15"],
+                ["12:35", "20:00"]
+            ]
+        })
+
+    def test_get_schedule_not_specialist(self):
+        """Test to get schedule for concrete date when a user is not specialist."""
+        self.user_data.update(dict(email="user@com.ua"))
+        user = CustomUser.objects.create_user(**self.user_data)
+        a_date = datetime.now().date() + timedelta(days=1)
+
+        response = self.client.get(
+            reverse(
+                "api:specialist-schedule-date", kwargs={
+                    "s_id": user.id,
+                    "a_date": a_date
+                }
+            ), format="json"
+        )
+        full_name = self.specialist.get_full_name()
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.data, {"detail": f"User {full_name} is not specialist."})
+
+    def test_get_schedule_past_date_error(self):
+        """Test to get schedule for past date."""
+        a_date = datetime.now().date() - timedelta(days=2)
+
+        response = self.client.get(
+            reverse(
+                "api:specialist-schedule-date", kwargs={
+                    "s_id": self.specialist.id,
+                    "a_date": a_date
+                }
+            ), format="json"
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data, {"detail": "You can't see schedule of the past days."})
+
+    def test_get_schedule_not_working_day_error(self):
+        """Test to get schedule for a specialist rest day."""
+        a_date = datetime.now().date() + timedelta(days=2)
+        working_time = generate_working_time_intervals()
+        self.schedule.working_time = working_time
+        self.schedule.save()
+
+        response = self.client.get(
+            reverse(
+                "api:specialist-schedule-date", kwargs={
+                    "s_id": self.specialist.id,
+                    "a_date": a_date
+                }
+            ), format="json"
+        )
+        full_name = self.specialist.get_full_name()
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data, {"detail": f"{full_name} is not working on this day"})

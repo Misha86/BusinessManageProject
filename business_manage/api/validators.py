@@ -5,7 +5,7 @@ from django.utils import timezone
 from datetime import time
 from django.contrib.auth import get_user_model
 from rest_framework.exceptions import ValidationError
-from .utils import string_interval_to_time_interval
+from .utils import string_interval_to_time_interval, string_to_time
 
 
 def validate_rounded_minutes(time_value):
@@ -98,7 +98,13 @@ def validate_working_time_values(json: dict):
     Time intervals should not be covering each other.
     """
     for day, intervals in json.items():
-        sorted_intervals = sorted(intervals, key=lambda x: x[0])
+        time_intervals = map(lambda x:
+                             [
+                                 string_to_time(x[0]),
+                                 string_to_time(x[1])
+                             ],
+                             intervals)
+        sorted_intervals = sorted(time_intervals, key=lambda x: x[0])
         intervals_values = list(itertools.chain(*sorted_intervals))
         sorted_intervals_values = sorted(intervals_values)
 
