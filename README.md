@@ -44,7 +44,7 @@ git clone https://github.com/Misha86/BusinessManageProject.git
 - [![Python](https://docs.python.org/3.9/_static/py.svg)](https://www.python.org/downloads/release/python-3912/) 3.9.12
 - Project reqirements:
 ```
-pip install -r /requirements.txt
+pip install -r requirements.txt
 ```
 
 ### Environment
@@ -78,7 +78,7 @@ python manage.py runserver
 - Go to the main directory - BusinessManageProject
 - Run our project using Docker
 ```
-docker-compose up
+docker-compose up --build
 ```
 
 
@@ -101,15 +101,15 @@ python manage.py createmanager
 
 - Create a superuser:    
 ```
-docker exec app python business_manage/manage.py createsuperuser
+docker-compose run app python business_manage/manage.py createsuperuser
 ```
 - Create a admin:    
 ```
-docker exec app python business_manage/manage.py createadmin
+docker-compose run app python business_manage/manage.py createadmin
 ```
 - Create a manager:    
 ```
-docker exec app python business_manage/manage.py createmanager
+docker-compose run app python business_manage/manage.py createmanager
 ```
 
 ----
@@ -160,7 +160,7 @@ a flake8 check. If the check does not pass the commit will not take place.
 - Install coverage according to python version:
 
 ```
-python3.9 -m pip install coverage
+pip install coverage
 ```
 
 - Run tests coverage from main directory:
@@ -191,10 +191,90 @@ coverage run business_manage/manage.py test api
 
 ## Usage
 
-- Run project tests:
+Endpoints from the project you can use in the frontend part, 
+Postman or Swagger. We use standard DRF API in this example.
+
+- Run server 
 ```
-python manage.py test
+python manage.py runserver
 ```
+or 
+```
+docker-compose up
+```
+- Open in the browser URL http://0.0.0.0:8000
+
+[![MainPage](README_STATIC/main_page.png)](http://0.0.0.0:8000)
+
+### Manager role
+Managers can add new specialists to the business, 
+create schedules, and add new working locations for the business.
+
+- Login as manager
+
+#### Create a new specialist
+
+- Use URL http://0.0.0.0:8000/api/specialists
+
+![CreateSpecialist](README_STATIC/create_specialist.png)
+
+- Fill form and sent request
+
+
+#### Create a schedule for specialist
+
+- Use URL http://0.0.0.0:8000/api/schedules
+
+![CreateSchedule](README_STATIC/create_schedule.png)
+
+- Fill form and sent request
+
+
+#### Create a new location
+
+- Use URL http://0.0.0.0:8000/api/locations
+
+![CreateLocation](README_STATIC/create_location.png)
+
+- Fill form and sent request
+
+### Admin role
+Admin adds an appointment for clients and specialists.
+
+- Login as admin
+
+#### Create a new appointment
+
+- Use URL http://0.0.0.0:8000/api/appointments
+
+![CreateAppointments](README_STATIC/create_appointment.png)
+
+- Fill form and sent request
+
+### Customer role
+Customers can review a list of specialists, filter them by position,
+get the schedule for specific specialists and a concrete date.
+
+#### Get all specialists
+
+- Use URL http://0.0.0.0:8000/api/specialists
+
+![GetAllSpecialists](README_STATIC/specialist_list.png)
+
+
+#### Filter specialists by position
+
+- Use URL http://0.0.0.0:8000/api/specialists/?position=<<PositionTitle>>
+
+![FilterSpecialists](README_STATIC/filter_specialists.png)
+
+
+#### Get schedule for concrete date
+
+- Use URL http://0.0.0.0:8000/api/specialists/<<SpecialistId>>/schedule/<<Date>>
+
+![FilterSpecialists](README_STATIC/schedule_date.png)
+
 
 ----
 
