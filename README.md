@@ -115,6 +115,7 @@ docker-compose run app python business_manage/manage.py createmanager
 ----
 
 ## Tests
+The project will use FakeFactory for tests in future
 
 - Run project tests:
 ```
