@@ -9,6 +9,8 @@ pillow = "*"
 djangorestframework = "*"
 python-decouple = "*"
 django-filter = "*"
+dj-database-url = "*"
+psycopg2 = "*"
 
 [dev-packages]
 flake8 = "*"

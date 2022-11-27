@@ -8,9 +8,15 @@ services:
       - "8000:8000"
     volumes:
       - .:/src
-    command: sh -c "python business_manage/manage.py makemigrations && python business_manage/manage.py migrate && python business_manage/manage.py runserver 0.0.0.0:8000"
+    command: sh -c "
+      python business_manage/manage.py makemigrations && 
+      python business_manage/manage.py migrate && 
+      python business_manage/manage.py runserver 0.0.0.0:8000
+      "
     depends_on: 
       - db
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:${POSTGRES_PORT}/${POSTGRES_DB}
     env_file:
       - .env
 
@@ -18,6 +24,8 @@ services:
     image: postgres:13-alpine
     ports:
       - "5432:5432"
+    env_file:
+      - .env
     volumes:
       - django_db:/var/lib/postgresql/data
 

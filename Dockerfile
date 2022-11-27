@@ -7,13 +7,10 @@ ENV PYTHONDONTWRITEBYTECODE 1
 WORKDIR /src
 
 COPY ./requirements.txt /src/requirements.txt
-COPY ./.env /src/.env
+COPY ./.env .
 
-RUN apk add --update --no-cache --virtual .tmp gcc libc-dev \
-    linux-headers postgresql-dev postgresql-client
-RUN apk add build-base
-RUN python -m pip install --upgrade pip
+RUN apk add --update --no-cache --virtual .tmp gcc libc-dev linux-headers postgresql-dev postgresql-client
 
-RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
+RUN pip install --no-cache-dir --upgrade -r /src/requirements.txt
 
-COPY ./business_manage /src
+COPY ./business_manage .

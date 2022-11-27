@@ -10,10 +10,6 @@ Admin can make an appointments for clients to the specific specialist at the con
 Manger creates profile for the specialists, adds working locations and schedule for specialists.
 
 
-[![GitHub license](https://img.shields.io/github/license/ita-social-projects/BeautyProject)](https://github.com/ita-social-projects/BeautyProject/blob/master/LICENSE)
-[![GitHub issues](https://img.shields.io/github/issues/ita-social-projects/BeautyProject)](https://github.com/ita-social-projects/BeautyProject/issues)
-[![Pending Pull-Requests](https://img.shields.io/github/issues-pr/ita-social-projects/BeautyProject?style=flat-square)](https://github.com/ita-social-projects/BeautyProject/pulls)
-[![GitHub top language](https://img.shields.io/github/languages/top/ita-social-projects/BeautyProject)](https://img.shields.io/github/languages/top/ita-social-projects/BeautyProject)
 
 ---
 Content
@@ -23,20 +19,11 @@ Content
   - [Environment](#Environment)
   - [How to run local](#How-to-run-local)
   - [How to run Docker](#How-to-run-Docker)
-  - [Setup](#Setup)
+  - [Setup using the terminal](#Setup using the terminal)
+  - [Setup using docker](#Setup using the docker)
 - [Tests](#Tests)
-- [Project deploy](#project-deploy)
 - [Usage](#Usage)
-- [Documentation](#Documentation)
-- [Contributing](#contributing)
-  - [Before entering](#Before-entering)
-  - [Git flow](#Git-flow)
-  - [Issue flow](#Issue-flow)
-  - [Using flake8](#Using-flake8)
-- [FAQ](#faq)
 - [Teams](#Teams)
-- [Support](#support)
-- [License](#license)
 
 ----
 
@@ -68,11 +55,11 @@ It must contain the following settings:
 SECRET_KEY = '😊YOUR_SECRET_KEY😊'
 DEBUG = False
 ALLOWED_HOSTS = *
-DB_NAME='😊YOUR_DB_NAME😊'
-DB_USER='😊YOUR_DB_USER😊'
-DB_PASS='😊YOUR_DB_PASS😊'
-DB_HOST='😊YOUR_DB_HOST😊'
-DB_PORT='😊YOUR_DB_PORT😊'
+POSTGRES_DB = '😊YOUR_DB_NAME😊'
+POSTGRES_USER = '😊YOUR_DB_USER😊'
+POSTGRES_PASSWORD = '😊YOUR_DB_PASS😊'
+POSTGRES_HOST = '😊YOUR_DB_HOST😊'
+POSTGRES_PORT = '😊YOUR_DB_PORT😊'
 ```
 
 ### How to run local
@@ -94,7 +81,6 @@ docker-compose up
 ```
 
 
-
 ### Setup using the terminal
 
 - Create a superuser:    
@@ -114,15 +100,15 @@ python manage.py createmanager
 
 - Create a superuser:    
 ```
-docker src exec python manage.py createsuperuser
+docker exec src python  business_manage/manage.py createsuperuser
 ```
 - Create a admin:    
 ```
-docker src exec python manage.py createadmin
+docker exec src python  business_manage/manage.py createadmin
 ```
 - Create a manager:    
 ```
-docker src exec python manage.py createmanager
+docker exec src python  business_manage/manage.py createmanager
 ```
 
 ----
@@ -202,15 +188,18 @@ coverage run business_manage/manage.py test api
 
 ----
 
+## Usage
+
+- Run project tests:
+```
+python manage.py test
+```
+
+----
+
 ## Teams
 
 ### Development team 
 [![@Misha86/](https://github.com/Misha86.png?size=200)](https://github.com/Misha86)
-
----
-
-## Support
-
-- This option is currently missing. You can contact a team member directly. You can go to the team member's page in the [teams section](#Teams) by clicking on his or her avatar.
 
 ---
