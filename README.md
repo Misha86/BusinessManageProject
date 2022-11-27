@@ -75,7 +75,8 @@ python manage.py runserver
 
 ### How to run Docker
 
-- Run our project using Docker:
+- Go to the main directory - BusinessManageProject
+- Run our project using Docker
 ```
 docker-compose up
 ```
@@ -100,15 +101,15 @@ python manage.py createmanager
 
 - Create a superuser:    
 ```
-docker exec src python  business_manage/manage.py createsuperuser
+docker exec app python  business_manage/manage.py createsuperuser
 ```
 - Create a admin:    
 ```
-docker exec src python  business_manage/manage.py createadmin
+docker exec app python  business_manage/manage.py createadmin
 ```
 - Create a manager:    
 ```
-docker exec src python  business_manage/manage.py createmanager
+docker exec app python  business_manage/manage.py createmanager
 ```
 
 ----
