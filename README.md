@@ -14,7 +14,7 @@ Manger creates profile for the specialists, adds working locations and schedule 
 ---
 Content
 - [Installation](#Installation)
-  - [Clone](#Clone)
+  - [Clone](#Clone-or-Download)
   - [Required to install](#Required-to-install)
   - [Environment](#Environment)
   - [How to run local](#How-to-run-local)
