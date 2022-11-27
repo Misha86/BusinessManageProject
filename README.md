@@ -101,15 +101,15 @@ python manage.py createmanager
 
 - Create a superuser:    
 ```
-docker exec app python  business_manage/manage.py createsuperuser
+docker exec app python business_manage/manage.py createsuperuser
 ```
 - Create a admin:    
 ```
-docker exec app python  business_manage/manage.py createadmin
+docker exec app python business_manage/manage.py createadmin
 ```
 - Create a manager:    
 ```
-docker exec app python  business_manage/manage.py createmanager
+docker exec app python business_manage/manage.py createmanager
 ```
 
 ----
