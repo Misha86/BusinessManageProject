@@ -10,6 +10,16 @@ from ..serializers.customuser_serializers import SpecialistSerializer
 from ..services.customuser_services import add_user_to_group_specialist
 
 
+def get_user_data(**kwargs):
+    """Get data to create user."""
+    user_data = {"first_name": "UserF",
+                 "last_name": "UserL",
+                 "patronymic": "",
+                 "bio": "",
+                 "email": "user@com.ua"}
+    return {**user_data, **kwargs}
+
+
 class CustomUserModelTest(TestCase):
     """Class CustomUserModelTest for testing CustomUser models."""
 
@@ -17,12 +27,7 @@ class CustomUserModelTest(TestCase):
         """This method adds needed info for tests."""
         self.groups = Group.objects.all()
         self.specialist_group = Group.objects.create(name="Specialist")
-        self.user_data = {"first_name": "UserF",
-                          "last_name": "UserL",
-                          "patronymic": "",
-                          "bio": "",
-                          "email": "user@com.ua",
-                          "password": "password"}
+        self.user_data = get_user_data(password="password")
 
     def test_create_user(self):
         """Test for creating user."""
@@ -140,25 +145,15 @@ class CustomUserModelTest(TestCase):
 class CustomUserSerializerTest(TestCase):
     """Class CustomUserSerializerTest for testing CustomUser serializers."""
 
-    valid_data = {"first_name": "UserF",
-                  "last_name": "UserL",
-                  "patronymic": "",
-                  "position": "dentist",
-                  "bio": "",
-                  "is_active": True,
-                  "email": "user@com.ua",
-                  "password": "password"}
+    valid_data = get_user_data(position="dentist")
 
-    expect_specialist_data = {"email": "user@com.ua",
-                              "first_name": "UserF",
-                              "last_name": "UserL",
-                              "patronymic": "",
-                              "position": "dentist",
-                              "bio": "",
-                              "groups": ["Specialist"],
-                              "avatar": "/media/default_avatar.jpeg",
-                              "is_active": True,
-                              "schedule": None}
+    expect_specialist_data = get_user_data(
+        **{"position": "dentist",
+           "groups": ["Specialist"],
+           "avatar": "/media/default_avatar.jpeg",
+           "is_active": True,
+           "schedule": None},
+    )
 
     def setUp(self):
         """This method adds needed info for tests."""
@@ -196,17 +191,15 @@ class CustomUserViewTest(TestCase):
     def setUp(self):
         """This method adds needed info for tests."""
         self.client = APIClient()
-        self.valid_data = {"first_name": "UserF",
-                           "last_name": "UserL",
-                           "position": "dentist",
-                           "bio": "",
-                           "email": "user@com.ua"}
+        self.valid_data = get_user_data()
+        self.specialist_data = get_user_data(position="dentist", email="specialist@com.ua")
+        self.get_specialists_url_name = "api:specialists-list-create"
 
     def test_get_all_specialists(self):
         """Test for getting all specialists."""
         user = CustomUser.objects.create_user(**self.valid_data)
         add_user_to_group_specialist(user)
-        response = self.client.get(reverse("api:specialists-list-create"), format="json")
+        response = self.client.get(reverse(self.get_specialists_url_name), format="json")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 1)
 
@@ -214,25 +207,22 @@ class CustomUserViewTest(TestCase):
         """Test for creating specialist by admin."""
         admin = CustomUser.objects.create_admin(password="password", **self.valid_data)
         self.client.force_authenticate(admin)
-        self.valid_data.update(dict(email="specialist@com.ua"))
-        response = self.client.post(reverse("api:specialists-list-create"),
-                                    self.valid_data, format="json")
+        response = self.client.post(reverse(self.get_specialists_url_name),
+                                    self.specialist_data, format="json")
         self.assertEqual(response.status_code, 403)
 
     def test_create_specialists_by_manager_success(self):
         """Test for creating specialist by manager."""
         manager = CustomUser.objects.create_manager(password="password", **self.valid_data)
         self.client.force_authenticate(manager)
-        self.valid_data.update(dict(email="specialist@com.ua"))
-        response = self.client.post(reverse("api:specialists-list-create"),
-                                    self.valid_data, format="json")
+        response = self.client.post(reverse(self.get_specialists_url_name),
+                                    self.specialist_data, format="json")
         self.assertEqual(response.status_code, 201)
 
     def test_create_specialists_by_superuser_success(self):
         """Test for creating specialist by superuser."""
         manager = CustomUser.objects.create_superuser(password="password", **self.valid_data)
         self.client.force_authenticate(manager)
-        self.valid_data.update(dict(email="specialist@com.ua"))
-        response = self.client.post(reverse("api:specialists-list-create"),
-                                    self.valid_data, format="json")
+        response = self.client.post(reverse(self.get_specialists_url_name),
+                                    self.specialist_data, format="json")
         self.assertEqual(response.status_code, 201)

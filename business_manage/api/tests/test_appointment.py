@@ -356,6 +356,8 @@ class LocationViewTest(TestCase):
         """This method adds needed info for tests."""
         self.client = APIClient()
 
+        self.create_ap_url = "api:appointments-list-create"
+
         data_for_tests = get_data_for_tests()
         (self.user_data, self.specialist, self.user,
          self.location, self.valid_data, _) = data_for_tests
@@ -363,7 +365,7 @@ class LocationViewTest(TestCase):
     def test_get_all_appointments(self):
         """Test for getting all appointments."""
         appointment = Appointment.objects.create(**self.valid_data)
-        response = self.client.get(reverse("api:appointments-list-create"), format="json")
+        response = self.client.get(reverse(self.create_ap_url), format="json")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]["specialist"],
@@ -377,7 +379,7 @@ class LocationViewTest(TestCase):
 
         self.valid_data.update(dict(specialist=self.specialist.id, location=self.location.id))
 
-        response = self.client.post(reverse("api:appointments-list-create"),
+        response = self.client.post(reverse(self.create_ap_url),
                                     self.valid_data, format="json")
         self.assertEqual(response.status_code, 403)
 
@@ -390,7 +392,7 @@ class LocationViewTest(TestCase):
 
         self.valid_data.update(dict(specialist=self.specialist.id, location=self.location.id))
 
-        response = self.client.post(reverse("api:appointments-list-create"),
+        response = self.client.post(reverse(self.create_ap_url),
                                     self.valid_data, format="json")
         self.assertEqual(response.status_code, 201)
 
@@ -403,7 +405,7 @@ class LocationViewTest(TestCase):
 
         self.valid_data.update(dict(specialist=self.specialist.id, location=self.location.id))
 
-        response = self.client.post(reverse("api:appointments-list-create"),
+        response = self.client.post(reverse(self.create_ap_url),
                                     self.valid_data, format="json")
         self.assertEqual(response.status_code, 403)
 
@@ -416,7 +418,7 @@ class LocationViewTest(TestCase):
 
         self.valid_data.update(dict(specialist=self.specialist.id, location=self.location.id))
 
-        response = self.client.post(reverse("api:appointments-list-create"),
+        response = self.client.post(reverse(self.create_ap_url),
                                     self.valid_data, format="json")
         self.assertEqual(response.status_code, 201)
 
@@ -431,6 +433,6 @@ class LocationViewTest(TestCase):
 
         self.valid_data.update(dict(specialist=self.specialist.id, location=self.location.id))
 
-        response = self.client.post(reverse("api:appointments-list-create"),
+        response = self.client.post(reverse(self.create_ap_url),
                                     self.valid_data, format="json")
         self.assertEqual(response.status_code, 400)

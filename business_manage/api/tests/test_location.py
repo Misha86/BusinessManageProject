@@ -12,16 +12,22 @@ from ..services.customuser_services import add_user_to_group_specialist
 from ..utils import generate_working_time
 
 
+def get_data(**kwargs):
+    """Get data to create location."""
+    data = {
+        "name": "LName",
+        "address": "234 New st.",
+        "working_time": generate_working_time(),
+    }
+    return {**data, **kwargs}
+
+
 class LocationModelTest(TestCase):
     """Class LocationModelTest for testing Location models."""
 
     def setUp(self):
         """This method adds needed info for tests."""
-        self.valid_data = {
-            "name": "LName",
-            "address": "234 New st.",
-            "working_time": generate_working_time(),
-        }
+        self.valid_data = get_data()
         self.location = Location.objects.create(**self.valid_data)
 
     def test_create_location_valid_data(self):
@@ -42,18 +48,19 @@ class LocationModelTest(TestCase):
 
         Working days must be named such names [Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
         """
-        invalid_data = "Invalid"
-        self.valid_data.update(dict(working_time={invalid_data: ["10:20", "11:20"]},
-                                    name="Name"))
+        invalid_key = "Invalid"
+        invalid_data = get_data(working_time={invalid_key: ["10:20", "11:20"]},
+                                name="Name")
 
-        location = Location.objects.create(**self.valid_data)
+        location = Location.objects.create(**invalid_data)
 
         with self.assertRaises(ValidationError) as ex:
             location.full_clean()
 
         message = ex.exception.args[0]
+
         self.assertEqual(message, {
-            f"{invalid_data}":
+            invalid_key:
                 "Day name should be one of these ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']."
         })
 
@@ -65,11 +72,7 @@ class LocationSerializerTest(TestCase):
         """This method adds needed info for tests."""
         self.l_serializer = LocationSerializer
         working_time = generate_working_time("10:30", "10:50")
-        self.valid_data = {
-            "name": "office #1",
-            "address": "234 New st.",
-            "working_time": working_time
-        }
+        self.valid_data = get_data(working_time=working_time)
 
     def test_serialize_valid_data(self):
         """Check serializer with valid data."""
@@ -84,11 +87,14 @@ class LocationSerializerTest(TestCase):
         """Check serializer with invalid working time when minutes don't multiples of 5."""
         for i in range(1, 5):
             invalid_time = f"10:5{i}"
-            self.valid_data.update(dict(working_time={"Mon": ["10:30", invalid_time]}))
+            invalid_data = get_data(working_time={"Mon": ["10:30", invalid_time]})
+
             with self.subTest(i=i):
-                serializer = self.l_serializer(data=self.valid_data)
+                serializer = self.l_serializer(data=invalid_data)
+
                 with self.assertRaises(ValidationError) as ex:
                     serializer.is_valid(raise_exception=True)
+
                 message = ex.exception.args[0]
                 self.assertEqual(
                     message,
@@ -108,11 +114,12 @@ class LocationSerializerTest(TestCase):
     def test_serialize_invalid_working_time_seconds_exist(self):
         """Check serializer with invalid working time when seconds exist."""
         invalid_time = "10:50:10"
-        self.valid_data.update(dict(working_time={"Mon": ["10:30", invalid_time]}))
-        serializer = self.l_serializer(data=self.valid_data)
+        invalid_data = get_data(working_time={"Mon": ["10:30", invalid_time]})
+        serializer = self.l_serializer(data=invalid_data)
 
         with self.assertRaises(ValidationError) as ex:
             serializer.is_valid(raise_exception=True)
+
         message = ex.exception.args[0]
         self.assertEqual(
             message,
@@ -134,10 +141,10 @@ class LocationSerializerTest(TestCase):
         start_time = "10:50"
         invalid_end_time = "10:40"
         for invalid_time_range in [invalid_end_time, start_time]:
-            self.valid_data.update(dict(working_time={"Mon": [start_time, invalid_end_time]}))
+            invalid_data = get_data(working_time={"Mon": [start_time, invalid_end_time]})
 
             with self.subTest(invalid_time_range=invalid_time_range):
-                serializer = self.l_serializer(data=self.valid_data)
+                serializer = self.l_serializer(data=invalid_data)
 
                 with self.assertRaises(ValidationError) as ex:
                     serializer.is_valid(raise_exception=True)
@@ -157,9 +164,9 @@ class LocationSerializerTest(TestCase):
 
     def test_serialize_invalid_working_time_not_end_time(self):
         """Check serializer with invalid working time when end time doesn't exist."""
-        self.valid_data.update(dict(working_time={"Mon": ["10:40"]}))
+        invalid_data = get_data(working_time={"Mon": ["10:40"]})
 
-        serializer = self.l_serializer(data=self.valid_data)
+        serializer = self.l_serializer(data=invalid_data)
 
         with self.assertRaises(ValidationError) as ex:
             serializer.is_valid(raise_exception=True)
@@ -185,10 +192,10 @@ class LocationSerializerTest(TestCase):
         end time is empty string.
         """
         for invalid_time_range in [["", "10:40"], ["10:40", ""]]:
-            self.valid_data.update(dict(working_time={"Mon": invalid_time_range}))
+            invalid_data = get_data(working_time={"Mon": invalid_time_range})
 
             with self.subTest(invalid_time_range=invalid_time_range):
-                serializer = self.l_serializer(data=self.valid_data)
+                serializer = self.l_serializer(data=invalid_data)
 
                 with self.assertRaises(ValidationError) as ex:
                     serializer.is_valid(raise_exception=True)
@@ -216,30 +223,22 @@ class LocationViewTest(TestCase):
         """This method adds needed info for tests."""
         self.client = APIClient()
         self.user = CustomUser.objects
-        self.valid_data = {
-            "name": "office #1",
-            "address": "234 New st.",
-            "working_time": {
-                "Mon": ["10:30", "10:50"],
-                "Tue": ["10:30", "10:50"],
-                "Wed": ["10:30", "10:50"],
-                "Thu": ["10:30", "10:50"],
-                "Fri": ["10:30", "10:50"],
-                "Sat": [],
-                "Sun": []
-            }
-        }
+        self.valid_data = get_data(
+            working_time=generate_working_time("10:30", "10:50")
+        )
+
         self.user_data = {
             "password": "password",
             "email": "user@com.ua",
             "first_name": "first_name",
             "last_name": "last_name"
         }
+        self.location_create_url = "api:locations-list-create"
 
     def test_get_all_locations(self):
         """Test for getting all locations."""
         location = Location.objects.create(**self.valid_data)
-        response = self.client.get(reverse("api:locations-list-create"), format="json")
+        response = self.client.get(reverse(self.location_create_url), format="json")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]["name"], location.name)
@@ -249,7 +248,7 @@ class LocationViewTest(TestCase):
         specialist = self.user.create_user(**self.user_data)
         add_user_to_group_specialist(specialist)
         self.client.force_authenticate(specialist)
-        response = self.client.post(reverse("api:locations-list-create"),
+        response = self.client.post(reverse(self.location_create_url),
                                     self.valid_data, format="json")
         self.assertEqual(response.status_code, 403)
 
@@ -257,7 +256,7 @@ class LocationViewTest(TestCase):
         """Test for creating location by admin is forbidden."""
         admin = self.user.create_admin(**self.user_data)
         self.client.force_authenticate(admin)
-        response = self.client.post(reverse("api:locations-list-create"),
+        response = self.client.post(reverse(self.location_create_url),
                                     self.valid_data, format="json")
         self.assertEqual(response.status_code, 403)
 
@@ -265,7 +264,7 @@ class LocationViewTest(TestCase):
         """Test for creating location by manager is allowed."""
         manager = self.user.create_manager(**self.user_data)
         self.client.force_authenticate(manager)
-        response = self.client.post(reverse("api:locations-list-create"),
+        response = self.client.post(reverse(self.location_create_url),
                                     self.valid_data, format="json")
         self.assertEqual(response.status_code, 201)
 
@@ -273,6 +272,6 @@ class LocationViewTest(TestCase):
         """Test for creating location by manager is allowed."""
         superuser = self.user.create_superuser(**self.user_data)
         self.client.force_authenticate(superuser)
-        response = self.client.post(reverse("api:locations-list-create"),
+        response = self.client.post(reverse(self.location_create_url),
                                     self.valid_data, format="json")
         self.assertEqual(response.status_code, 201)

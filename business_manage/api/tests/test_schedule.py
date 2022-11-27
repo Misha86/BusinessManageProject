@@ -38,16 +38,22 @@ def get_appointment_data(specialist):
     return valid_data
 
 
+def get_user_data(**kwargs):
+    """Get data to create user."""
+    user_data = {
+        "email": "specialist@com.ua",
+        "first_name": "Fn",
+        "last_name": "Ln"
+    }
+    return {**user_data, **kwargs}
+
+
 class SpecialistScheduleModelTest(TestCase):
     """Class SpecialistScheduleModelTest for testing SpecialistSchedule model."""
 
     def setUp(self):
         """This method adds needed info for tests."""
-        self.user_data = {
-            "email": "specialist@com.ua",
-            "first_name": "Fn",
-            "last_name": "Ln"
-        }
+        self.user_data = get_user_data()
         self.specialist = CustomUser.objects.create_user(**self.user_data)
         add_user_to_group_specialist(self.specialist)
 
@@ -95,11 +101,7 @@ class SpecialistScheduleSerializerTest(TestCase):
 
     def setUp(self):
         """This method adds needed info for tests."""
-        self.user_data = {
-            "email": "specialist@com.ua",
-            "first_name": "Fn",
-            "last_name": "Ln"
-        }
+        self.user_data = get_user_data()
         self.specialist = CustomUser.objects.create_user(**self.user_data)
         add_user_to_group_specialist(self.specialist)
 
@@ -218,11 +220,7 @@ class SpecialistScheduleViewTest(TestCase):
         """This method adds needed info for tests."""
         self.client = APIClient()
 
-        self.user_data = {
-            "email": "specialist@com.ua",
-            "first_name": "Fn",
-            "last_name": "Ln"
-        }
+        self.user_data = get_user_data()
         self.specialist = CustomUser.objects.create_user(**self.user_data)
         add_user_to_group_specialist(self.specialist)
 
@@ -233,6 +231,7 @@ class SpecialistScheduleViewTest(TestCase):
             "working_time": self.working_time
         }
         self.schedule = SpecialistSchedule.objects.create(**self.valid_data)
+        self.spec_schedule_date_url = "api:specialist-schedule-date"
 
     def test_get_all_schedules(self):
         """Test for getting all schedules."""
@@ -264,7 +263,7 @@ class SpecialistScheduleViewTest(TestCase):
 
         response = self.client.get(
             reverse(
-                "api:specialist-schedule-date", kwargs={
+                self.spec_schedule_date_url, kwargs={
                     "s_id": self.specialist.id,
                     "a_date": start_time.date()
                 }
@@ -291,7 +290,7 @@ class SpecialistScheduleViewTest(TestCase):
 
         response = self.client.get(
             reverse(
-                "api:specialist-schedule-date", kwargs={
+                self.spec_schedule_date_url, kwargs={
                     "s_id": user.id,
                     "a_date": a_date
                 }
@@ -307,7 +306,7 @@ class SpecialistScheduleViewTest(TestCase):
 
         response = self.client.get(
             reverse(
-                "api:specialist-schedule-date", kwargs={
+                self.spec_schedule_date_url, kwargs={
                     "s_id": self.specialist.id,
                     "a_date": a_date
                 }
@@ -325,7 +324,7 @@ class SpecialistScheduleViewTest(TestCase):
 
         response = self.client.get(
             reverse(
-                "api:specialist-schedule-date", kwargs={
+                self.spec_schedule_date_url, kwargs={
                     "s_id": self.specialist.id,
                     "a_date": a_date
                 }
