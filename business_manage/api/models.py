@@ -12,6 +12,24 @@ from api.validators import (validate_rounded_minutes,
                             validate_working_time_values)
 
 
+class Base(models.Model):
+    """Base abstract class."""
+
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="Created at",
+    )
+    update_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name="Updated at",
+    )
+
+    class Meta:
+        """This class meta stores ordering data."""
+        abstract = True
+        ordering = ["id"]
+
+
 def check_password_existing(user_role, password: str):
     """Check if password exists."""
     if not password:
@@ -87,7 +105,7 @@ class UserManager(BaseUserManager):
                                 **additional_fields)
 
 
-class CustomUser(AbstractBaseUser, PermissionsMixin):
+class CustomUser(AbstractBaseUser, Base, PermissionsMixin):
     """This class represents a custom User model.
 
     Attributes:
@@ -107,8 +125,6 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     date_joined = models.DateTimeField("date joined", default=timezone.now)
     patronymic = models.CharField("patronymic", max_length=150, blank=True)
     position = models.CharField("position", max_length=150)
-    updated_at = models.DateTimeField(auto_now=True, editable=False)
-    created_at = models.DateTimeField(auto_now_add=True, editable=False)
     bio = models.TextField("bio", max_length=255, blank=True, null=True)
     avatar = models.ImageField(
         "avatar",
@@ -137,10 +153,9 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     REQUIRED_FIELDS = ("first_name", "last_name")
 
-    class Meta:
+    class Meta(Base.Meta):
         """This class meta stores verbose names ordering data."""
 
-        ordering = ["id"]
         verbose_name = "User"
         verbose_name_plural = "Users"
 
@@ -176,7 +191,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         return f"{self.__class__.__name__}(id={self.id})"
 
 
-class Location(models.Model):
+class Location(Base):
     """Class Location provides tools for creating and managing appointments places."""
 
     name = models.CharField("location name", max_length=200, unique=True)
@@ -188,13 +203,10 @@ class Location(models.Model):
         null=True,
         validators=(validate_working_time,),
     )
-    updated_at = models.DateTimeField(auto_now=True, editable=False)
-    created_at = models.DateTimeField(auto_now_add=True, editable=False)
 
-    class Meta:
+    class Meta(Base.Meta):
         """This class meta stores verbose names ordering data."""
 
-        ordering = ["id"]
         verbose_name = "Location"
         verbose_name_plural = "Locations"
 
@@ -207,7 +219,7 @@ class Location(models.Model):
         return f"{self.__class__.__name__}(id={self.id})"
 
 
-class Appointment(models.Model):
+class Appointment(Base):
     """This class represents a basic Appointment (for an appointment system).
 
     Attributes:
@@ -239,14 +251,6 @@ class Appointment(models.Model):
         validators=[validate_rounded_minutes_seconds],
         help_text="Input only hours and minutes HH:MM:00"
     )
-    created_at = models.DateTimeField(
-        auto_now_add=True,
-        verbose_name="Created at",
-    )
-    update_at = models.DateTimeField(
-        auto_now=True,
-        verbose_name="Updated at",
-    )
     specialist = models.ForeignKey(
         CustomUser,
         related_name="appointments",
@@ -270,10 +274,9 @@ class Appointment(models.Model):
         verbose_name="Additional note",
     )
 
-    class Meta:
+    class Meta(Base.Meta):
         """This class meta stores verbose names ordering data."""
 
-        ordering = ["id"]
         verbose_name = "Appointment"
         verbose_name_plural = "Appointments"
 
@@ -296,7 +299,7 @@ class Appointment(models.Model):
         return f"Appointment #{self.id}"
 
 
-class SpecialistSchedule(models.Model):
+class SpecialistSchedule(Base):
     """This class represents a specialist schedule (for a schedule system).
 
     Attributes:
@@ -319,19 +322,10 @@ class SpecialistSchedule(models.Model):
         on_delete=models.CASCADE,
         validators=(validate_specialist,),
     )
-    created_at = models.DateTimeField(
-        auto_now_add=True,
-        verbose_name="Created at"
-    )
-    update_at = models.DateTimeField(
-        auto_now=True,
-        verbose_name="Updated at",
-    )
 
-    class Meta:
+    class Meta(Base.Meta):
         """This class meta stores verbose names ordering data."""
 
-        ordering = ["id"]
         verbose_name = "Schedule"
         verbose_name_plural = "Schedules"
 

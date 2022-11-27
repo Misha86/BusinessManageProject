@@ -16,7 +16,7 @@ class CustomUserAdmin(BaseUserAdmin):
     form = CustomUserChangeForm
     add_form = CustomUserCreationForm
 
-    list_display = ("email", "first_name", "last_name", "position", "id")
+    list_display = ("email", "first_name", "last_name", "position", "id", "created_at")
     list_filter = ("groups", "position")
     fieldsets = (
         (None, {"fields": ("email", "password", "groups")}),
@@ -69,3 +69,4 @@ class AppointmentAdmin(admin.ModelAdmin):
 class SpecialistScheduleAdmin(admin.ModelAdmin):
     """Class for specifing SpecialistSchedule fields in admin."""
     model = SpecialistSchedule
+    list_display = ("specialist", "working_time", "id", "created_at")
