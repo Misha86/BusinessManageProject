@@ -1,4 +1,6 @@
 """Validators for business_manage project."""
+
+import calendar
 import itertools
 
 from django.utils import timezone
@@ -136,3 +138,16 @@ def validate_datetime_is_future(value):
                     f"DateTime value {value} should have future datetime."
             }
         )
+
+
+def validate_days_name(value):
+    """Check days name are correct."""
+    week_days = list(map(str.capitalize, calendar.HTMLCalendar.cssclasses))
+    for name in value.keys():
+        if name not in week_days:
+            raise ValidationError(
+                {
+                    f"{name}":
+                        f"Day name should be one of these {week_days}."
+                }
+            )

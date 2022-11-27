@@ -37,6 +37,23 @@ class LocationModelTest(TestCase):
         message = ex.exception
         self.assertEqual(str(message), "UNIQUE constraint failed: api_location.name")
 
+    def test_location_working_day_error(self):
+        """Test for location working time field.
+
+        Working days must be named such names [Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+        """
+        self.valid_data.update(dict(working_time={"Invalid": ["10:20", "11:20"]},
+                                    name="Name"))
+
+        with self.assertRaises(ValidationError) as ex:
+            self.location.full_clean()
+
+        message = ex.exception.args[0]
+        self.assertEqual(message, {
+            "mon":
+                "Day name should be one of these [Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']."
+        })
+
 
 class LocationSerializerTest(TestCase):
     """Class LocationSerializerTest for testing Location serializers."""

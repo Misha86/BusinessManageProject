@@ -9,7 +9,7 @@ from api.validators import (validate_rounded_minutes,
                             validate_working_time, validate_specialist,
                             validate_datetime_is_future,
                             validate_working_time_intervals,
-                            validate_working_time_values)
+                            validate_working_time_values, validate_days_name)
 
 
 class Base(models.Model):
@@ -201,7 +201,8 @@ class Location(Base):
         default=dict,
         blank=True,
         null=True,
-        validators=(validate_working_time,),
+        validators=(validate_days_name,
+                    validate_working_time)
     )
 
     class Meta(Base.Meta):
@@ -314,7 +315,8 @@ class SpecialistSchedule(Base):
         default=dict,
         validators=(
             validate_working_time_intervals,
-            validate_working_time_values),
+            validate_working_time_values,
+            validate_days_name),
     )
     specialist = models.OneToOneField(
         CustomUser,
