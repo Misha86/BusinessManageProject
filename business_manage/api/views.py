@@ -104,7 +104,7 @@ class SpecialistDateScheduleView(APIView):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-        if a_date < timezone.now():
+        if a_date.date() < timezone.now().date():
             return Response(
                 {"detail": "You can't see schedule of the past days."},
                 status=status.HTTP_400_BAD_REQUEST,

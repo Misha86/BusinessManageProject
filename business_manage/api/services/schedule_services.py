@@ -11,7 +11,7 @@ from api.utils import (is_inside_interval,
 def get_working_day(working_time: dict, date: datetime):
     """Get specialist working day using datetime argument."""
     week_day = date.strftime("%a")
-    working_intervals = working_time.get(week_day)
+    working_intervals = working_time.get(week_day, [])
     return working_intervals
 
 
