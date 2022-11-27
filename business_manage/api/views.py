@@ -112,7 +112,7 @@ class SpecialistDateScheduleView(APIView):
         working_time = specialist.schedule.working_time
         schedule_intervals = get_working_day(working_time, a_date)
 
-        if not schedule_intervals:
+        if not any(schedule_intervals):
             return Response(
                 {"detail": f"{name} is not working on this day"},
                 status=status.HTTP_400_BAD_REQUEST,

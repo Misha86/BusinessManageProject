@@ -16,8 +16,8 @@ def string_to_time(string):
 
 def generate_working_time(start_time: str = "", end_time: str = ""):
     """Generates working time."""
-    week_days = [day for day in calendar.HTMLCalendar.cssclasses]
-    working_time = {day.capitalize(): [start_time, end_time] for day in week_days}
+    week_days = [day.capitalize() for day in calendar.HTMLCalendar.cssclasses]
+    working_time = {day: [start_time, end_time] for day in week_days}
     if not start_time and not end_time:
         working_time = dict.fromkeys(week_days, [])
     return working_time

@@ -42,16 +42,19 @@ class LocationModelTest(TestCase):
 
         Working days must be named such names [Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
         """
-        self.valid_data.update(dict(working_time={"Invalid": ["10:20", "11:20"]},
+        invalid_data = "Invalid"
+        self.valid_data.update(dict(working_time={invalid_data: ["10:20", "11:20"]},
                                     name="Name"))
 
+        location = Location.objects.create(**self.valid_data)
+
         with self.assertRaises(ValidationError) as ex:
-            self.location.full_clean()
+            location.full_clean()
 
         message = ex.exception.args[0]
         self.assertEqual(message, {
-            "mon":
-                "Day name should be one of these [Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']."
+            f"{invalid_data}":
+                "Day name should be one of these ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']."
         })
 
 
