@@ -127,7 +127,7 @@ python manage.py test
 - Install flake8 according to python version:
 
 ```
-python3.9 -m pip install flake8
+pip install flake8
 ```
 
 - Install flake8 extensions:
