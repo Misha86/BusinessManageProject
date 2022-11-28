@@ -136,3 +136,5 @@ migrations/
 sonar-project.properties
 dump.rdb
 /.scannerwork/
+
+node_modules/
