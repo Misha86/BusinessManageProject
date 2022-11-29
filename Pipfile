@@ -11,6 +11,7 @@ python-decouple = "*"
 django-filter = "*"
 dj-database-url = "*"
 psycopg2 = "*"
+djangorestframework-simplejwt = "*"
 
 [dev-packages]
 flake8 = "*"
