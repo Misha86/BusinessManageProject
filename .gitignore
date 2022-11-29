@@ -138,3 +138,5 @@ dump.rdb
 /.scannerwork/
 
 node_modules/
+.isort.cfg
+.mypy.ini
