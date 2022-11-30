@@ -33,6 +33,8 @@ pyflakes = "*"
 pep8 = "*"
 coverage = "*"
 pygments = "*"
+mypy = "*"
+djangorestframework-stubs = "*"
 
 [requires]
 python_version = "3.10"
