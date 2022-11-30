@@ -3,16 +3,11 @@ import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
-import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
 import { Link } from 'react-router-dom';
+import { managerLinks } from './NavBarLinks'
+import NavbarItem from './NavbarItem';
 
-const pages = [
-  { title: 'Add Specialist', sxStyle: {}, path: '/add-specialist' },
-  { title: 'Add Schedule', sxStyle: {}, path: '/add-schedule' },
-  { title: 'Add Location', sxStyle: {}, path: '/add-location' },
-  { title: 'Login', sxStyle: { marginLeft: 'auto' }, path: '/login' },
-];
 
 const Navbar = () => {
   return (
@@ -37,12 +32,8 @@ const Navbar = () => {
           >
             LOGO
           </Typography>
-          {pages.map((page) => (
-            <MenuItem sx={page.sxStyle} component={Link} to={page.path} key={page.title}>
-              <Typography component="h6" textAlign="center" variant="h6">
-                {page.title}
-              </Typography>
-            </MenuItem>
+          {managerLinks.map((page) => (
+            <NavbarItem page={page} key={page.title}/>
           ))}
         </Toolbar>
       </Container>
