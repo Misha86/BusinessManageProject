@@ -1,40 +1,37 @@
 """The module includes tests for Appointment model, serializers and views."""
 
-from django.utils.timezone import datetime, timedelta, get_current_timezone, make_aware
+from django.test import TestCase
+from django.utils.timezone import datetime, get_current_timezone, make_aware, timedelta
+from rest_framework.exceptions import ErrorDetail, ValidationError
 from rest_framework.reverse import reverse
 from rest_framework.test import APIClient
-from django.test import TestCase
-from rest_framework.exceptions import ValidationError, ErrorDetail
 
-from ..models import Location, CustomUser, Appointment, SpecialistSchedule
+from ..models import Appointment, CustomUser, Location, SpecialistSchedule
 from ..serializers.appointment_serializers import AppointmentSerializer
 from ..services.customuser_services import add_user_to_group_specialist
-from ..utils import string_to_time, generate_working_time_intervals
+from ..utils import generate_working_time_intervals, string_to_time
 
 
 def get_data_for_tests():
     """Set up data for tests."""
-    user_data = {
-        "email": "specialist@com.ua",
-        "first_name": "Fn",
-        "last_name": "Ln"
-    }
+    user_data = {"email": "specialist@com.ua", "first_name": "Fn", "last_name": "Ln"}
     specialist = CustomUser.objects.create_user(**user_data)
     add_user_to_group_specialist(specialist)
 
-    user_data.update(dict(email="user@com.ua"))
+    user_data |= dict(email="user@com.ua")
 
     user = CustomUser.objects.create_user(**user_data)
 
     location = Location.objects.create(name="office #1", working_time={})
 
-    start_time = datetime.combine(datetime.now().date() + timedelta(days=1),
-                                  string_to_time("09:15"),
-                                  tzinfo=get_current_timezone())
+    start_time = datetime.combine(
+        datetime.now().date() + timedelta(days=1), string_to_time("09:15"), tzinfo=get_current_timezone()
+    )
     duration = timedelta(minutes=20)
 
-    working_time = generate_working_time_intervals(start_time.strftime("%H:%M"),
-                                                   (start_time + duration).strftime("%H:%M"))
+    working_time = generate_working_time_intervals(
+        start_time.strftime("%H:%M"), (start_time + duration).strftime("%H:%M")
+    )
     SpecialistSchedule.objects.create(specialist=specialist, working_time=working_time)
 
     # valid data for models and views tests
@@ -60,8 +57,7 @@ class AppointmentModelTest(TestCase):
     def setUp(self):
         """This method adds needed info for tests."""
         data_for_tests = get_data_for_tests()
-        (self.user_data, self.specialist, self.user,
-         self.location, self.valid_data, _) = data_for_tests
+        (self.user_data, self.specialist, self.user, self.location, self.valid_data, _) = data_for_tests
 
         self.appointment = Appointment.objects.create(**self.valid_data)
 
@@ -71,10 +67,8 @@ class AppointmentModelTest(TestCase):
         self.assertEqual(self.appointment.duration, self.valid_data.get("duration"))
         self.assertEqual(self.appointment.specialist, self.valid_data.get("specialist"))
         self.assertEqual(self.appointment.location, self.valid_data.get("location"))
-        self.assertEqual(self.appointment.customer_firstname,
-                         self.valid_data.get("customer_firstname"))
-        self.assertEqual(self.appointment.customer_lastname,
-                         self.valid_data.get("customer_lastname"))
+        self.assertEqual(self.appointment.customer_firstname, self.valid_data.get("customer_firstname"))
+        self.assertEqual(self.appointment.customer_lastname, self.valid_data.get("customer_lastname"))
         self.assertEqual(self.appointment.customer_email, self.valid_data.get("customer_email"))
 
     def test_appointment_end_time(self):
@@ -127,10 +121,14 @@ class AppointmentModelTest(TestCase):
                         appointment.full_clean()
 
                     message = ex.exception.args[0]
-                    self.assertEqual(message, {
-                        invalid_minutes.strftime("%H:%M:%S"):
-                            "Time value must have zero seconds and minutes multiples of 5."
-                    })
+                    self.assertEqual(
+                        message,
+                        {
+                            invalid_minutes.strftime(
+                                "%H:%M:%S"
+                            ): "Time value must have zero seconds and minutes multiples of 5."
+                        },
+                    )
 
     def test_appointment_start_end_times_seconds_error(self):
         """Test for appointment start and end times format.
@@ -149,10 +147,10 @@ class AppointmentModelTest(TestCase):
                     appointment.full_clean()
 
                 message = ex.exception.args[0]
-                self.assertEqual(message, {
-                    seconds.strftime("%H:%M:%S"):
-                        "Time value must have zero seconds and minutes multiples of 5."
-                })
+                self.assertEqual(
+                    message,
+                    {seconds.strftime("%H:%M:%S"): "Time value must have zero seconds and minutes multiples of 5."},
+                )
 
     def test_appointment_duration_minutes_error(self):
         """Test for appointment duration format.
@@ -170,10 +168,9 @@ class AppointmentModelTest(TestCase):
                     appointment.full_clean()
 
                 message = ex.exception.args[0]
-                self.assertEqual(message, {
-                    str(invalid_minutes):
-                        "Duration value must have zero seconds and minutes multiples of 5."
-                })
+                self.assertEqual(
+                    message, {str(invalid_minutes): "Duration value must have zero seconds and minutes multiples of 5."}
+                )
 
     def test_appointment_duration_seconds_error(self):
         """Test for appointment duration format.
@@ -190,10 +187,9 @@ class AppointmentModelTest(TestCase):
                 appointment.full_clean()
 
             message = ex.exception.args[0]
-            self.assertEqual(message, {
-                str(seconds):
-                    "Duration value must have zero seconds and minutes multiples of 5."
-            })
+            self.assertEqual(
+                message, {str(seconds): "Duration value must have zero seconds and minutes multiples of 5."}
+            )
 
     def test_appointment_time_range_past_datetime_error(self):
         """Test for appointment start and end times format.
@@ -212,10 +208,10 @@ class AppointmentModelTest(TestCase):
                     appointment.full_clean()
 
                 message = ex.exception.args[0]
-                self.assertEqual(message, {
-                    invalid_date.strftime("%H:%M:%S"):
-                        f"DateTime value {invalid_date} should have future datetime."
-                })
+                self.assertEqual(
+                    message,
+                    {invalid_date.strftime("%H:%M:%S"): f"DateTime value {invalid_date} should have future datetime."},
+                )
 
     def test_appointment_method_mark_as_completed(self):
         """Test for appointment mark_as_completed method."""
@@ -230,8 +226,7 @@ class AppointmentSerializerTest(TestCase):
     def setUp(self):
         """This method adds needed info for tests."""
         data_for_tests = get_data_for_tests()
-        (self.user_data, self.specialist, self.user,
-         self.location, _, self.valid_data) = data_for_tests
+        (self.user_data, self.specialist, self.user, self.location, _, self.valid_data) = data_for_tests
 
         self.a_serializer = AppointmentSerializer
         self.serializer = self.a_serializer(data=self.valid_data)
@@ -240,29 +235,13 @@ class AppointmentSerializerTest(TestCase):
         """Check serializer with valid data."""
         self.serializer.is_valid(raise_exception=True)
 
-        self.assertEqual(
-            self.serializer.validated_data["start_time"], self.valid_data["start_time"]
-        )
-        self.assertEqual(
-            self.serializer.validated_data["duration"], self.valid_data["duration"]
-        )
-        self.assertEqual(
-            self.serializer.validated_data["customer_firstname"],
-            self.valid_data["customer_firstname"]
-        )
-        self.assertEqual(
-            self.serializer.validated_data["customer_lastname"],
-            self.valid_data["customer_lastname"]
-        )
-        self.assertEqual(
-            self.serializer.validated_data["customer_email"], self.valid_data["customer_email"]
-        )
-        self.assertEqual(
-            self.serializer.validated_data["note"], self.valid_data["note"]
-        )
-        self.assertEqual(
-            self.serializer.validated_data["is_active"], self.valid_data["is_active"]
-        )
+        self.assertEqual(self.serializer.validated_data["start_time"], self.valid_data["start_time"])
+        self.assertEqual(self.serializer.validated_data["duration"], self.valid_data["duration"])
+        self.assertEqual(self.serializer.validated_data["customer_firstname"], self.valid_data["customer_firstname"])
+        self.assertEqual(self.serializer.validated_data["customer_lastname"], self.valid_data["customer_lastname"])
+        self.assertEqual(self.serializer.validated_data["customer_email"], self.valid_data["customer_email"])
+        self.assertEqual(self.serializer.validated_data["note"], self.valid_data["note"])
+        self.assertEqual(self.serializer.validated_data["is_active"], self.valid_data["is_active"])
 
     def test_serialize_validate_method_success(self):
         """Check serializer validate method when data is valid."""
@@ -281,13 +260,9 @@ class AppointmentSerializerTest(TestCase):
             self.serializer.is_valid(raise_exception=True)
 
         message = ex.exception.args[0]
-        self.assertEqual(message, {
-            "time range": [
-                ErrorDetail(
-                    string="Start time should be more than end time.", code="invalid"
-                )
-            ]
-        })
+        self.assertEqual(
+            message, {"time range": [ErrorDetail(string="Start time should be more than end time.", code="invalid")]}
+        )
 
     def test_serialize_specialist_schedule_none(self):
         """Check serializer when specialist doesn't have schedule."""
@@ -297,33 +272,29 @@ class AppointmentSerializerTest(TestCase):
             self.serializer.is_valid(raise_exception=True)
 
         message = ex.exception.args[0]
-        self.assertEqual(message, {
-            "schedule": [
-                ErrorDetail(
-                    string="Fn Ln hasn't had schedule jet.", code="invalid"
-                )
-            ]
-        })
+        self.assertEqual(message, {"schedule": [ErrorDetail(string="Fn Ln hasn't had schedule jet.", code="invalid")]})
 
     def test_serialize_invalid_start_time(self):
         """Check serializer validate method with invalid start time."""
-        invalid_start_time = datetime.combine(datetime.now().date() + timedelta(days=-1),
-                                              string_to_time("09:15"),
-                                              tzinfo=get_current_timezone())
+        invalid_start_time = datetime.combine(
+            datetime.now().date() + timedelta(days=-1), string_to_time("09:15"), tzinfo=get_current_timezone()
+        )
         self.valid_data.update(dict(start_time=invalid_start_time))
 
         with self.assertRaises(ValidationError) as ex:
             self.serializer.is_valid(raise_exception=True)
 
         message = ex.exception.args[0]
-        self.assertEqual(message, {
-            "start_time": {
-                "09:15:00": ErrorDetail(
-                    string=f"DateTime value {invalid_start_time} should have future datetime.",
-                    code="invalid"
-                )
-            }
-        })
+        self.assertEqual(
+            message,
+            {
+                "start_time": {
+                    "09:15:00": ErrorDetail(
+                        string=f"DateTime value {invalid_start_time} should have future datetime.", code="invalid"
+                    )
+                }
+            },
+        )
 
     def test_serialize_start_time_is_none(self):
         """Check serializer validate method with null start time."""
@@ -334,9 +305,7 @@ class AppointmentSerializerTest(TestCase):
             self.serializer.is_valid(raise_exception=True)
 
         message = ex.exception.args[0]
-        self.assertEqual(message, {"start_time": [
-            ErrorDetail(string="This field may not be null.", code="null")
-        ]})
+        self.assertEqual(message, {"start_time": [ErrorDetail(string="This field may not be null.", code="null")]})
 
     def test_to_representation_method(self):
         """Check serializer a to_representation method."""
@@ -359,19 +328,17 @@ class LocationViewTest(TestCase):
         self.create_ap_url = "api:appointments-list-create"
 
         data_for_tests = get_data_for_tests()
-        (self.user_data, self.specialist, self.user,
-         self.location, self.valid_data, _) = data_for_tests
+        (self.user_data, self.specialist, self.user, self.location, self.valid_data, _) = data_for_tests
 
     def test_get_all_appointments(self):
         """Test for getting all appointments."""
         appointment = Appointment.objects.create(**self.valid_data)
         response = self.client.get(reverse(self.create_ap_url), format="json")
+        results = response.data["results"]
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]["specialist"],
-                         appointment.specialist.get_full_name())
-        self.assertEqual(response.data[0]["location"],
-                         appointment.location.name)
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0]["specialist"], appointment.specialist.get_full_name())
+        self.assertEqual(results[0]["location"], appointment.location.name)
 
     def test_create_appointment_by_specialist_fail(self):
         """Test for creating appointment by specialist is forbidden."""
@@ -379,8 +346,7 @@ class LocationViewTest(TestCase):
 
         self.valid_data.update(dict(specialist=self.specialist.id, location=self.location.id))
 
-        response = self.client.post(reverse(self.create_ap_url),
-                                    self.valid_data, format="json")
+        response = self.client.post(reverse(self.create_ap_url), self.valid_data, format="json")
         self.assertEqual(response.status_code, 403)
 
     def test_create_appointment_by_admin(self):
@@ -392,8 +358,7 @@ class LocationViewTest(TestCase):
 
         self.valid_data.update(dict(specialist=self.specialist.id, location=self.location.id))
 
-        response = self.client.post(reverse(self.create_ap_url),
-                                    self.valid_data, format="json")
+        response = self.client.post(reverse(self.create_ap_url), self.valid_data, format="json")
         self.assertEqual(response.status_code, 201)
 
     def test_create_appointment_by_manager_fail(self):
@@ -405,8 +370,7 @@ class LocationViewTest(TestCase):
 
         self.valid_data.update(dict(specialist=self.specialist.id, location=self.location.id))
 
-        response = self.client.post(reverse(self.create_ap_url),
-                                    self.valid_data, format="json")
+        response = self.client.post(reverse(self.create_ap_url), self.valid_data, format="json")
         self.assertEqual(response.status_code, 403)
 
     def test_create_appointment_by_superuser(self):
@@ -418,8 +382,7 @@ class LocationViewTest(TestCase):
 
         self.valid_data.update(dict(specialist=self.specialist.id, location=self.location.id))
 
-        response = self.client.post(reverse(self.create_ap_url),
-                                    self.valid_data, format="json")
+        response = self.client.post(reverse(self.create_ap_url), self.valid_data, format="json")
         self.assertEqual(response.status_code, 201)
 
     def test_create_appointment_not_specialist_schedule_error(self):
@@ -433,6 +396,5 @@ class LocationViewTest(TestCase):
 
         self.valid_data.update(dict(specialist=self.specialist.id, location=self.location.id))
 
-        response = self.client.post(reverse(self.create_ap_url),
-                                    self.valid_data, format="json")
+        response = self.client.post(reverse(self.create_ap_url), self.valid_data, format="json")
         self.assertEqual(response.status_code, 400)

@@ -9,8 +9,10 @@ from rest_framework.views import APIView
 from .models import Appointment, SpecialistSchedule, CustomUser
 from .serializers.appointment_serializers import AppointmentSerializer
 from .serializers.customuser_serializers import SpecialistSerializer
-from .serializers.schedule_serializers import (SpecialistScheduleSerializer,
-                                               SpecialistScheduleDetailSerializer)
+from .serializers.schedule_serializers import (
+    SpecialistScheduleSerializer,
+    SpecialistScheduleDetailSerializer,
+)
 from .services import customuser_services as us
 from .permissions import ReadOnly, IsBusinessOwnerOrManager, IsBusinessOwnerOrAdmin
 from .serializers.location_serializers import LocationSerializer
@@ -85,9 +87,9 @@ class SpecialistScheduleDetail(generics.RetrieveUpdateDestroyAPIView):
     def get_object(self):
         """Get schedule for specific specialist."""
         specialist_id = self.kwargs["pk"]
-        specialist = get_object_or_404(CustomUser,
-                                       id=specialist_id,
-                                       groups__name__icontains="Specialist")
+        specialist = get_object_or_404(
+            CustomUser, id=specialist_id, groups__name__icontains="Specialist",
+        )
         return specialist.schedule
 
 
@@ -122,8 +124,10 @@ class SpecialistDateScheduleView(APIView):
 
         free_time_intervals = get_free_time_intervals(schedule_intervals, a_intervals)
 
-        all_intervals = {"appointments intervals": a_intervals,
-                         "free intervals": free_time_intervals}
+        all_intervals = {
+            "appointments intervals": a_intervals,
+            "free intervals": free_time_intervals,
+        }
         return Response(
             all_intervals,
             status=status.HTTP_200_OK,

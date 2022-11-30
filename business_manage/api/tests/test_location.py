@@ -239,9 +239,10 @@ class LocationViewTest(TestCase):
         """Test for getting all locations."""
         location = Location.objects.create(**self.valid_data)
         response = self.client.get(reverse(self.location_create_url), format="json")
+        results = response.data["results"]
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]["name"], location.name)
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0]["name"], location.name)
 
     def test_create_location_by_specialist_fail(self):
         """Test for creating location by specialist is forbidden."""

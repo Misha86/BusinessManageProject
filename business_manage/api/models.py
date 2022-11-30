@@ -4,12 +4,16 @@ from django.contrib.auth.models import PermissionsMixin, Group
 from django.db import models
 from django.utils import timezone
 
-from api.validators import (validate_rounded_minutes,
-                            validate_rounded_minutes_seconds,
-                            validate_working_time, validate_specialist,
-                            validate_datetime_is_future,
-                            validate_working_time_intervals,
-                            validate_working_time_values, validate_days_name)
+from api.validators import (
+    validate_rounded_minutes,
+    validate_rounded_minutes_seconds,
+    validate_working_time,
+    validate_specialist,
+    validate_datetime_is_future,
+    validate_working_time_intervals,
+    validate_working_time_values,
+    validate_days_name,
+)
 
 
 class Base(models.Model):
@@ -26,11 +30,12 @@ class Base(models.Model):
 
     class Meta:
         """This class meta stores ordering data."""
+
         abstract = True
         ordering = ["id"]
 
 
-def check_password_existing(user_role, password: str):
+def check_password_existing(user_role: str, password: str) -> None:
     """Check if password exists."""
     if not password:
         raise ValueError(f"{user_role} must have an password.")
@@ -39,21 +44,25 @@ def check_password_existing(user_role, password: str):
 class UserManager(BaseUserManager):
     """This class provides tools for creating and managing CustomUser model."""
 
-    def create_user(self, email, first_name, last_name, password=None,
-                    group_name=None, **additional_fields):
+    def create_user(
+        self,
+        email,
+        first_name,
+        last_name,
+        password=None,
+        group_name=None,
+        **additional_fields,
+    ):
         """Create and save a user with the given email, and password."""
         if not email:
             raise ValueError("Users must have an email address")
         email = self.normalize_email(email)
-        user = self.model(email=email,
-                          first_name=first_name,
-                          last_name=last_name,
-                          **additional_fields)
+        user = self.model(email=email, first_name=first_name, last_name=last_name, **additional_fields)
         if password:
             user.set_password(password)
         user.save(using=self._db)
         if group_name:
-            user_group, created = Group.objects.get_or_create(name=group_name.title())
+            user_group, _ = Group.objects.get_or_create(name=group_name.title())
             user_group.user_set.add(user)
         return user
 
@@ -63,9 +72,13 @@ class UserManager(BaseUserManager):
         Saves user instance with given fields values.
         """
         check_password_existing(role, password)
-        return self.create_user(group_name=role, password=password,
-                                first_name=first_name, last_name=last_name,
-                                **additional_fields)
+        return self.create_user(
+            group_name=role,
+            password=password,
+            first_name=first_name,
+            last_name=last_name,
+            **additional_fields,
+        )
 
     def create_admin(self, password, first_name, last_name, **additional_fields):
         """Creates Admin.
@@ -73,8 +86,13 @@ class UserManager(BaseUserManager):
         Saves user instance with given fields values.
         """
         role = "Admin"
-        return self._create_user_with_role(role, password, first_name,
-                                           last_name, **additional_fields)
+        return self._create_user_with_role(
+            role,
+            password,
+            first_name,
+            last_name,
+            **additional_fields,
+        )
 
     def create_manager(self, password, first_name, last_name, **additional_fields):
         """Creates Manager.
@@ -82,8 +100,13 @@ class UserManager(BaseUserManager):
         Saves user instance with given fields values.
         """
         role = "Manager"
-        return self._create_user_with_role(role, password, first_name,
-                                           last_name, **additional_fields)
+        return self._create_user_with_role(
+            role,
+            password,
+            first_name,
+            last_name,
+            **additional_fields,
+        )
 
     def create_superuser(self, email, password, first_name, last_name, **additional_fields):
         """Creates superuser.
@@ -100,9 +123,13 @@ class UserManager(BaseUserManager):
             raise ValueError("Superuser must have is_superuser=True.")
         check_password_existing("Superuser", password)
 
-        return self.create_user(email=email, password=password,
-                                first_name=first_name, last_name=last_name,
-                                **additional_fields)
+        return self.create_user(
+            email=email,
+            password=password,
+            first_name=first_name,
+            last_name=last_name,
+            **additional_fields,
+        )
 
 
 class CustomUser(AbstractBaseUser, Base, PermissionsMixin):
@@ -142,8 +169,7 @@ class CustomUser(AbstractBaseUser, Base, PermissionsMixin):
         "active",
         default=True,
         help_text=(
-            "Designates whether this user should be treated as active. "
-            "Unselect this instead of deleting accounts."
+            "Designates whether this user should be treated as active. " "Unselect this instead of deleting accounts."
         ),
     )
 
@@ -151,7 +177,7 @@ class CustomUser(AbstractBaseUser, Base, PermissionsMixin):
 
     objects = UserManager()
 
-    REQUIRED_FIELDS = ("first_name", "last_name")
+    REQUIRED_FIELDS = ["first_name", "last_name"]
 
     class Meta(Base.Meta):
         """This class meta stores verbose names ordering data."""
@@ -201,8 +227,7 @@ class Location(Base):
         default=dict,
         blank=True,
         null=True,
-        validators=(validate_days_name,
-                    validate_working_time)
+        validators=(validate_days_name, validate_working_time),
     )
 
     class Meta(Base.Meta):
@@ -250,14 +275,14 @@ class Appointment(Base):
         "duration",
         blank=False,
         validators=[validate_rounded_minutes_seconds],
-        help_text="Input only hours and minutes HH:MM:00"
+        help_text="Input only hours and minutes HH:MM:00",
     )
     specialist = models.ForeignKey(
         CustomUser,
         related_name="appointments",
         on_delete=models.CASCADE,
         verbose_name="Specialist",
-        validators=[validate_specialist]
+        validators=[validate_specialist],
     )
     customer_firstname = models.CharField("customer firstname", max_length=150)
     customer_lastname = models.CharField("customer lastname", max_length=150)
@@ -316,7 +341,8 @@ class SpecialistSchedule(Base):
         validators=(
             validate_working_time_intervals,
             validate_working_time_values,
-            validate_days_name),
+            validate_days_name,
+        ),
     )
     specialist = models.OneToOneField(
         CustomUser,

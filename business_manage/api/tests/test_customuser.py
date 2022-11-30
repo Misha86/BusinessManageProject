@@ -200,8 +200,9 @@ class CustomUserViewTest(TestCase):
         user = CustomUser.objects.create_user(**self.valid_data)
         add_user_to_group_specialist(user)
         response = self.client.get(reverse(self.get_specialists_url_name), format="json")
+        results = response.data["results"]
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), 1)
+        self.assertEqual(len(results), 1)
 
     def test_create_specialists_by_admin_fail(self):
         """Test for creating specialist by admin."""

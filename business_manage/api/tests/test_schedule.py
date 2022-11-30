@@ -9,19 +9,16 @@ from rest_framework.exceptions import ValidationError, ErrorDetail
 from ..models import CustomUser, SpecialistSchedule, Location, Appointment
 from ..serializers.schedule_serializers import SpecialistScheduleSerializer
 from ..services.customuser_services import add_user_to_group_specialist
-from ..utils import (generate_working_time_intervals,
-                     string_to_time,
-                     generate_working_time,
-                     time_to_string)
+from ..utils import generate_working_time_intervals, string_to_time, generate_working_time, time_to_string
 from rest_framework.reverse import reverse
 from rest_framework.test import APIClient
 
 
 def get_appointment_data(specialist):
     """Get data to create appointment."""
-    start_time = datetime.combine(datetime.now().date() + timedelta(days=1),
-                                  string_to_time("12:15"),
-                                  tzinfo=get_current_timezone())
+    start_time = datetime.combine(
+        datetime.now().date() + timedelta(days=1), string_to_time("12:15"), tzinfo=get_current_timezone()
+    )
     duration = timedelta(minutes=20)
 
     working_time = generate_working_time("9:00", "20:00")
@@ -40,11 +37,7 @@ def get_appointment_data(specialist):
 
 def get_user_data(**kwargs):
     """Get data to create user."""
-    user_data = {
-        "email": "specialist@com.ua",
-        "first_name": "Fn",
-        "last_name": "Ln"
-    }
+    user_data = {"email": "specialist@com.ua", "first_name": "Fn", "last_name": "Ln"}
     return {**user_data, **kwargs}
 
 
@@ -61,10 +54,7 @@ class SpecialistScheduleModelTest(TestCase):
 
     def test_create_schedule_valid_data(self):
         """Test for creating schedule with valid data."""
-        schedule = SpecialistSchedule.objects.create(
-            specialist=self.specialist,
-            working_time=self.working_time
-        )
+        schedule = SpecialistSchedule.objects.create(specialist=self.specialist, working_time=self.working_time)
 
         self.assertEqual(schedule.specialist, self.specialist)
         self.assertEqual(schedule.working_time, self.working_time)
@@ -74,26 +64,22 @@ class SpecialistScheduleModelTest(TestCase):
         """Test for creating schedule user is not specialist."""
         self.user_data.update(dict(email="user@com.ua"))
         user = CustomUser.objects.create_user(**self.user_data)
-        schedule = SpecialistSchedule.objects.create(specialist=user,
-                                                     working_time=self.working_time)
+        schedule = SpecialistSchedule.objects.create(specialist=user, working_time=self.working_time)
 
         full_name = user.get_full_name()
 
         with self.assertRaises(ValidationError) as ex:
             schedule.full_clean()
         message = ex.exception.args[0]
-        self.assertEqual(message, {
-            f"{full_name}": ErrorDetail(
-                string=f"{full_name} should be specialist.", code="invalid"
-            )
-        })
+        self.assertEqual(
+            message, {f"{full_name}": ErrorDetail(string=f"{full_name} should be specialist.", code="invalid")}
+        )
 
     def test_create_schedule_working_time_invalid(self):
         """Test for creating schedule user is not specialist."""
         working_time = None
         with self.assertRaises(IntegrityError):
-            SpecialistSchedule.objects.create(specialist=self.specialist,
-                                              working_time=working_time)
+            SpecialistSchedule.objects.create(specialist=self.specialist, working_time=working_time)
 
 
 class SpecialistScheduleSerializerTest(TestCase):
@@ -107,10 +93,7 @@ class SpecialistScheduleSerializerTest(TestCase):
 
         self.working_time = generate_working_time_intervals("10:00", "20:00")
 
-        self.valid_data = {
-            "specialist": self.specialist.id,
-            "working_time": self.working_time
-        }
+        self.valid_data = {"specialist": self.specialist.id, "working_time": self.working_time}
         self.schedule_serializer = SpecialistScheduleSerializer
 
     def test_serialize_valid_data(self):
@@ -118,28 +101,17 @@ class SpecialistScheduleSerializerTest(TestCase):
         serializer = self.schedule_serializer(data=self.valid_data)
         serializer.is_valid(raise_exception=True)
 
-        self.assertEqual(
-            serializer.validated_data["specialist"].id,
-            self.valid_data["specialist"]
-        )
-        self.assertEqual(
-            serializer.validated_data["working_time"],
-            self.valid_data["working_time"]
-        )
+        self.assertEqual(serializer.validated_data["specialist"].id, self.valid_data["specialist"])
+        self.assertEqual(serializer.validated_data["working_time"], self.valid_data["working_time"])
 
         schedule = serializer.save()
-        self.assertEqual(
-            serializer.data["specialist"],
-            schedule.specialist.get_full_name()
-        )
+        self.assertEqual(serializer.data["specialist"], schedule.specialist.get_full_name())
 
     def test_working_time_match_time_format(self):
         """Check a working time has match format."""
         for invalid_time in ["invalid", "", "1030"]:
             with self.subTest(invalid_time=invalid_time):
-                invalid_working_time = generate_working_time_intervals(
-                    invalid_time, "20:00"
-                )
+                invalid_working_time = generate_working_time_intervals(invalid_time, "20:00")
                 self.valid_data.update(dict(working_time=invalid_working_time))
 
                 with self.assertRaises(ValidationError) as ex:
@@ -148,16 +120,18 @@ class SpecialistScheduleSerializerTest(TestCase):
 
                 message = ex.exception.args[0]
 
-                self.assertEqual(message, {
-                    "working_time": {
-                        "Mon": [
-                            ErrorDetail(
-                                string=f"time data '{invalid_time}' does not match format '%H:%M'",
-                                code="invalid"
-                            )
-                        ]
-                    }
-                })
+                self.assertEqual(
+                    message,
+                    {
+                        "working_time": {
+                            "Mon": [
+                                ErrorDetail(
+                                    string=f"time data '{invalid_time}' does not match format '%H:%M'", code="invalid"
+                                )
+                            ]
+                        }
+                    },
+                )
 
     def test_working_start_end_times(self):
         """Check a working start and end times.
@@ -173,14 +147,10 @@ class SpecialistScheduleSerializerTest(TestCase):
             serializer.is_valid(raise_exception=True)
 
         message = ex.exception.args[0]
-        self.assertEqual(message, {
-            "working_time": {
-                "Mon": [
-                    ErrorDetail(string="Start time should be more than end time.",
-                                code="invalid")
-                ]
-            }
-        })
+        self.assertEqual(
+            message,
+            {"working_time": {"Mon": [ErrorDetail(string="Start time should be more than end time.", code="invalid")]}},
+        )
 
     def test_schedule_start_end_times_minutes_error(self):
         """Test for schedule start and end times format.
@@ -189,9 +159,7 @@ class SpecialistScheduleSerializerTest(TestCase):
         """
         for minute in range(1, 5):
             invalid_time = f"10:0{minute}"
-            invalid_working_time = generate_working_time_intervals(
-                invalid_time, "11:00"
-            )
+            invalid_working_time = generate_working_time_intervals(invalid_time, "11:00")
             self.valid_data.update(dict(working_time=invalid_working_time))
 
             with self.subTest(time_value=minute):
@@ -200,17 +168,19 @@ class SpecialistScheduleSerializerTest(TestCase):
                     serializer.is_valid(raise_exception=True)
 
                 message = ex.exception.args[0]
-                self.assertEqual(message, {
-                    "working_time": {
-                        f"{invalid_time}:00": [
-                            ErrorDetail(
-                                string="Time value must have zero"
-                                       " seconds and minutes multiples of 5.",
-                                code="invalid"
-                            )
-                        ]
-                    }
-                })
+                self.assertEqual(
+                    message,
+                    {
+                        "working_time": {
+                            f"{invalid_time}:00": [
+                                ErrorDetail(
+                                    string="Time value must have zero" " seconds and minutes multiples of 5.",
+                                    code="invalid",
+                                )
+                            ]
+                        }
+                    },
+                )
 
 
 class SpecialistScheduleViewTest(TestCase):
@@ -226,29 +196,21 @@ class SpecialistScheduleViewTest(TestCase):
 
         self.working_time = generate_working_time_intervals("10:00", "20:00")
 
-        self.valid_data = {
-            "specialist": self.specialist,
-            "working_time": self.working_time
-        }
+        self.valid_data = {"specialist": self.specialist, "working_time": self.working_time}
         self.schedule = SpecialistSchedule.objects.create(**self.valid_data)
         self.spec_schedule_date_url = "api:specialist-schedule-date"
 
     def test_get_all_schedules(self):
         """Test for getting all schedules."""
         response = self.client.get(reverse("api:schedules-list-create"), format="json")
+        results = response.data["results"]
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]["specialist"],
-                         self.schedule.specialist.get_full_name())
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0]["specialist"], self.schedule.specialist.get_full_name())
 
     def test_get_specialist_schedule(self):
         """Test to get a specialist schedule."""
-        response = self.client.get(
-            reverse(
-                "api:specialist-schedule", args=(self.specialist.id,)
-            ),
-            format="json"
-        )
+        response = self.client.get(reverse("api:specialist-schedule", args=(self.specialist.id,)), format="json")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["working_time"], self.schedule.working_time)
         with self.assertRaises(KeyError):
@@ -262,25 +224,18 @@ class SpecialistScheduleViewTest(TestCase):
         end_time = appointment.end_time
 
         response = self.client.get(
-            reverse(
-                self.spec_schedule_date_url, kwargs={
-                    "s_id": self.specialist.id,
-                    "a_date": start_time.date()
-                }
-            ), format="json"
+            reverse(self.spec_schedule_date_url, kwargs={"s_id": self.specialist.id, "a_date": start_time.date()}),
+            format="json",
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), {
-            "appointments intervals": [
-                [f"{time_to_string(start_time)}",
-                 f"{time_to_string(end_time)}"]
-            ],
-            "free intervals": [
-                ["10:00", "12:15"],
-                ["12:35", "20:00"]
-            ]
-        })
+        self.assertEqual(
+            response.json(),
+            {
+                "appointments intervals": [[f"{time_to_string(start_time)}", f"{time_to_string(end_time)}"]],
+                "free intervals": [["10:00", "12:15"], ["12:35", "20:00"]],
+            },
+        )
 
     def test_get_schedule_not_specialist(self):
         """Test to get schedule for concrete date when a user is not specialist."""
@@ -289,12 +244,7 @@ class SpecialistScheduleViewTest(TestCase):
         a_date = datetime.now().date() + timedelta(days=1)
 
         response = self.client.get(
-            reverse(
-                self.spec_schedule_date_url, kwargs={
-                    "s_id": user.id,
-                    "a_date": a_date
-                }
-            ), format="json"
+            reverse(self.spec_schedule_date_url, kwargs={"s_id": user.id, "a_date": a_date}), format="json"
         )
         full_name = self.specialist.get_full_name()
         self.assertEqual(response.status_code, 404)
@@ -305,12 +255,7 @@ class SpecialistScheduleViewTest(TestCase):
         a_date = datetime.now().date() - timedelta(days=2)
 
         response = self.client.get(
-            reverse(
-                self.spec_schedule_date_url, kwargs={
-                    "s_id": self.specialist.id,
-                    "a_date": a_date
-                }
-            ), format="json"
+            reverse(self.spec_schedule_date_url, kwargs={"s_id": self.specialist.id, "a_date": a_date}), format="json"
         )
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.data, {"detail": "You can't see schedule of the past days."})
@@ -323,12 +268,7 @@ class SpecialistScheduleViewTest(TestCase):
         self.schedule.save()
 
         response = self.client.get(
-            reverse(
-                self.spec_schedule_date_url, kwargs={
-                    "s_id": self.specialist.id,
-                    "a_date": a_date
-                }
-            ), format="json"
+            reverse(self.spec_schedule_date_url, kwargs={"s_id": self.specialist.id, "a_date": a_date}), format="json"
         )
         full_name = self.specialist.get_full_name()
         self.assertEqual(response.status_code, 400)

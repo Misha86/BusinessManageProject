@@ -18,16 +18,16 @@ class AppointmentSerializer(serializers.ModelSerializer):
         exclude = ["id", "created_at", "update_at"]
         read_only_fields = ["end_time"]
 
-    def validate(self, data):
+    def validate(self, attrs):
         """Validate data before saving."""
-        start_time = data.get("start_time")
-        specialist = data.get("specialist")
-        location = data.get("location")
-        duration = data.get("duration")
+        start_time = attrs.get("start_time")
+        specialist = attrs.get("specialist")
+        location = attrs.get("location")
+        duration = attrs.get("duration")
         end_time = start_time + duration
         validate_start_end_time("time range", [start_time, end_time])
-        validate_free_time_interval((start_time, end_time), specialist, location)
-        return data
+        validate_free_time_interval([start_time, end_time], specialist, location)
+        return attrs
 
     def to_representation(self, instance):
         """Change displaying specialist id to the full name and location id to the name."""

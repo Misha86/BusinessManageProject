@@ -21,7 +21,7 @@ exclude =
     settings.py,
     apps.py,
     manage.py
-max-line-length = 100
+max-line-length = 120
 max-complexity = 10
 # There are three conventions: pep257, numpy and google.
 docstring-convention = google
