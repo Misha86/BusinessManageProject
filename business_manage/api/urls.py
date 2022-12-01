@@ -1,7 +1,9 @@
 """Api URL Configuration."""
+
 import pytz
 from django.urls import path, register_converter
 from django.utils.timezone import datetime
+from rest_framework_simplejwt.views import TokenRefreshView
 
 from . import views
 
@@ -28,43 +30,18 @@ class DateConverter:
 register_converter(DateConverter, "date")
 
 urlpatterns = [
-    path(
-        "specialists/",
-        views.SpecialistList.as_view(),
-        name="specialists-list-create"
-    ),
-    path("specialists/<int:pk>/",
-         views.SpecialistDetail.as_view(),
-         name="Specialist-detail"
-         ),
-    path(
-        "locations/",
-        views.LocationList.as_view(),
-        name="locations-list-create"
-    ),
-    path(
-        "appointments/",
-        views.AppointmentList.as_view(),
-        name="appointments-list-create"
-    ),
-    path(
-        "appointments/<int:pk>/",
-        views.AppointmentDetail.as_view(),
-        name="appointment-detail"
-    ),
-    path(
-        "schedules/",
-        views.SpecialistScheduleList.as_view(),
-        name="schedules-list-create"
-    ),
-    path(
-        "specialists/<int:pk>/schedule/",
-        views.SpecialistScheduleDetail.as_view(),
-        name="specialist-schedule"
-    ),
+    path("specialists/", views.SpecialistList.as_view(), name="specialists-list-create"),
+    path("specialists/<int:pk>/", views.SpecialistDetail.as_view(), name="Specialist-detail"),
+    path("locations/", views.LocationList.as_view(), name="locations-list-create"),
+    path("appointments/", views.AppointmentList.as_view(), name="appointments-list-create"),
+    path("appointments/<int:pk>/", views.AppointmentDetail.as_view(), name="appointment-detail"),
+    path("schedules/", views.SpecialistScheduleList.as_view(), name="schedules-list-create"),
+    path("specialists/<int:pk>/schedule/", views.SpecialistScheduleDetail.as_view(), name="specialist-schedule"),
     path(
         "specialists/<int:s_id>/schedule/<date:a_date>/",
         views.SpecialistDateScheduleView.as_view(),
-        name="specialist-schedule-date"
+        name="specialist-schedule-date",
     ),
+    path("token/", views.MyTokenObtainPairView.as_view(), name="token_obtain_pair"),
+    path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
 ]

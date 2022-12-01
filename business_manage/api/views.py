@@ -5,20 +5,24 @@ from rest_framework import generics, status
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework_simplejwt.views import TokenObtainPairView
 
-from .models import Appointment, SpecialistSchedule, CustomUser
+from .models import Appointment, CustomUser, SpecialistSchedule
+from .permissions import IsBusinessOwnerOrAdmin, IsBusinessOwnerOrManager, ReadOnly
 from .serializers.appointment_serializers import AppointmentSerializer
-from .serializers.customuser_serializers import SpecialistSerializer
+from .serializers.customuser_serializers import (
+    MyTokenObtainPairSerializer,
+    SpecialistSerializer,
+)
+from .serializers.location_serializers import LocationSerializer
 from .serializers.schedule_serializers import (
-    SpecialistScheduleSerializer,
     SpecialistScheduleDetailSerializer,
+    SpecialistScheduleSerializer,
 )
 from .services import customuser_services as us
-from .permissions import ReadOnly, IsBusinessOwnerOrManager, IsBusinessOwnerOrAdmin
-from .serializers.location_serializers import LocationSerializer
 from .services import location_services as ls
 from .services.appointment_services import get_appointments_time_intervals
-from .services.schedule_services import get_working_day, get_free_time_intervals
+from .services.schedule_services import get_free_time_intervals, get_working_day
 
 
 class SpecialistList(generics.ListCreateAPIView):
@@ -88,7 +92,9 @@ class SpecialistScheduleDetail(generics.RetrieveUpdateDestroyAPIView):
         """Get schedule for specific specialist."""
         specialist_id = self.kwargs["pk"]
         specialist = get_object_or_404(
-            CustomUser, id=specialist_id, groups__name__icontains="Specialist",
+            CustomUser,
+            id=specialist_id,
+            groups__name__icontains="Specialist",
         )
         return specialist.schedule
 
@@ -132,3 +138,9 @@ class SpecialistDateScheduleView(APIView):
             all_intervals,
             status=status.HTTP_200_OK,
         )
+
+
+class MyTokenObtainPairView(TokenObtainPairView):
+    """MyTokenObtainPairView class for creating and retrieving user tokens."""
+
+    serializer_class = MyTokenObtainPairSerializer
