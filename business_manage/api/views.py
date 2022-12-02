@@ -1,8 +1,10 @@
 """Business_manage projects views."""
 
+from django.contrib.auth import logout
 from django.utils import timezone
 from rest_framework import generics, status
 from rest_framework.generics import get_object_or_404
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
@@ -12,6 +14,7 @@ from .permissions import IsBusinessOwnerOrAdmin, IsBusinessOwnerOrManager, ReadO
 from .serializers.appointment_serializers import AppointmentSerializer
 from .serializers.customuser_serializers import (
     MyTokenObtainPairSerializer,
+    RefreshTokenSerializer,
     SpecialistSerializer,
 )
 from .serializers.location_serializers import LocationSerializer
@@ -144,3 +147,18 @@ class MyTokenObtainPairView(TokenObtainPairView):
     """MyTokenObtainPairView class for creating and retrieving user tokens."""
 
     serializer_class = MyTokenObtainPairSerializer
+
+
+class LogoutView(generics.GenericAPIView):
+    """LogoutView class for logging out."""
+
+    serializer_class = RefreshTokenSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request, *args):
+        """Method to logout the user."""
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        logout(request)
+        return Response(status=status.HTTP_204_NO_CONTENT)
