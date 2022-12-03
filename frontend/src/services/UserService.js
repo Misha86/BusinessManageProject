@@ -8,6 +8,6 @@ export default class UserService {
 
   static async login(userData) {
     const response = await this.api.post('http://localhost:8000/api/token/', userData);
-    localStorage.setItem('token', JSON.stringify(response.data.access));
+    return response
   }
 }

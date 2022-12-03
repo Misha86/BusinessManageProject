@@ -2,19 +2,27 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Input, Typography, Button, FormControl, InputLabel, FormHelperText, Paper } from '@mui/material';
 import UserService from '../services/UserService';
+import { AuthContext } from '../context/index';
+import { useContext } from 'react';
 
 const LoginForm = ({ formFields }) => {
   const [userData, setUserData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
+  const { setIsAuth, setAuth } = useContext(AuthContext);
 
   const router = useNavigate();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
-      await UserService.login(userData);
+      const response = await UserService.login(userData);
+      localStorage.setItem('token', response.data.access);
+      localStorage.setItem('auth', JSON.stringify(response.data.user));
+      setAuth(response.data.user);
+      setIsAuth(true);
       router('/');
     } catch (error) {
+      console.log(error);
       setError(error.response.data.detail);
     }
   };

@@ -1,7 +1,15 @@
+export const loginLinks = [{ title: 'Login', sx: { marginLeft: 'auto' }, to: '/login' }];
+
+const logoutLinks = [{ title: 'Logout', sx: { marginLeft: 'auto' }}];
+
 export const managerLinks = [
-    { title: 'Add Specialist', sxStyle: {}, path: '/add-specialist' },
-    { title: 'Add Schedule', sxStyle: {}, path: '/add-schedule' },
-    { title: 'Add Location', sxStyle: {}, path: '/add-location' },
-    { title: 'Login', sxStyle: { marginLeft: 'auto' }, path: '/login' },
-  ];
-  
+  { title: 'Add Specialist', to: '/add-specialist' },
+  { title: 'Add Schedule', to: '/add-schedule' },
+  { title: 'Add Location', to: '/add-location' },
+  ...logoutLinks,
+];
+
+export const adminLinks = [
+  { title: 'Create Appointment', to: '/add-appointment' },
+  ...logoutLinks,
+];

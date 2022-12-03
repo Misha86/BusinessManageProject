@@ -123,7 +123,9 @@ class UserManager(BaseUserManager):
             raise ValueError("Superuser must have is_superuser=True.")
         check_password_existing("Superuser", password)
 
-        return self.create_user(
+        role = "Superuser"
+        return self._create_user_with_role(
+            role=role,
             email=email,
             password=password,
             first_name=first_name,
