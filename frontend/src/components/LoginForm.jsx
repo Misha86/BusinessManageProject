@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Input, Typography, Button, FormControl, InputLabel, FormHelperText, Paper } from '@mui/material';
-import UserService from '../services/UserService';
+import AuthService from '../services/auth.service';
 import { AuthContext } from '../context/index';
 import { useContext } from 'react';
 
@@ -15,10 +15,8 @@ const LoginForm = ({ formFields }) => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
-      const response = await UserService.login(userData);
-      const authData = {isAuth: true, ...response.data};
-      localStorage.setItem('auth', authData);
-      setAuth(authData);
+      const response = await AuthService.login(userData);
+      setAuth(response.data);
       router('/');
     } catch (error) {
       console.log(error);

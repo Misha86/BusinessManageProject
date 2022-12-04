@@ -8,18 +8,19 @@ import { Link } from 'react-router-dom';
 import { managerLinks, adminLinks, loginLinks } from './NavBarLinks';
 import NavbarItem from './NavbarItem';
 import { AuthContext } from '../../context';
+import UserService from '../../services/user.service';
 
 const Navbar = () => {
   const [pages, setPages] = useState([]);
   const { auth, isLoading } = useContext(AuthContext);
-  const {isAuth, user, ...rest} = auth
 
   useEffect(() => {
+    const roles = UserService.getUserGroups()
     const getLinks = async () => {
       if (!isLoading) {
-        if (isAuth && user.groups.includes('Manager')) {
+        if (roles && roles.includes('Manager')) {
           setPages(managerLinks);
-        } else if (isAuth && user.groups.includes('Admin')) {
+        } else if (roles && roles.includes('Admin')) {
           setPages(adminLinks);
         } else {
           setPages(loginLinks);
