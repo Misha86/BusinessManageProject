@@ -6,21 +6,20 @@ import AppRouter from './components/AppRouter';
 import { AuthContext } from './context/index';
 
 function App() {
-  const [isAuth, setIsAuth] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [auth, setAuth] = useState({});
+  const authEmpty = { isAuth: false, user: {}, access: '', refresh: '' };
+  const [auth, setAuth] = useState(authEmpty);
 
   useEffect(() => {
-    const userData = JSON.parse(localStorage.getItem('auth'));
-    if (userData) {
-      setIsAuth(true);
-      setAuth(userData);
+    const authData = JSON.parse(localStorage.getItem('auth'));
+    if (authData != null) {
+      setAuth(...authData);
     }
     setIsLoading(false);
   }, []);
 
   return (
-    <AuthContext.Provider value={{ isAuth, setIsAuth, isLoading, auth, setAuth, setIsLoading}}>
+    <AuthContext.Provider value={{ auth, setAuth, isLoading, setIsLoading, authEmpty }}>
       <BrowserRouter>
         <Navbar />
         <AppRouter />

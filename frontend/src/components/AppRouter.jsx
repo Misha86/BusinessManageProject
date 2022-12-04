@@ -4,17 +4,18 @@ import { AuthContext } from '../context';
 import { publicRoutes, ManagerRoutes, AdminRoutes } from '../router/router';
 
 const AppRouter = () => {
-  const { isAuth, auth, isLoading } =useContext(AuthContext)
+  const { auth } =useContext(AuthContext)
+  const {isAuth, user, ...rest} = auth
   const [routers, setRouters] = useState([])
    useEffect(() => {
-      if (isAuth && auth.groups.includes("Manager")) {
+      if (isAuth && user.groups.includes("Manager")) {
         setRouters(ManagerRoutes)
-      } else if (isAuth && auth.groups.includes("Admin")) {
+      } else if (isAuth && user.groups.includes("Admin")) { 
         setRouters(AdminRoutes)
       } else{
         setRouters(publicRoutes)
       }
-   }, [isAuth, auth])
+   }, [auth])
 
   return (
     <Routes>

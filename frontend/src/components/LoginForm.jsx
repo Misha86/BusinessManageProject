@@ -8,7 +8,7 @@ import { useContext } from 'react';
 const LoginForm = ({ formFields }) => {
   const [userData, setUserData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
-  const { setIsAuth, setAuth } = useContext(AuthContext);
+  const { setAuth } = useContext(AuthContext);
 
   const router = useNavigate();
 
@@ -16,10 +16,9 @@ const LoginForm = ({ formFields }) => {
     event.preventDefault();
     try {
       const response = await UserService.login(userData);
-      localStorage.setItem('token', response.data.access);
-      localStorage.setItem('auth', JSON.stringify(response.data.user));
-      setAuth(response.data.user);
-      setIsAuth(true);
+      const authData = {isAuth: true, ...response.data};
+      localStorage.setItem('auth', authData);
+      setAuth(authData);
       router('/');
     } catch (error) {
       console.log(error);

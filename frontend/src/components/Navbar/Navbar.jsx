@@ -11,14 +11,15 @@ import { AuthContext } from '../../context';
 
 const Navbar = () => {
   const [pages, setPages] = useState([]);
-  const { isAuth, auth, isLoading } = useContext(AuthContext);
+  const { auth, isLoading } = useContext(AuthContext);
+  const {isAuth, user, ...rest} = auth
 
   useEffect(() => {
     const getLinks = async () => {
       if (!isLoading) {
-        if (isAuth && auth.groups.includes('Manager')) {
+        if (isAuth && user.groups.includes('Manager')) {
           setPages(managerLinks);
-        } else if (isAuth && auth.groups.includes('Admin')) {
+        } else if (isAuth && user.groups.includes('Admin')) {
           setPages(adminLinks);
         } else {
           setPages(loginLinks);
@@ -26,7 +27,7 @@ const Navbar = () => {
       }
     };
     getLinks();
-  }, [isAuth, auth]);
+  }, [auth, isLoading]);
 
   return (
     <>
