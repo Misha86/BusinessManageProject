@@ -5,17 +5,16 @@ import { Link } from 'react-router-dom';
 import { AuthContext } from '../../context';
 import { useNavigate } from 'react-router-dom';
 import AuthService from '../../services/auth.service';
-import TokenService from '../../services/token.service';
 
 const NavbarItem = (props) => {
   const { auth, setAuth, authEmpty } = useContext(AuthContext);
   const router = useNavigate();
-  const { access, refresh, user } = auth;
+  const { refresh, user } = auth;
 
   const logOut = async () => {
     try {
-      await AuthService.logOut(access, refresh);
-      setAuth(authEmpty);
+      await AuthService.logOut(refresh);
+      setAuth({authEmpty});
       router('/');
     } catch (err) {
       console.log(err);

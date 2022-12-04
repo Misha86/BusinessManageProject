@@ -1,26 +1,16 @@
-import axios from 'axios';
+import instance from './api';
 
 export default class AuthService {
-  static api = axios.create({
-    baseURL: 'http://127.0.0.1:8000/api/',
-  });
+  static api = instance
 
   static async login(userData) {
-    const response = await this.api.post('http://localhost:8000/api/token/', userData);
+    const response = await this.api.post('/token/', userData);
     this.setAuthData(response.data);
     return response;
   }
 
-  static async logOut(access_token, refresh_token) {
-    const response = await this.api.post(
-      'http://localhost:8000/api/token/logout/',
-      { refresh: refresh_token },
-      {
-        headers: {
-          Authorization: `JWT ${access_token}`,
-        },
-      }
-    );
+  static async logOut(refresh_token) {
+    const response = await this.api.post('/token/logout/', { refresh: refresh_token });
     this.removeAuthData();
     return response;
   }
