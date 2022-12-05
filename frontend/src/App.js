@@ -4,7 +4,7 @@ import Navbar from './components/Navbar/Navbar';
 import { BrowserRouter } from 'react-router-dom';
 import AppRouter from './components/AppRouter';
 import { AuthContext } from './context/index';
-import AuthService from './services/auth.service';
+import { AuthService } from './services/auth.service';
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);

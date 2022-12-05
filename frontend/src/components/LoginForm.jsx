@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Input, Typography, Button, FormControl, InputLabel, FormHelperText, Paper } from '@mui/material';
-import AuthService from '../services/auth.service';
+import { AuthService } from '../services/auth.service';
 import { AuthContext } from '../context/index';
 import { useContext } from 'react';
 

@@ -4,7 +4,7 @@ import MenuItem from '@mui/material/MenuItem';
 import { Link } from 'react-router-dom';
 import { AuthContext } from '../../context';
 import { useNavigate } from 'react-router-dom';
-import AuthService from '../../services/auth.service';
+import { AuthService } from '../../services/auth.service';
 
 const NavbarItem = (props) => {
   const { auth, setAuth, authEmpty } = useContext(AuthContext);
@@ -14,7 +14,7 @@ const NavbarItem = (props) => {
   const logOut = async () => {
     try {
       await AuthService.logOut(refresh);
-      setAuth({authEmpty});
+      setAuth({ authEmpty });
       router('/');
     } catch (err) {
       console.log(err);
@@ -22,7 +22,8 @@ const NavbarItem = (props) => {
     }
   };
 
-  if (props.title === 'Logout') {
+  if (props.title === 'Logout' && user) {
+
     props = { ...props, onClick: logOut, title: `(${user.first_name} ${user.last_name}) Logout` };
   }
 

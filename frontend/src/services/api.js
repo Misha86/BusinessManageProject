@@ -3,9 +3,9 @@ import TokenService from "./token.service";
 
 const instance = axios.create({
   baseURL: "http://localhost:8000/api",
-  headers: {
-    "Content-Type": "application/json",
-  },
+  // headers: {
+  //   "Content-Type": "application/json",
+  // },
 });
 
 instance.interceptors.request.use(

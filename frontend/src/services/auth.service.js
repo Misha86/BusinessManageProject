@@ -1,7 +1,7 @@
 import instance from './api';
 
-export default class AuthService {
-  static api = instance
+export class AuthService {
+  static api = instance;
 
   static async login(userData) {
     const response = await this.api.post('/token/', userData);
@@ -25,5 +25,23 @@ export default class AuthService {
 
   static removeAuthData() {
     return localStorage.removeItem('auth');
+  }
+}
+
+export class ManagerService {
+  static api = instance;
+
+  static addSpecialist(specialistData) {
+    const response = this.api.post(
+      '/specialists/',
+      { ...specialistData },
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          // 'X-CSRFTOKEN': CSRF_TOKEN
+        },
+      }
+    );
+    return response;
   }
 }
