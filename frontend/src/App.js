@@ -5,6 +5,7 @@ import { BrowserRouter } from 'react-router-dom';
 import AppRouter from './components/AppRouter';
 import { AuthContext } from './context/index';
 import { AuthService } from './services/auth.service';
+import { CookiesProvider } from 'react-cookie';
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -22,8 +23,10 @@ function App() {
   return (
     <AuthContext.Provider value={{ auth, setAuth, isLoading, setIsLoading, authEmpty }}>
       <BrowserRouter>
-        <Navbar />
-        <AppRouter />
+        <CookiesProvider>
+          <Navbar />
+          <AppRouter />
+        </CookiesProvider>
       </BrowserRouter>
     </AuthContext.Provider>
   );
