@@ -4,9 +4,9 @@ const SpecialistFormField = ({ field, error, handler }) => {
   const isError = (fieldError) => !!error[fieldError.title];
 
   const fieldLabel = (field) => {
-    let fieldTitle = field.title[0].toUpperCase() + field.title.slice(1)
-    return fieldTitle.replace('_', ' ')
-  }
+    let fieldTitle = field.title[0].toUpperCase() + field.title.slice(1);
+    return fieldTitle.replace('_', ' ');
+  };
 
   return (
     <div>
@@ -24,6 +24,8 @@ const SpecialistFormField = ({ field, error, handler }) => {
           onChange={handler}
           type={field.type}
           variant="standard"
+          multiline
+          rows={field.type === 'textarea' && 4}
           size="small"
           error={isError(field)}
         />
