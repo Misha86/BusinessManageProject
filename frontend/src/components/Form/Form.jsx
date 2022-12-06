@@ -31,7 +31,7 @@ const Form = ({ formFields, formTitle, data, setData, handleSubmit, error }) => 
           )}
 
           {formFields.map((field) => (
-            <FormField key={field.title} field={field} error={error} handler={chooseInputHandler} />
+            <FormField key={field.title} field={field} error={error} handler={chooseInputHandler} data={data}/>
           ))}
           <Button variant="contained" color="primary" type="submit">
             Submit

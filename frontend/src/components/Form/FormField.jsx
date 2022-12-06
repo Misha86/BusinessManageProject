@@ -1,6 +1,6 @@
 import { Typography, FormControl, FormHelperText, TextField } from '@mui/material';
 
-const FormField = ({ field, error, handler }) => {
+const FormField = ({ field, error, handler, data }) => {
   const isError = (fieldError) => !!error[fieldError.title];
 
   const fieldLabel = (field) => {
@@ -8,9 +8,13 @@ const FormField = ({ field, error, handler }) => {
     return fieldTitle.replace('_', ' ');
   };
 
-  const fieldAttrs = {
+  const extraFieldAttrs = {
     textarea: { multiline: true, rows: 4 },
     file: { accept: 'image/png, image/jpeg' },
+  };
+
+  const getInputValue = (field) => {
+    return field.type !== 'file' && { value: data[field.title] || '' };
   };
 
   return (
@@ -31,7 +35,8 @@ const FormField = ({ field, error, handler }) => {
           variant="standard"
           size="small"
           error={isError(field)}
-          {...fieldAttrs[field.type]}
+          {...getInputValue(field)}
+          {...extraFieldAttrs[field.type]}
         />
         <FormHelperText error={isError(field)} id={`${field.title}-helper-text`}>
           {field.helpText}
