@@ -1,17 +1,42 @@
-import { Typography, Box } from '@mui/material';
-import React from 'react';
-import LoginForm from '../components/LoginForm';
+import React, { useState, useContext } from 'react';
+import Form from '../components/Form/Form';
+import { useNavigate } from 'react-router-dom';
+import { AuthService } from '../services/auth.service';
+import { AuthContext } from '../context/index';
 
-const formFields = ['Email', 'Password'];
+const formFields = [
+  { title: 'email', type: 'email', required: true, helpText: "We'll never share your email" },
+  { title: 'password', type: 'password', required: true, helpText: "We'll never share your password" },
+];
 
 const Login = () => {
+  const [userData, setUserData] = useState({});
+  const [error, setError] = useState('');
+  const { setAuth } = useContext(AuthContext);
+
+  const router = useNavigate();
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    try {
+      const response = await AuthService.login(userData);
+      setAuth(response.data);
+      router('/');
+    } catch (error) {
+      console.log(error.response.data);
+      setError(error.response.data);
+    }
+  };
+
   return (
-    <Box mt={3} sx={{ paddingLeft: '30%', width: '40%' }}>
-      <Typography component="h5" variant="h5" mb={2} color="primary">
-        Login
-      </Typography>
-      <LoginForm formFields={formFields} />
-    </Box>
+    <Form
+      formFields={formFields}
+      data={userData}
+      setData={setUserData}
+      handleSubmit={handleSubmit}
+      error={error}
+      formTitle="Login"
+    />
   );
 };
 

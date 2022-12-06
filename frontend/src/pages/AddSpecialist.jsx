@@ -1,7 +1,7 @@
-import { Typography, Box } from '@mui/material';
-import React from 'react';
-import AddSpecialistForm from '../components/SpecialistForm/SpecialistForm';
-
+import React, { useState } from 'react';
+import Form from '../components/Form/Form';
+import { useNavigate } from 'react-router-dom';
+import { ManagerService } from '../services/auth.service';
 
 const formFields = [
   { title: 'email', type: 'email', required: true, helpText: 'This field is required' },
@@ -14,13 +14,29 @@ const formFields = [
 ];
 
 const AddSpecialist = () => {
+  const [userData, setUserData] = useState({});
+  const [error, setError] = useState({});
+  const router = useNavigate();
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    try {
+      await ManagerService.addSpecialist(userData);
+      router('/');
+    } catch (error) {
+      console.log(error.response.data);
+      setError(error.response.data);
+    }
+  };
   return (
-    <Box mt={3} sx={{ paddingLeft: '30%', width: '40%' }}>
-      <Typography component="h5" variant="h5" mb={2} color="primary">
-        Add Specialist
-      </Typography>
-      <AddSpecialistForm formFields={formFields} />
-    </Box>
+    <Form
+      formFields={formFields}
+      formTitle="Add specialist"
+      data={userData}
+      setData={setUserData}
+      handleSubmit={handleSubmit}
+      error={error}
+    />
   );
 };
 

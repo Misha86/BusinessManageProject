@@ -1,6 +1,6 @@
 import { Typography, FormControl, FormHelperText, TextField } from '@mui/material';
 
-const SpecialistFormField = ({ field, error, handler }) => {
+const FormField = ({ field, error, handler }) => {
   const isError = (fieldError) => !!error[fieldError.title];
 
   const fieldLabel = (field) => {
@@ -41,4 +41,4 @@ const SpecialistFormField = ({ field, error, handler }) => {
   );
 };
 
-export default SpecialistFormField;
+export default FormField;
