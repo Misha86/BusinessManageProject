@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { Button, Paper } from '@mui/material';
 import { ManagerService } from '../../services/auth.service';
 import SpecialistFormField from './SpecialistFormField';
-import { useCookies } from 'react-cookie';
 
 
 const AddSpecialistForm = ({ formFields }) => {
@@ -11,14 +10,12 @@ const AddSpecialistForm = ({ formFields }) => {
 
   const [error, setError] = useState({});
 
-  const [cookies, setCookie] = useCookies();
-
   const router = useNavigate();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
-      await ManagerService.addSpecialist(userData, cookies.csrftoken);
+      await ManagerService.addSpecialist(userData);
       router('/');
     } catch (error) {
       console.log(error.response.data);

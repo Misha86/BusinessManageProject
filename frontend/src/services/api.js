@@ -1,8 +1,8 @@
-import axios from "axios";
-import TokenService from "./token.service";
+import axios from 'axios';
+import TokenService from './token.service';
 
 const instance = axios.create({
-  baseURL: "http://localhost:8000/api",
+  baseURL: 'http://localhost:8000/api',
   // headers: {
   //   "Content-Type": "application/json",
   // },
@@ -12,8 +12,12 @@ instance.interceptors.request.use(
   (config) => {
     const token = TokenService.getAccessToken();
     if (token) {
-      config.headers["Authorization"] = `JWT ${token}`;  // for Spring Boot back-end
+      config.headers['Authorization'] = `JWT ${token}`; // for Spring Boot back-end
     }
+    if (config.method === 'post') {
+      config.headers['X-CSRFToken'] = TokenService.getCsrfToken();
+    }
+
     return config;
   },
   (error) => {
@@ -28,13 +32,13 @@ instance.interceptors.response.use(
   async (err) => {
     const originalConfig = err.config;
 
-    if (originalConfig.url !== "/token/" && err.response) {
+    if (originalConfig.url !== '/token/' && err.response) {
       // Access Token was expired
       if (err.response.status === 401 && !originalConfig._retry) {
         originalConfig._retry = true;
 
         try {
-          const response = await instance.post("/token/refresh/", {
+          const response = await instance.post('/token/refresh/', {
             refresh: TokenService.getRefreshToken(),
           });
 

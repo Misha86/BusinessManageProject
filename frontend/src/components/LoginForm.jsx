@@ -3,20 +3,18 @@ import { useNavigate } from 'react-router-dom';
 import { Input, Typography, Button, FormControl, InputLabel, FormHelperText, Paper } from '@mui/material';
 import { AuthService } from '../services/auth.service';
 import { AuthContext } from '../context/index';
-import { useCookies } from 'react-cookie';
 
 const LoginForm = ({ formFields }) => {
   const [userData, setUserData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const { setAuth } = useContext(AuthContext);
-  const [cookies, setCookie] = useCookies();
 
   const router = useNavigate();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
-      const response = await AuthService.login(userData, cookies.csrftoken);
+      const response = await AuthService.login(userData);
       setAuth(response.data);
       router('/');
     } catch (error) {

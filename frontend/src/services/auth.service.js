@@ -3,12 +3,8 @@ import instance from './api';
 export class AuthService {
   static api = instance;
 
-  static async login(userData, CSRF_TOKEN) {
-    const response = await this.api.post('/token/', userData, {
-        headers: {
-          'X-CSRFTOKEN': CSRF_TOKEN
-        },
-      });
+  static async login(userData) {
+    const response = await this.api.post('/token/', userData);
     this.setAuthData(response.data);
     return response;
   }
@@ -35,14 +31,13 @@ export class AuthService {
 export class ManagerService {
   static api = instance;
 
-  static addSpecialist(specialistData, CSRF_TOKEN) {
+  static addSpecialist(specialistData) {
     const response = this.api.post(
       '/specialists/',
       { ...specialistData },
       {
         headers: {
           'Content-Type': 'multipart/form-data',
-          'X-CSRFTOKEN': CSRF_TOKEN
         },
       }
     );
