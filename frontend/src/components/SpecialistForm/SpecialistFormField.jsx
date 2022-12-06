@@ -8,6 +8,11 @@ const SpecialistFormField = ({ field, error, handler }) => {
     return fieldTitle.replace('_', ' ');
   };
 
+  const fieldAttrs = {
+    textarea: { multiline: true, rows: 4 },
+    file: { accept: 'image/png, image/jpeg' },
+  };
+
   return (
     <div>
       {isError(field) && (
@@ -24,10 +29,9 @@ const SpecialistFormField = ({ field, error, handler }) => {
           onChange={handler}
           type={field.type}
           variant="standard"
-          multiline
-          rows={field.type === 'textarea' && 4}
           size="small"
           error={isError(field)}
+          {...fieldAttrs[field.type]}
         />
         <FormHelperText error={isError(field)} id={`${field.title}-helper-text`}>
           {field.helpText}
