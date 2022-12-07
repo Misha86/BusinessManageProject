@@ -1,26 +1,20 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import { Paper, Button, Typography } from '@mui/material';
 import FormField from '../Form/FormField';
 import WorkingTime from './WorkingTimeField';
 import { ManagerService } from '../../services/auth.service';
-import { useNavigate } from 'react-router-dom';
+import { getEmptySchedule } from '../../utils';
 
-
-const LocationForm = ({ formFields }) => {
-  const [location, setLocation] = useState({});
+const LocationForm = ({ formFields, weekDays }) => {
+  const [location, setLocation] = useState({ working_time: getEmptySchedule(weekDays) });
   const [error, setError] = useState({});
-  const [isCreated, setIsCreated] = useState(false);
-
-  const router = useNavigate();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
       await ManagerService.addLocation(location);
-    //   router('/');
-    setIsCreated(true)
-    setLocation({})
-    setError({})
+      setLocation({ working_time: getEmptySchedule(weekDays) });
+      setError({});
     } catch (error) {
       console.log(error);
       setError(error.response.data);
@@ -43,7 +37,7 @@ const LocationForm = ({ formFields }) => {
 
         {formFields.map((field) =>
           field.title === 'working_time' ? (
-            <WorkingTime key={field.title} field={field} error={error} location={location} setLocation={setLocation} isCreated={isCreated} />
+            <WorkingTime key={field.title} field={field} error={error} location={location} setLocation={setLocation} />
           ) : (
             <FormField key={field.title} field={field} error={error} data={location} handler={handleTextInput} />
           )

@@ -16,9 +16,7 @@ const AddLocation = () => {
       <Typography component="h5" variant="h5" mb={2} color="primary">
         Add Location
       </Typography>
-      <LocationForm
-        formFields={formFields}
-      />
+      <LocationForm formFields={formFields} weekDays={weekDays} />
     </Box>
   );
 };
