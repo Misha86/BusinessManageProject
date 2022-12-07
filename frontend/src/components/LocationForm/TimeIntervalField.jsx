@@ -12,6 +12,7 @@ const TimeIntervalField = ({ weekDay, item, handler, workingTime, error }) => {
         size="small"
         onChange={handler}
         error={error}
+        inputProps={{ maxLength: 5 }}
       />
       <FormHelperText id={`${weekDay}-${item.repString}-helper-text`} error={error}>
         Format HH:MM
