@@ -31,7 +31,7 @@ const AddSpecialist = () => {
   return (
     <Form
       formFields={formFields}
-      formTitle="Add specialist"
+      formTitle="Add Specialist"
       data={userData}
       setData={setUserData}
       handleSubmit={handleSubmit}

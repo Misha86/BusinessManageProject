@@ -12,7 +12,7 @@ from rest_framework.exceptions import ValidationError
 from .utils import string_interval_to_time_interval, string_to_time
 
 
-def validate_rounded_minutes(time_value: time) -> None:
+def validate_rounded_minutes(time_value: time, week_day: str) -> None:
     """Validate time value.
 
     Time must have zero seconds and minutes multiples of 5
@@ -24,7 +24,7 @@ def validate_rounded_minutes(time_value: time) -> None:
         if time_value.minute % 5 or time_value.second != 0:
             raise ValidationError(
                 {
-                    time_value.strftime("%H:%M:%S"): "Time value must have zero "
+                    week_day: "Time value must have zero "
                     "seconds and minutes multiples of 5."
                 }
             )
@@ -76,7 +76,7 @@ def validate_working_time_interval(week_day: str, str_interval: list[str]) -> No
     validate_start_end_time(week_day, time_interval)
 
     for time_data in time_interval:
-        validate_rounded_minutes(time_data)
+        validate_rounded_minutes(time_data, week_day)
 
 
 def validate_working_time(json: dict[str, list[str]]) -> None:

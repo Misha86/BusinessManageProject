@@ -223,7 +223,7 @@ class Location(Base):
     """Class Location provides tools for creating and managing appointments places."""
 
     name = models.CharField("location name", max_length=200, unique=True)
-    address = models.CharField("address", max_length=100, blank=True)
+    address = models.TextField("address", max_length=250, blank=True, null=True)
     working_time = models.JSONField(
         "working time",
         default=dict,

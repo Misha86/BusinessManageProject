@@ -42,5 +42,18 @@ export class ManagerService {
       }
     );
     return response;
+  };
+
+  static addLocation(locationData) {
+    const response = this.api.post(
+      '/locations/',
+      { ...locationData },
+      {
+        headers: {
+          'Content-Type':  'application/json',
+        },
+      }
+    );
+    return response;
   }
 }
