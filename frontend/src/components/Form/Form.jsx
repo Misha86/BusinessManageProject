@@ -1,8 +1,9 @@
 import React from 'react';
 import { Typography, Button, Paper, Box } from '@mui/material';
 import FormField from './FormField';
+import Message from '../Message';
 
-const Form = ({ formFields, formTitle, data, setData, handleSubmit, error }) => {
+const Form = ({ formFields, formTitle, data, setData, handleSubmit, error, showMessage }) => {
   const handleTextInput = (event) => {
     const textValue = event.target.value;
     setData({ ...data, [event.target.id]: textValue });
@@ -19,10 +20,12 @@ const Form = ({ formFields, formTitle, data, setData, handleSubmit, error }) => 
 
   return (
     <Box mt={3} sx={{ paddingLeft: '30%', width: '40%' }}>
-      <Typography component="h5" variant="h5" mb={2} color="primary">
+      <Typography component="h5" variant="h5" color="primary">
         {formTitle}
       </Typography>
       <form onSubmit={handleSubmit}>
+      <Message showMessage={showMessage} messageText="The Specialist was added!" />
+      
         <Paper elevation={3} sx={{ padding: '6%' }}>
           {error && error.detail && (
             <Typography component="p" variant="p" mb={2} color="error">
