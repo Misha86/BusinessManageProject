@@ -1,8 +1,8 @@
 import React from 'react';
 import { Box, Typography } from '@mui/material';
 import LocationForm from '../components/LocationForm/LocationForm';
+import {weekDays} from '../utils'
 
-const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
 const formFields = [
   { title: 'name', type: 'text', required: true, helpText: 'This field is required' },

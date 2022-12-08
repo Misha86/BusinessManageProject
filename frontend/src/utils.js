@@ -9,3 +9,5 @@ export const messageTimeout = (time, messageState) => {
     messageState(false);
   }, time);
 };
+
+export const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
