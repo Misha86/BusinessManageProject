@@ -2,21 +2,21 @@ import React from 'react';
 import { Typography } from '@mui/material';
 import DayTimeIntervalField from './DayTimeIntervalField';
 
-const WorkingTimeField = ({ field, setLocation, error, location }) => {
+const WorkingTimeField = ({ field, data, error, setData }) => {
   const getTimeValue = (value) => {
     return value.length >= 4 && !value.includes(':') ? `${value.slice(0, 2)}:${value.slice(2)}` : value;
   };
 
   const handleWorkingTime = (event) => {
     const [weekDay, timeIndex] = event.target.id.split('-');
-    let timeInterval = location[field.title][weekDay];
+    let timeInterval = data[field.title][weekDay];
     const fieldValue = event.target.value;
 
     timeInterval[parseInt(timeIndex)] = getTimeValue(fieldValue);
     timeInterval[0] === undefined && (timeInterval[0] = '');
     timeInterval.every((item) => item === '') && (timeInterval = []);
 
-    setLocation({ ...location, [field.title]: { ...location[field.title], [weekDay]: timeInterval } });
+    setData({ ...data, [field.title]: { ...data[field.title], [weekDay]: timeInterval } });
   };
 
   return (
@@ -30,7 +30,7 @@ const WorkingTimeField = ({ field, setLocation, error, location }) => {
           field={field}
           error={error}
           handler={handleWorkingTime}
-          workingTime={location[field.title]}
+          workingTime={data[field.title]}
           weekDay={weekDay}
         />
       ))}

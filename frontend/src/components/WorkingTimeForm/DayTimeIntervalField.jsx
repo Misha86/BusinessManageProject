@@ -30,6 +30,16 @@ const DayTimeIntervalField = ({ weekDay, field, error, handler, workingTime }) =
           error={isError(field)}
         />
       ))}
+      {timeInterval.map((item) => (
+        <TimeIntervalField
+          key={item.title}
+          weekDay={weekDay}
+          item={item}
+          handler={handler}
+          workingTime={workingTime}
+          error={isError(field)}
+        />
+      ))}
     </Box>
   );
 };

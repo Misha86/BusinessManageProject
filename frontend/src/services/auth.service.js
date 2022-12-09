@@ -1,16 +1,15 @@
 import instance from './api';
 
 export class AuthService {
-  static api = instance;
 
   static async login(userData) {
-    const response = await this.api.post('/token/', userData);
+    const response = await instance.post('/token/', userData);
     this.setAuthData(response.data);
     return response;
   }
 
   static async logOut(refresh_token) {
-    const response = await this.api.post('/token/logout/', { refresh: refresh_token });
+    const response = await instance.post('/token/logout/', { refresh: refresh_token });
     this.removeAuthData();
     return response;
   }
@@ -32,7 +31,7 @@ export class ManagerService {
   static api = instance;
 
   static addSpecialist(specialistData) {
-    const response = this.api.post(
+    const response = instance.post(
       '/specialists/',
       { ...specialistData },
       {
@@ -45,9 +44,22 @@ export class ManagerService {
   };
 
   static addLocation(locationData) {
-    const response = this.api.post(
+    const response = instance.post(
       '/locations/',
       { ...locationData },
+      {
+        headers: {
+          'Content-Type':  'application/json',
+        },
+      }
+    );
+    return response;
+  };
+
+  static addSchedule(scheduleData) {
+    const response = instance.post(
+      '/schedules/',
+      { ...scheduleData },
       {
         headers: {
           'Content-Type':  'application/json',

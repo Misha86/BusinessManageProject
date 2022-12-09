@@ -2,20 +2,20 @@ import React, { useState } from 'react';
 import { Paper, Button, Typography } from '@mui/material';
 import FormField from '../Form/FormField';
 import WorkingTime from './WorkingTimeField';
-import { ManagerService } from '../../services/auth.service';
 import { getEmptySchedule, messageTimeout } from '../../utils';
 import Message from '../Message';
 
-const LocationForm = ({ formFields, weekDays }) => {
-  const [location, setLocation] = useState({ working_time: getEmptySchedule(weekDays) });
+
+const WorkingTimeForm = ({ formFields, weekDays, service, messageText }) => {
+  const [data, setData] = useState({ working_time: getEmptySchedule(weekDays) });
   const [error, setError] = useState({});
   const [showMessage, setShowMessage] = useState(false);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
-      await ManagerService.addLocation(location);
-      setLocation({ working_time: getEmptySchedule(weekDays) });
+      await service(data);
+      setData({ working_time: getEmptySchedule(weekDays) });
       setError({});
       setShowMessage(true);
       messageTimeout(7000, setShowMessage);
@@ -27,12 +27,12 @@ const LocationForm = ({ formFields, weekDays }) => {
 
   const handleTextInput = (event) => {
     const textValue = event.target.value;
-    setLocation({ ...location, [event.target.id]: textValue });
+    setData({ ...data, [event.target.id]: textValue });
   };
 
   return (
     <form onSubmit={handleSubmit}>
-      <Message showMessage={showMessage} messageText="The location was added!" />
+      <Message showMessage={showMessage} messageText={messageText} />
 
       <Paper elevation={3} sx={{ padding: '6%' }}>
         {error && error.detail && (
@@ -43,9 +43,9 @@ const LocationForm = ({ formFields, weekDays }) => {
 
         {formFields.map((field) =>
           field.title === 'working_time' ? (
-            <WorkingTime key={field.title} field={field} error={error} location={location} setLocation={setLocation} />
+            <WorkingTime key={field.title} field={field} error={error} data={data} setData={setData} />
           ) : (
-            <FormField key={field.title} field={field} error={error} data={location} handler={handleTextInput} />
+            <FormField key={field.title} field={field} error={error} data={data} handler={handleTextInput} />
           )
         )}
 
@@ -57,4 +57,4 @@ const LocationForm = ({ formFields, weekDays }) => {
   );
 };
 
-export default LocationForm;
+export default WorkingTimeForm;
