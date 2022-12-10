@@ -49,7 +49,7 @@ const WorkingTimeForm = ({ formFields, weekDays, service, messageText }) => {
           )
         )}
 
-        <Button variant="contained" color="primary" type="submit">
+        <Button variant="contained" color="primary" type="submit" pt={1}>
           Submit
         </Button>
       </Paper>

@@ -5,7 +5,9 @@ import { BrowserRouter } from 'react-router-dom';
 import AppRouter from './components/AppRouter';
 import { AuthContext } from './context/index';
 import { AuthService } from './services/auth.service';
-import { CookiesProvider } from 'react-cookie';
+import { ThemeProvider } from '@mui/material/styles';
+import {customTheme} from './themes/themes'
+
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -23,10 +25,10 @@ function App() {
   return (
     <AuthContext.Provider value={{ auth, setAuth, isLoading, setIsLoading, authEmpty }}>
       <BrowserRouter>
-        <CookiesProvider>
+        <ThemeProvider theme={customTheme}>
           <Navbar />
           <AppRouter />
-        </CookiesProvider>
+        </ThemeProvider>
       </BrowserRouter>
     </AuthContext.Provider>
   );
