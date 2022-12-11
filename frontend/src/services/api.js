@@ -1,5 +1,6 @@
 import axios from 'axios';
 import TokenService from './token.service';
+import { AuthService } from './auth.service';
 
 const instance = axios.create({
   baseURL: 'http://localhost:8000/api',
@@ -31,7 +32,12 @@ instance.interceptors.response.use(
   },
   async (err) => {
     const originalConfig = err.config;
-
+    // Refresh Token was expired
+    if (err.response.status === 401 && originalConfig.url === '/token/refresh/') {
+      AuthService.removeAuthData();
+      window.location.href = '/login';
+      return Promise.reject();
+    }
     if (originalConfig.url !== '/token/' && err.response) {
       // Access Token was expired
       if (err.response.status === 401 && !originalConfig._retry) {

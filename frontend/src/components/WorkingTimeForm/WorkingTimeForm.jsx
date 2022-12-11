@@ -24,8 +24,8 @@ const WorkingTimeForm = ({ formTitle, formFields, service, messageText }) => {
       messageTimeout(7000, setShowMessage);
       localStorage.setItem('created', 'true');
     } catch (error) {
-      console.log(error);
-      setError(error.response.data);
+      console.log(error.response);
+      setError(error.response?.data);
     }
   };
 
