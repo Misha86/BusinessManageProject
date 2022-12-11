@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
-import { Paper, Button, Typography } from '@mui/material';
+import { Paper, Box } from '@mui/material';
 import FormField from '../Form/FormField';
-import WorkingTime from './WorkingTimeField';
+import WorkingTimeField from './WorkingTimeField';
 import { getEmptySchedule, messageTimeout } from '../../utils';
 import Message from '../Message';
+import FormTitle from '../Form/FormTitle';
+import ErrorDetail from '../Form/ErrorDetail';
+import { weekDays } from '../../utils';
+import SubmitButton from '../Form/SubmitButton';
 
-
-const WorkingTimeForm = ({ formFields, weekDays, service, messageText }) => {
+const WorkingTimeForm = ({ formTitle, formFields, service, messageText }) => {
   const [data, setData] = useState({ working_time: getEmptySchedule(weekDays) });
   const [error, setError] = useState({});
   const [showMessage, setShowMessage] = useState(false);
@@ -15,10 +18,11 @@ const WorkingTimeForm = ({ formFields, weekDays, service, messageText }) => {
     event.preventDefault();
     try {
       await service(data);
-      setData({ working_time: getEmptySchedule(weekDays) });
+      setData({});
       setError({});
       setShowMessage(true);
       messageTimeout(7000, setShowMessage);
+      localStorage.setItem('created', 'true');
     } catch (error) {
       console.log(error);
       setError(error.response.data);
@@ -31,29 +35,26 @@ const WorkingTimeForm = ({ formFields, weekDays, service, messageText }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <Message showMessage={showMessage} messageText={messageText} />
+    <Box mt={3} sx={{ paddingLeft: '30%', width: '40%' }}>
+      <FormTitle formTitle={formTitle} />
+      <form onSubmit={handleSubmit}>
+        <Message showMessage={showMessage} messageText={messageText} />
 
-      <Paper elevation={3} sx={{ padding: '6%' }}>
-        {error && error.detail && (
-          <Typography component="p" variant="p" mb={2} color="error">
-            {error.detail}
-          </Typography>
-        )}
+        <Paper elevation={3} sx={{ padding: '6%' }}>
+          <ErrorDetail error={error} />
 
-        {formFields.map((field) =>
-          field.title === 'working_time' ? (
-            <WorkingTime key={field.title} field={field} error={error} data={data} setData={setData} />
-          ) : (
-            <FormField key={field.title} field={field} error={error} data={data} handler={handleTextInput} />
-          )
-        )}
+          {formFields.map((field) =>
+            field.title === 'working_time' ? (
+              <WorkingTimeField key={field.title} field={field} error={error} data={data} setData={setData} />
+            ) : (
+              <FormField key={field.title} field={field} error={error} data={data} handler={handleTextInput} />
+            )
+          )}
 
-        <Button variant="contained" color="primary" type="submit">
-          Submit
-        </Button>
-      </Paper>
-    </form>
+          <SubmitButton />
+        </Paper>
+      </form>
+    </Box>
   );
 };
 

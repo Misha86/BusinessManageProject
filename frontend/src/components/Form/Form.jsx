@@ -1,7 +1,10 @@
 import React from 'react';
-import { Typography, Button, Paper, Box } from '@mui/material';
+import { Paper, Box } from '@mui/material';
 import FormField from './FormField';
 import Message from '../Message';
+import FormTitle from './FormTitle';
+import ErrorDetail from './ErrorDetail';
+import SubmitButton from './SubmitButton';
 
 const Form = ({ formFields, formTitle, data, setData, handleSubmit, error, showMessage }) => {
   const handleTextInput = (event) => {
@@ -20,25 +23,17 @@ const Form = ({ formFields, formTitle, data, setData, handleSubmit, error, showM
 
   return (
     <Box mt={3} sx={{ paddingLeft: '30%', width: '40%' }}>
-      <Typography component="h5" variant="h5" color="primary">
-        {formTitle}
-      </Typography>
+      <FormTitle formTitle={formTitle} />
       <form onSubmit={handleSubmit}>
-      <Message showMessage={showMessage} messageText="The Specialist was added!" />
-      
+        <Message showMessage={showMessage} messageText="The Specialist was added!" />
+
         <Paper elevation={3} sx={{ padding: '6%' }}>
-          {error && error.detail && (
-            <Typography component="p" variant="p" mb={2} color="error">
-              {error.detail}
-            </Typography>
-          )}
+          <ErrorDetail error={error} />
 
           {formFields.map((field) => (
-            <FormField key={field.title} field={field} error={error} handler={chooseInputHandler} data={data}/>
+            <FormField key={field.title} field={field} error={error} handler={chooseInputHandler} data={data} />
           ))}
-          <Button variant="contained" color="primary" type="submit">
-            Submit
-          </Button>
+          <SubmitButton/>
         </Paper>
       </form>
     </Box>

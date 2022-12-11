@@ -1,8 +1,8 @@
 import React from 'react';
-import { Box, Typography } from '@mui/material';
-import WorkingTimeForm from '../components/WorkingTimeFormCopy/WorkingTimeForm';
+import WorkingTimeForm from '../components/WorkingTimeForm/WorkingTimeForm';
 import { weekDays } from '../utils';
 import { ManagerService } from '../services/auth.service';
+import { WorkingFormContext } from '../context';
 
 const formFields = [
   { title: 'specialist', type: 'email', required: true, helpText: 'This field is required. Input specialist email.' },
@@ -11,18 +11,17 @@ const formFields = [
 
 const AddSchedule = () => {
   const messageText = 'The schedule was added!';
+  const countOfTimeIntervals = 4;
+  const formTitle = 'Add Schedule';
   return (
-    <Box mt={3} sx={{ paddingLeft: '30%', width: '40%' }}>
-      <Typography component="h5" variant="h5" color="primary">
-        Add Schedule
-      </Typography>
+    <WorkingFormContext.Provider value={{ countOfTimeIntervals }}>
       <WorkingTimeForm
+        formTitle={formTitle}
         formFields={formFields}
-        weekDays={weekDays}
         service={ManagerService.addSchedule}
         messageText={messageText}
       />
-    </Box>
+    </WorkingFormContext.Provider>
   );
 };
 

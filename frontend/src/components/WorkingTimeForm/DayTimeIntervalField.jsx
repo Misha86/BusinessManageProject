@@ -1,46 +1,105 @@
-import React from 'react';
-import { Box, InputLabel, Typography } from '@mui/material';
+import React, { useEffect, useState, useContext } from 'react';
+import { InputLabel, Typography, Grid, Icon, IconButton } from '@mui/material';
 import TimeIntervalField from './TimeIntervalField';
+import { PaperStyled } from '../styles/Paper.styled';
+import { WorkingFormContext } from '../../context';
 
-const DayTimeIntervalField = ({ weekDay, field, error, handler, workingTime }) => {
+const DayTimeIntervalField = ({ weekDay, field, error, handler }) => {
   const isError = (field) => !!error[field.title]?.[weekDay];
+  const [intervals, setIntervals] = useState([]);
+  const { countOfTimeIntervals } = useContext(WorkingFormContext);
 
-  const timeInterval = [
-    { title: 'Start time', index: 0 },
-    { title: 'End time', index: 1 },
-  ];
+  const removeInterval = (intervals, setIntervals) => {
+    if (intervals.length >= 1) {
+      intervals.pop();
+      setIntervals([...intervals]);
+    }
+  };
+
+  const addInterval = (intervals, setIntervals, count) => {
+    if (intervals.length < count) {
+      setIntervals([...intervals, []]);
+    }
+  };
+
+  const status = localStorage.getItem('created', 'true');
+
+  useEffect(() => {
+    const timeIntervals = intervals.filter((interval) => interval.length > 0);
+    const dayTimeIntervals = { [weekDay]: countOfTimeIntervals > 1 ? timeIntervals : timeIntervals[0] };
+    handler(dayTimeIntervals);
+    status === 'true' && setIntervals([]);
+    localStorage.removeItem('created');
+  }, [intervals, status]);
+
   return (
-    <Box>
+    <Grid container spacing={1}>
       {isError(field) && (
-        <Typography component="p" variant="p" mb={2} color="error">
-          {error[field.title]?.[weekDay]}
-        </Typography>
+        <Grid item xs={12} md={12}>
+          <Typography component="p" variant="p" color="error">
+            {error[field.title]?.[weekDay]}
+          </Typography>
+        </Grid>
       )}
 
-      <InputLabel sx={{ display: 'inline-block', width: '20%' }} error={isError(field)}>
-        {weekDay}
-      </InputLabel>
-      {timeInterval.map((item) => (
-        <TimeIntervalField
-          key={item.title}
-          weekDay={weekDay}
-          item={item}
-          handler={handler}
-          workingTime={workingTime}
-          error={isError(field)}
-        />
-      ))}
-      {timeInterval.map((item) => (
-        <TimeIntervalField
-          key={item.title}
-          weekDay={weekDay}
-          item={item}
-          handler={handler}
-          workingTime={workingTime}
-          error={isError(field)}
-        />
-      ))}
-    </Box>
+      <Grid justifyContent="flex-end" item xs={4} md={2}>
+        <Grid item xs={12} md={12}>
+          <InputLabel error={isError(field)}>{weekDay}</InputLabel>
+        </Grid>
+
+        {intervals.length < countOfTimeIntervals && (
+          <Grid item xs={12} md={12} padding="none">
+            <IconButton
+              sx={{ padding: 0 }}
+              aria-label="add time interval"
+              onClick={() => addInterval(intervals, setIntervals, countOfTimeIntervals)}
+            >
+              <Icon color="primary">add_circle</Icon>
+            </IconButton>
+          </Grid>
+        )}
+
+        {intervals.length >= 1 && (
+          <Grid item xs={12} md={12}>
+            <IconButton
+              sx={{ padding: 0 }}
+              aria-label="remove time interval"
+              onClick={() => removeInterval(intervals, setIntervals)}
+            >
+              <Icon color="primary">do_not_disturb_on</Icon>
+            </IconButton>
+          </Grid>
+        )}
+      </Grid>
+      <Grid container item xs={8} md={10}>
+        {intervals.length === 0 && (
+          <Grid item mt={3}>
+            <Typography component="p" variant="p">
+              {`Add working interval for ${weekDay}`}
+            </Typography>
+          </Grid>
+        )}
+
+        {intervals.map((_, intervalIndex) => (
+          <Grid container item spacing={1} mb={1} key={intervalIndex}>
+            {['Start time', 'End time'].map((title, timeIndex) => (
+              <Grid item xs={12} md={6} key={`${intervalIndex}-${timeIndex}`}>
+                <PaperStyled>
+                  <TimeIntervalField
+                    timeIndex={timeIndex}
+                    title={title}
+                    intervalIndex={intervalIndex}
+                    intervals={intervals}
+                    setIntervals={setIntervals}
+                    error={isError(field)}
+                  />
+                </PaperStyled>
+              </Grid>
+            ))}
+          </Grid>
+        ))}
+      </Grid>
+    </Grid>
   );
 };
 

@@ -1,8 +1,8 @@
 import React from 'react';
-import { Box, Typography } from '@mui/material';
 import WorkingTimeForm from '../components/WorkingTimeForm/WorkingTimeForm';
 import { weekDays } from '../utils';
 import { ManagerService } from '../services/auth.service';
+import { WorkingFormContext } from '../context';
 
 const formFields = [
   { title: 'name', type: 'text', required: true, helpText: 'This field is required' },
@@ -12,18 +12,17 @@ const formFields = [
 
 const AddLocation = () => {
   const messageText = 'The location was added!';
+  const countOfTimeIntervals = 1;
+  const formTitle =  'Add Location';
   return (
-    <Box mt={3} sx={{ paddingLeft: '30%', width: '40%' }}>
-      <Typography component="h5" variant="h5" color="primary">
-        Add Location
-      </Typography>
-      <WorkingTimeForm
-        formFields={formFields}
-        weekDays={weekDays}
-        service={ManagerService.addLocation}
-        messageText={messageText}
-      />
-    </Box>
+      <WorkingFormContext.Provider value={{ countOfTimeIntervals }}>
+        <WorkingTimeForm
+          formFields={formFields}
+          formTitle={formTitle}
+          service={ManagerService.addLocation}
+          messageText={messageText}
+        />
+      </WorkingFormContext.Provider>
   );
 };
 
