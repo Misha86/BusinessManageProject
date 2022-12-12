@@ -12,15 +12,15 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from .models import Appointment, CustomUser, SpecialistSchedule
 from .permissions import IsBusinessOwnerOrAdmin, IsBusinessOwnerOrManager, ReadOnly
 from .serializers.appointment_serializers import AppointmentSerializer
-from .serializers.customuser_serializers import (
-    MyTokenObtainPairSerializer,
-    RefreshTokenSerializer,
-    SpecialistSerializer,
-)
+from .serializers.customuser_serializers import SpecialistSerializer
 from .serializers.location_serializers import LocationSerializer
 from .serializers.schedule_serializers import (
     SpecialistScheduleDetailSerializer,
     SpecialistScheduleSerializer,
+)
+from .serializers.token_serializers import (
+    MyTokenObtainPairSerializer,
+    RefreshTokenSerializer,
 )
 from .services import customuser_services as us
 from .services import location_services as ls
