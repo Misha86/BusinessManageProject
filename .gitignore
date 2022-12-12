@@ -133,6 +133,7 @@ dmypy.json
 # Pyre type checker
 .pyre/
 migrations/
+business_manage/mediafiles/images
 sonar-project.properties
 dump.rdb
 /.scannerwork/
