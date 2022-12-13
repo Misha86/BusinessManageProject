@@ -18,6 +18,8 @@ class CustomMetadata(SimpleMetadata):
                     value["type"] = "email"
                 elif "image" in value["type"]:
                     value["type"] = "file"
+                elif value["type"] == "string":
+                    value["type"] = "text"
                 data[key] = value
 
             return {"fields": data}

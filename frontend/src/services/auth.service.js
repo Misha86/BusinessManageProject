@@ -6,6 +6,11 @@ export class AuthService {
     const response = await instance.post('/token/', userData);
     this.setAuthData(response.data);
     return response;
+  };
+
+  static getLoginFieldsOption() {
+    const response = instance.options('/token/')
+    return response;
   }
 
   static async logOut(refresh_token) {

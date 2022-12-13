@@ -1,18 +1,27 @@
-import React, { useState, useContext } from 'react';
-import Form from '../components/Form/FormCopy';
+import React, { useState, useContext, useEffect } from 'react';
+import Form from '../components/Form/Form';
 import { useNavigate } from 'react-router-dom';
 import { AuthService } from '../services/auth.service';
 import { AuthContext } from '../context/index';
-
-const formFields = [
-  { title: 'email', type: 'email', required: true, helpText: "We'll never share your email" },
-  { title: 'password', type: 'password', required: true, helpText: "We'll never share your password" },
-];
 
 const Login = () => {
   const [userData, setUserData] = useState({});
   const [error, setError] = useState('');
   const { setAuth } = useContext(AuthContext);
+  const [formFields, setFormFields] = useState([]);
+
+  useEffect(() => {
+    const getFieldsInfo = async () => {
+      await AuthService.getLoginFieldsOption()
+        .then((response) => {
+          setFormFields(response.data.fields);
+        })
+        .catch((error) => {
+          console.log(error.response.data);
+        });
+    };
+    getFieldsInfo();
+  }, []);
 
   const router = useNavigate();
 
