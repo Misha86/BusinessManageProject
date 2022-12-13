@@ -77,5 +77,10 @@ export class ManagerService {
   static getSpecialistFieldsOption() {
     const response = instance.options('/specialists/')
     return response;
+  };
+
+  static getLocationFieldsOption() {
+    const response = instance.options('/locations/')
+    return response;
   }
 }

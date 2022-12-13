@@ -43,11 +43,27 @@ const WorkingTimeForm = ({ formTitle, formFields, service, messageText }) => {
         <Paper elevation={3} sx={{ padding: '6%' }}>
           <ErrorDetail error={error} />
 
-          {formFields.map((field) =>
-            field.title === 'working_time' ? (
-              <WorkingTimeField key={field.title} field={field} error={error} data={data} setData={setData} />
+          {Object.entries(formFields).map(([fieldTitle, fieldInfo]) =>
+            fieldTitle === 'working_time' ? (
+              <WorkingTimeField
+                key={fieldTitle}
+                fieldInfo={fieldInfo}
+                fieldTitle={fieldTitle}
+                error={error}
+                data={data}
+                setData={setData}
+              />
             ) : (
-              <FormField key={field.title} field={field} error={error} data={data} handler={handleTextInput} />
+              <FormField
+                key={fieldTitle}
+                fieldTitle={fieldTitle}
+                fieldInfo={fieldInfo}
+                errorMessage={error[fieldTitle]}
+                handler={handleTextInput}
+                type={fieldInfo.type}
+                value={data[fieldTitle] || ''}
+                multiline={fieldInfo.type === 'textarea' && true}
+              />
             )
           )}
 

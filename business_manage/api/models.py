@@ -221,8 +221,8 @@ class CustomUser(AbstractBaseUser, Base, PermissionsMixin):
 class Location(Base):
     """Class Location provides tools for creating and managing appointments places."""
 
-    name = models.CharField("location name", max_length=200, unique=True)
-    address = models.TextField("address", max_length=250, blank=True, null=True)
+    name = models.CharField("location name", max_length=200, unique=True, help_text="This field is required")
+    address = models.TextField("address", max_length=250, blank=True, null=True, help_text="This field is not required")
     working_time = models.JSONField(
         "working time",
         default=dict,
