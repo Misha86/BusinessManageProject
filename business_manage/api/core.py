@@ -10,4 +10,14 @@ class CustomMetadata(SimpleMetadata):
     def determine_metadata(self, request, view):
         """Set fields information to the response."""
         if actions := self.determine_actions(request, view):
-            return {"fields": actions["POST"]}
+            data = {}
+            for key, value in actions["POST"].items():
+                if key == "password":
+                    value["type"] = "password"
+                elif key == "email":
+                    value["type"] = "email"
+                elif "image" in value["type"]:
+                    value["type"] = "file"
+                data[key] = value
+
+            return {"fields": data}

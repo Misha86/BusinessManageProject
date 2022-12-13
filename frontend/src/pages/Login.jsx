@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import Form from '../components/Form/Form';
+import Form from '../components/Form/FormCopy';
 import { useNavigate } from 'react-router-dom';
 import { AuthService } from '../services/auth.service';
 import { AuthContext } from '../context/index';

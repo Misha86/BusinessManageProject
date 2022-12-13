@@ -67,5 +67,10 @@ export class ManagerService {
       }
     );
     return response;
+  };
+
+  static getSpecialistFieldsOption() {
+    const response = instance.options('/specialists/')
+    return response;
   }
 }

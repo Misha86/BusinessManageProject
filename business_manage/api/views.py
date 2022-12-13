@@ -12,7 +12,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from .models import Appointment, CustomUser, SpecialistSchedule
 from .permissions import IsBusinessOwnerOrAdmin, IsBusinessOwnerOrManager, ReadOnly
 from .serializers.appointment_serializers import AppointmentSerializer
-from .serializers.customuser_serializers import SpecialistSerializer
+from .serializers.customuser_serializers import SpecialistSerializer, CreateSpecialistSerializer
 from .serializers.location_serializers import LocationSerializer
 from .serializers.schedule_serializers import (
     SpecialistScheduleDetailSerializer,
@@ -32,7 +32,7 @@ class SpecialistList(generics.ListCreateAPIView):
     """SpecialistList class for creating and reviewing specialists."""
 
     queryset = us.get_all_specialists()
-    serializer_class = SpecialistSerializer
+    serializer_class = CreateSpecialistSerializer
     permission_classes = [ReadOnly | IsBusinessOwnerOrManager]
     filterset_fields = ["position"]
 

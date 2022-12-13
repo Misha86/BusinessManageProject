@@ -49,17 +49,15 @@ class CustomUserSerializer(serializers.ModelSerializer):
 
 
 class SpecialistSerializer(CustomUserSerializer):
-    """Serializer to receive and create a specific user."""
+    """Serializer to receive a specific user."""
 
     is_active = serializers.BooleanField(
         initial=True,
         default=True,
         help_text=(
-            "Designates whether this user should be treated as active. " "Unselect this instead of deleting accounts."
+            "Designates whether this user should be treated as active. Unselect this instead of deleting accounts."
         ),
     )
-
-    position = serializers.ChoiceField(choices=["active", "not active"])
 
     schedule = SpecialistScheduleDetailSerializer(read_only=True)
 
@@ -76,3 +74,26 @@ class SpecialistSerializer(CustomUserSerializer):
         ]
 
         fields = CustomUserSerializer.Meta.fields + extra_fields
+
+
+class CreateSpecialistSerializer(serializers.ModelSerializer):
+    """Serializer to create a specific user."""
+
+    position = serializers.ChoiceField(
+        choices=[("position_1", "Position 1"), ("position_2", "Position 2"), ("position_3", "Position 3")],
+        help_text="This field is required",
+    )
+
+    class Meta:
+        """Class with a model and model fields for serialization."""
+
+        model = CustomUser
+        fields = [
+            "email",
+            "first_name",
+            "last_name",
+            "patronymic",
+            "position",
+            "bio",
+            "avatar",
+        ]

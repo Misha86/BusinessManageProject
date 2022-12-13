@@ -148,18 +148,17 @@ class CustomUser(AbstractBaseUser, Base, PermissionsMixin):
         avatar (image, optional): Avatar of the user
     """
 
-    email = models.EmailField(max_length=100, unique=True)
-    first_name = models.CharField("first name", max_length=150)
-    last_name = models.CharField("last name", max_length=150)
+    help_texts = {"required": "This field is required", "avatar": "Get Avatar to the profile"}
+
+    email = models.EmailField(max_length=100, unique=True, help_text=help_texts["required"])
+    first_name = models.CharField("first name", max_length=150, help_text=help_texts["required"])
+    last_name = models.CharField("last name", max_length=150, help_text=help_texts["required"])
     date_joined = models.DateTimeField("date joined", default=timezone.now)
     patronymic = models.CharField("patronymic", max_length=150, blank=True)
-    position = models.CharField("position", max_length=150)
+    position = models.CharField("position", max_length=150, help_text=help_texts["required"])
     bio = models.TextField("bio", max_length=255, blank=True, null=True)
     avatar = models.ImageField(
-        "avatar",
-        blank=True,
-        default="default_avatar.jpeg",
-        upload_to="images",
+        "avatar", blank=True, default="default_avatar.jpeg", upload_to="images", help_text=help_texts["avatar"]
     )
 
     is_staff = models.BooleanField(
@@ -171,7 +170,7 @@ class CustomUser(AbstractBaseUser, Base, PermissionsMixin):
         "active",
         default=True,
         help_text=(
-            "Designates whether this user should be treated as active. " "Unselect this instead of deleting accounts."
+            "Designates whether this user should be treated as active. Unselect this instead of deleting accounts."
         ),
     )
 

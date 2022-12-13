@@ -5,6 +5,7 @@ import Message from '../Message';
 import FormTitle from './FormTitle';
 import ErrorDetail from './ErrorDetail';
 import SubmitButton from './SubmitButton';
+import ChoiceField from './ChoiceField';
 
 const Form = ({ formFields, formTitle, data, setData, handleSubmit, error, showMessage }) => {
   const handleTextInput = (event) => {
@@ -17,8 +18,10 @@ const Form = ({ formFields, formTitle, data, setData, handleSubmit, error, showM
     setData({ ...data, [event.target.id]: fileValue });
   };
 
-  const chooseInputHandler = (event) => {
-    event.target.type === 'file' ? handleFileInput(event) : handleTextInput(event);
+  const handleChoiceInput = (event, fieldTitle) => {
+    const textValue = event.target.value;
+    setData({ ...data, [fieldTitle]: textValue });
+    console.log(event);
   };
 
   return (
@@ -30,10 +33,31 @@ const Form = ({ formFields, formTitle, data, setData, handleSubmit, error, showM
         <Paper elevation={3} sx={{ padding: '6%' }}>
           <ErrorDetail error={error} />
 
-          {formFields.map((field) => (
-            <FormField key={field.title} field={field} error={error} handler={chooseInputHandler} data={data} />
-          ))}
-          <SubmitButton/>
+          {Object.entries(formFields).map(([fieldTitle, fieldInfo]) =>
+            fieldInfo.type === 'choice' ? (
+              <ChoiceField
+                key={fieldTitle}
+                fieldTitle={fieldTitle}
+                fieldInfo={fieldInfo}
+                handler={handleChoiceInput}
+                value={data[fieldTitle] || ''}
+                errorMessage={error[fieldTitle]}
+              />
+            ) : (
+              <FormField
+                key={fieldTitle}
+                fieldTitle={fieldTitle}
+                fieldInfo={fieldInfo}
+                errorMessage={error[fieldTitle]}
+                handler={fieldInfo.type === 'file' ? handleFileInput : handleTextInput}
+                type={fieldInfo.type}
+                value={fieldInfo.type !== 'file' ? data[fieldTitle] || '' : undefined}
+                multiline={fieldInfo.type === 'textarea' && true}
+              />
+            )
+          )}
+
+          <SubmitButton />
         </Paper>
       </form>
     </Box>

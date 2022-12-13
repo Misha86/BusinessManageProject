@@ -1,22 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Form from '../components/Form/Form';
 import { ManagerService } from '../services/auth.service';
 import { messageTimeout } from '../utils';
-
-const formFields = [
-  { title: 'email', type: 'email', required: true, helpText: 'This field is required' },
-  { title: 'first_name', type: 'text', required: true, helpText: 'This field is required' },
-  { title: 'last_name', type: 'text', required: true, helpText: 'This field is required' },
-  { title: 'patronymic', type: 'text', required: false, helpText: 'This field is not required' },
-  { title: 'position', type: 'text', required: true, helpText: 'This field is required' },
-  { title: 'bio', type: 'textarea', required: false, helpText: 'This field is not required' },
-  { title: 'avatar', type: 'file', required: false, helpText: 'Get Avatar to the profile' },
-];
 
 const AddSpecialist = () => {
   const [userData, setUserData] = useState({});
   const [error, setError] = useState({});
   const [showMessage, setShowMessage] = useState(false);
+  const [formFields, setFormFields] = useState([]);
+
+  useEffect(() => {
+    const getFieldsInfo = async () => {
+      await ManagerService.getSpecialistFieldsOption()
+        .then((response) => {
+          const fields = response.data.fields;
+          fields['bio']['type'] = 'textarea';
+          setFormFields(fields);
+        })
+        .catch((error) => {
+          console.log(error.response.data);
+        });
+    };
+    getFieldsInfo();
+  }, []);
 
   const handleSubmit = async (event) => {
     event.preventDefault();

@@ -1,45 +1,32 @@
-import { Typography, FormControl, FormHelperText, TextField } from '@mui/material';
+import { FormControl, FormHelperText, TextField } from '@mui/material';
+import ErrorField from './ErrorField';
 
-const FormField = ({ field, error, handler, data }) => {
-  const isError = (fieldError) => !!error[fieldError.title];
+const FormField = ({ fieldTitle, fieldInfo, errorMessage, handler, type, value, multiline }) => {
 
-  const fieldLabel = (field) => {
-    let fieldTitle = field.title[0].toUpperCase() + field.title.slice(1);
-    return fieldTitle.replace('_', ' ');
-  };
-
-  const extraFieldAttrs = {
-    textarea: { multiline: true, rows: 4 },
-    file: { accept: 'image/png, image/jpeg' },
-  };
-
-  const getInputValue = (field) => {
-    return field.type !== 'file' && { value: data[field.title] || '' };
-  };
+  const fileProps = { accept: 'image/png, image/jpeg' };
 
   return (
     <div>
-      {isError(field) && (
-        <Typography component="p" variant="p" mb={2} color="error">
-          {error[field.title]}
-        </Typography>
-      )}
+
+      <ErrorField errorMessage={errorMessage}/>
 
       <FormControl sx={{ width: '100%' }}>
         <TextField
-          id={field.title}
-          label={fieldLabel(field)}
-          required={field.required}
+          id={fieldTitle}
+          label={fieldInfo.label}
+          required={fieldInfo.required}
+          inputProps={fileProps}
           onChange={handler}
-          type={field.type}
+          type={type || 'text'}
           variant="standard"
           size="small"
-          error={isError(field)}
-          {...getInputValue(field)}
-          {...extraFieldAttrs[field.type]}
+          error={!!errorMessage}
+          value={value}
+          rows="4"
+          multiline={multiline}
         />
-        <FormHelperText error={isError(field)} id={`${field.title}-helper-text`}>
-          {field.helpText}
+        <FormHelperText error={!!errorMessage} id={`${fieldTitle}-helper-text`}>
+          {fieldInfo.help_text}
         </FormHelperText>
       </FormControl>
     </div>
