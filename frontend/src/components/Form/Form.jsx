@@ -8,20 +8,10 @@ import SubmitButton from './SubmitButton';
 import ChoiceField from './ChoiceField';
 
 const Form = ({ formFields, formTitle, data, setData, handleSubmit, error, showMessage }) => {
-  const handleTextInput = (event) => {
-    const textValue = event.target.value;
-    setData({ ...data, [event.target.id]: textValue });
-  };
 
-  const handleFileInput = (event) => {
-    const fileValue = event.target.files[0];
-    setData({ ...data, [event.target.id]: fileValue });
-  };
-
-  const handleChoiceInput = (event, fieldTitle) => {
-    const textValue = event.target.value;
+  const handleFormFields = (event, fieldTitle, typeField) => {
+    const textValue = typeField === 'file' ? event.target.files[0] : event.target.value;
     setData({ ...data, [fieldTitle]: textValue });
-    console.log(event);
   };
 
   return (
@@ -39,7 +29,7 @@ const Form = ({ formFields, formTitle, data, setData, handleSubmit, error, showM
                 key={fieldTitle}
                 fieldTitle={fieldTitle}
                 fieldInfo={fieldInfo}
-                handler={handleChoiceInput}
+                handler={handleFormFields}
                 value={data[fieldTitle] || ''}
                 errorMessage={error[fieldTitle]}
               />
@@ -49,7 +39,7 @@ const Form = ({ formFields, formTitle, data, setData, handleSubmit, error, showM
                 fieldTitle={fieldTitle}
                 fieldInfo={fieldInfo}
                 errorMessage={error[fieldTitle]}
-                handler={fieldInfo.type === 'file' ? handleFileInput : handleTextInput}
+                handler={handleFormFields}
                 type={fieldInfo.type}
                 value={fieldInfo.type !== 'file' ? data[fieldTitle] || '' : undefined}
                 multiline={fieldInfo.type === 'textarea' && true}

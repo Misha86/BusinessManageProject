@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import Form from '../components/Form/Form';
 import { ManagerService } from '../services/auth.service';
 import { messageTimeout } from '../utils';
-import useOptions from '../hooks/useOptions';
 
 const AddSpecialist = () => {
   const [userData, setUserData] = useState({});
@@ -38,23 +37,17 @@ const AddSpecialist = () => {
       setError(error.response.data);
     }
   };
-  
+
   return (
-    <>
-      {isLoading ? (
-        <p>Loading...</p>
-      ) : (
-        <Form
-          formFields={formFields}
-          formTitle="Add Specialist"
-          data={userData}
-          setData={setUserData}
-          handleSubmit={handleSubmit}
-          error={error}
-          showMessage={showMessage}
-        />
-      )}
-    </>
+    <Form
+      formFields={formFields}
+      formTitle="Add Specialist"
+      data={userData}
+      setData={setUserData}
+      handleSubmit={handleSubmit}
+      error={error}
+      showMessage={showMessage}
+    />
   );
 };
 

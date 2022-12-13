@@ -9,7 +9,6 @@ const Home = () => {
     const getSpecialists = async () => {
       await UserService.getSpecialists()
         .then((response) => {
-          console.log(response.data.results);
           setSpecialists(response.data.results);
         })
         .catch((error) => {

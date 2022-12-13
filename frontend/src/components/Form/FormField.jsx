@@ -16,7 +16,7 @@ const FormField = ({ fieldTitle, fieldInfo, errorMessage, handler, type, value, 
           label={fieldInfo.label}
           required={fieldInfo.required}
           inputProps={fileProps}
-          onChange={handler}
+          onChange={(e) => {handler(e, fieldTitle, type)}}
           type={type || 'text'}
           variant="standard"
           size="small"
