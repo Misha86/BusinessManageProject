@@ -1,13 +1,13 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { InputLabel, Typography, Grid } from '@mui/material';
 import TimeIntervalField from './TimeIntervalField';
-import { PaperStyled } from '../styles/Paper.styled';
-import { WorkingFormContext } from '../../context';
-import AddIntervalButton from './UI/AddIntervalButton';
-import RemoveIntervalButton from './UI/RemoveIntervalButton';
-import ErrorField from '../Form/ErrorField';
+import { PaperStyled } from '../../styles/Paper.styled';
+import { WorkingFormContext} from '../../../context/index';
+import AddIntervalButton from '../UI/AddIntervalButton';
+import RemoveIntervalButton from '../UI/RemoveIntervalButton';
+import ErrorField from '../../Form/ErrorField';
 
-const DayTimeIntervalField = ({ weekDay, fieldTitle, error, handler }) => {
+const WorkingTimeField = ({ weekDay, fieldTitle, error, handler }) => {
   const errorMessage = error[fieldTitle]?.[weekDay];
   const [intervals, setIntervals] = useState([]);
   const { countOfTimeIntervals } = useContext(WorkingFormContext);
@@ -17,7 +17,7 @@ const DayTimeIntervalField = ({ weekDay, fieldTitle, error, handler }) => {
   useEffect(() => {
     const timeIntervals = intervals.filter((interval) => interval.length > 0);
     const dayTimeIntervals = { [weekDay]: countOfTimeIntervals > 1 ? timeIntervals : timeIntervals[0] };
-    handler(dayTimeIntervals);
+    handler(fieldTitle, dayTimeIntervals);
     status === 'true' && setIntervals([]);
     localStorage.removeItem('created');
   }, [intervals, status]);
@@ -81,4 +81,4 @@ const DayTimeIntervalField = ({ weekDay, fieldTitle, error, handler }) => {
   );
 };
 
-export default DayTimeIntervalField;
+export default WorkingTimeField;

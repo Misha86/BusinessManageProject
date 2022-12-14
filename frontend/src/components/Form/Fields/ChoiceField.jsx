@@ -4,7 +4,7 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import FormHelperText from '@mui/material/FormHelperText';
-import ErrorField from './ErrorField';
+import ErrorField from '../ErrorField';
 
 const ChoiceField = ({ fieldTitle, fieldInfo, errorMessage, handler , value}) => {
 

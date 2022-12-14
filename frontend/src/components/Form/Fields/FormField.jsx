@@ -1,5 +1,5 @@
 import { FormControl, FormHelperText, TextField } from '@mui/material';
-import ErrorField from './ErrorField';
+import ErrorField from '../ErrorField';
 
 const FormField = ({ fieldTitle, fieldInfo, errorMessage, handler, type, value, multiline }) => {
 

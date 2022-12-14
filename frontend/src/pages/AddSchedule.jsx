@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import WorkingTimeForm from '../components/WorkingTimeForm/WorkingTimeForm';
+import WorkingTimeForm from '../components/WorkingTimeForm';
 import { ManagerService } from '../services/auth.service';
 import { WorkingFormContext } from '../context';
 
