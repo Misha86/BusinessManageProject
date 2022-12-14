@@ -1,26 +1,16 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { InputLabel, Typography, Grid, Icon, IconButton } from '@mui/material';
+import { InputLabel, Typography, Grid } from '@mui/material';
 import TimeIntervalField from './TimeIntervalField';
 import { PaperStyled } from '../styles/Paper.styled';
 import { WorkingFormContext } from '../../context';
+import AddIntervalButton from './UI/AddIntervalButton';
+import RemoveIntervalButton from './UI/RemoveIntervalButton';
+import ErrorField from '../Form/ErrorField';
 
 const DayTimeIntervalField = ({ weekDay, fieldTitle, error, handler }) => {
   const errorMessage = error[fieldTitle]?.[weekDay];
   const [intervals, setIntervals] = useState([]);
   const { countOfTimeIntervals } = useContext(WorkingFormContext);
-
-  const removeInterval = (intervals, setIntervals) => {
-    if (intervals.length >= 1) {
-      intervals.pop();
-      setIntervals([...intervals]);
-    }
-  };
-
-  const addInterval = (intervals, setIntervals, count) => {
-    if (intervals.length < count) {
-      setIntervals([...intervals, []]);
-    }
-  };
 
   const status = localStorage.getItem('created', 'true');
 
@@ -32,46 +22,33 @@ const DayTimeIntervalField = ({ weekDay, fieldTitle, error, handler }) => {
     localStorage.removeItem('created');
   }, [intervals, status]);
 
+  const wrapButton = ({ children }) => (
+    <Grid item xs={12} md={12}>
+      {children}
+    </Grid>
+  );
+
   return (
     <Grid container spacing={1}>
-      {!!errorMessage && (
-        <Grid item xs={12} md={12}>
-          <Typography component="p" variant="p" color="error">
-            {errorMessage}
-          </Typography>
-        </Grid>
-      )}
+      <Grid item xs={12} md={12}>
+        <ErrorField errorMessage={errorMessage} />
+      </Grid>
 
       <Grid justifyContent="flex-end" item xs={4} md={2}>
         <Grid item xs={12} md={12}>
           <InputLabel error={!!errorMessage}>{weekDay}</InputLabel>
         </Grid>
 
-        {intervals.length < countOfTimeIntervals && (
-          <Grid item xs={12} md={12} padding="none">
-            <IconButton
-              sx={{ padding: 0 }}
-              aria-label="add time interval"
-              onClick={() => addInterval(intervals, setIntervals, countOfTimeIntervals)}
-            >
-              <Icon color="primary">add_circle</Icon>
-            </IconButton>
-          </Grid>
-        )}
+        <AddIntervalButton
+          intervals={intervals}
+          setIntervals={setIntervals}
+          count={countOfTimeIntervals}
+          component={wrapButton}
+        />
 
-        {intervals.length >= 1 && (
-          <Grid item xs={12} md={12}>
-            <IconButton
-              sx={{ padding: 0 }}
-              aria-label="remove time interval"
-              onClick={() => removeInterval(intervals, setIntervals)}
-            >
-              <Icon color="primary">do_not_disturb_on</Icon>
-            </IconButton>
-          </Grid>
-        )}
+        <RemoveIntervalButton intervals={intervals} setIntervals={setIntervals} component={wrapButton} />
       </Grid>
-      
+
       <Grid container item xs={8} md={10}>
         {intervals.length === 0 && (
           <Grid item mt={3}>

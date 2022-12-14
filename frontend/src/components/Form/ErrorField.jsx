@@ -1,11 +1,11 @@
 import React from 'react';
 import { Typography } from '@mui/material';
 
-const ErrorDetail = ({ errorMessage }) => {
+const ErrorField = ({ errorMessage }) => {
   return (
     <>
       {!!errorMessage && (
-        <Typography component="p" variant="p" mb={2} color="error">
+        <Typography component="p" variant="p" mb={2}  mt={1} color="error">
           {errorMessage}
         </Typography>
       )}
@@ -13,4 +13,4 @@ const ErrorDetail = ({ errorMessage }) => {
   );
 };
 
-export default ErrorDetail;
+export default ErrorField;
