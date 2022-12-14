@@ -15,11 +15,10 @@ const WorkingTimeField = ({ fieldTitle, fieldInfo, data, error, setData }) => {
       <Typography component="h6" variant="h6" mb={1} color={error[fieldTitle] ? 'error' : 'grey'}>
         Working time
       </Typography>
-      {Object.entries(fieldInfo.children).map(([weekDay, weekDayInfo]) => (
+      {Object.entries(fieldInfo.children).map(([weekDay, _]) => (
         <DayTimeIntervalField
           key={weekDay}
           fieldTitle={fieldTitle}
-          fieldInfo={fieldInfo}
           error={error}
           handler={handleWorkingTime}
           weekDay={weekDay}

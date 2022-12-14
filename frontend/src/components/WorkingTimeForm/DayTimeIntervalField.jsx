@@ -4,7 +4,7 @@ import TimeIntervalField from './TimeIntervalField';
 import { PaperStyled } from '../styles/Paper.styled';
 import { WorkingFormContext } from '../../context';
 
-const DayTimeIntervalField = ({ weekDay, fieldTitle, fieldInfo, error, handler }) => {
+const DayTimeIntervalField = ({ weekDay, fieldTitle,  error, handler }) => {
   const errorMessage = error[fieldTitle]?.[weekDay];
   const [intervals, setIntervals] = useState([]);
   const { countOfTimeIntervals } = useContext(WorkingFormContext);
