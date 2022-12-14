@@ -4,7 +4,7 @@ import TimeIntervalField from './TimeIntervalField';
 import { PaperStyled } from '../styles/Paper.styled';
 import { WorkingFormContext } from '../../context';
 
-const DayTimeIntervalField = ({ weekDay, fieldTitle,  error, handler }) => {
+const DayTimeIntervalField = ({ weekDay, fieldTitle, error, handler }) => {
   const errorMessage = error[fieldTitle]?.[weekDay];
   const [intervals, setIntervals] = useState([]);
   const { countOfTimeIntervals } = useContext(WorkingFormContext);
@@ -15,7 +15,6 @@ const DayTimeIntervalField = ({ weekDay, fieldTitle,  error, handler }) => {
       setIntervals([...intervals]);
     }
   };
-
 
   const addInterval = (intervals, setIntervals, count) => {
     if (intervals.length < count) {
@@ -72,6 +71,7 @@ const DayTimeIntervalField = ({ weekDay, fieldTitle,  error, handler }) => {
           </Grid>
         )}
       </Grid>
+      
       <Grid container item xs={8} md={10}>
         {intervals.length === 0 && (
           <Grid item mt={3}>

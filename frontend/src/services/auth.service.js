@@ -82,5 +82,10 @@ export class ManagerService {
   static getLocationFieldsOption() {
     const response = instance.options('/locations/')
     return response;
-  }
+  };
+
+  static getScheduleFieldsOption() {
+    const response = instance.options('/schedules/')
+    return response;
+  };
 }

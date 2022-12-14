@@ -34,7 +34,7 @@ class SpecialistScheduleSerializer(SpecialistScheduleDetailSerializer):
     class Meta(SpecialistScheduleDetailSerializer.Meta):
         """Class with a model and model fields for serialization."""
 
-        fields = SpecialistScheduleDetailSerializer.Meta.fields + ["specialist"]
+        fields = ["specialist"] + SpecialistScheduleDetailSerializer.Meta.fields
 
     def to_representation(self, instance):
         """Change displaying schedule specialist from id to full name."""
