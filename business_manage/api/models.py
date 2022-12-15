@@ -134,6 +134,14 @@ class UserManager(BaseUserManager):
         )
 
 
+class SpecialistManager(models.Manager):
+    """Custom manager for specialists."""
+
+    def get_queryset(self):
+        """Get all specialists."""
+        return super().get_queryset().filter(groups__name__icontains="Specialist")
+
+
 class CustomUser(AbstractBaseUser, Base, PermissionsMixin):
     """This class represents a custom User model.
 
@@ -177,6 +185,7 @@ class CustomUser(AbstractBaseUser, Base, PermissionsMixin):
     USERNAME_FIELD = "email"
 
     objects = UserManager()
+    specialists = SpecialistManager()
 
     REQUIRED_FIELDS = ["first_name", "last_name"]
 
