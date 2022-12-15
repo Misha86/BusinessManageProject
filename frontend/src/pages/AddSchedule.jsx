@@ -7,7 +7,7 @@ const AddSchedule = () => {
   const messageText = 'The schedule was added!';
   const countOfTimeIntervals = 3;
   const formTitle = 'Add Schedule';
-  const [formFields, setFormFields] = useState([]);
+  const [created, setCreated] = useState(false)
 
   useEffect(() => {
     const getFieldsInfo = async () => {
