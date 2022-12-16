@@ -2,25 +2,28 @@ import React, { useEffect, useState, useContext } from 'react';
 import { InputLabel, Typography, Grid } from '@mui/material';
 import TimeIntervalField from './TimeIntervalField';
 import { PaperStyled } from '../../styles/Paper.styled';
-import { WorkingFormContext} from '../../../context/index';
+import { WorkingFormContext } from '../../../context/index';
 import AddIntervalButton from '../UI/AddIntervalButton';
 import RemoveIntervalButton from '../UI/RemoveIntervalButton';
 import ErrorField from '../../Form/ErrorField';
 
-const WorkingTimeField = ({ weekDay, fieldTitle, error, handler }) => {
+const WorkingTimeField = ({ weekDay, fieldTitle, error, handler, data }) => {
   const errorMessage = error[fieldTitle]?.[weekDay];
-  const [intervals, setIntervals] = useState([]);
+  const dayIntervals = data[fieldTitle]?.[weekDay];
+
+  const [intervals, setIntervals] = useState(
+    !!dayIntervals.length && typeof dayIntervals[0] === 'string' ? [dayIntervals] : dayIntervals
+  );
   const { countOfTimeIntervals } = useContext(WorkingFormContext);
 
-  const status = localStorage.getItem('created', 'true');
 
   useEffect(() => {
     const timeIntervals = intervals.filter((interval) => interval.length > 0);
-    const dayTimeIntervals = { [weekDay]: countOfTimeIntervals > 1 ? timeIntervals : timeIntervals[0] };
+    const dayTimeIntervals = {
+      [weekDay]: countOfTimeIntervals === 1 && timeIntervals.length === 1 ? timeIntervals[0] : timeIntervals,
+    };
     handler(fieldTitle, dayTimeIntervals);
-    status === 'true' && setIntervals([]);
-    localStorage.removeItem('created');
-  }, [intervals, status]);
+  }, [intervals]);
 
   const wrapButton = ({ children }) => (
     <Grid item xs={12} md={12}>

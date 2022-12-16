@@ -1,34 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import WorkingTimeForm from '../components/WorkingTimeForm';
 import { ManagerService } from '../services/auth.service';
 import { WorkingFormContext } from '../context';
 
 const AddSchedule = () => {
-  const messageText = 'The schedule was added!';
   const countOfTimeIntervals = 3;
   const formTitle = 'Add Schedule';
   const [created, setCreated] = useState(false)
 
-  useEffect(() => {
-    const getFieldsInfo = async () => {
-      await ManagerService.getScheduleFieldsOption()
-        .then((response) => {
-          setFormFields(response.data.fields);
-        })
-        .catch((error) => {
-          console.log(error.response.data);
-        });
-    };
-    getFieldsInfo();
-  }, []);
-
   return (
-    <WorkingFormContext.Provider value={{ countOfTimeIntervals }}>
+    <WorkingFormContext.Provider value={{ countOfTimeIntervals, created, setCreated }}>
       <WorkingTimeForm
         formTitle={formTitle}
-        formFields={formFields}
+        created={created}
+        setCreated={setCreated}
+        serviceFields={ManagerService.getScheduleFieldsOption}
         service={ManagerService.addSchedule}
-        messageText={messageText}
+        messageText='The schedule was added!'
       />
     </WorkingFormContext.Provider>
   );

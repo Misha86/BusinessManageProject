@@ -47,6 +47,7 @@ const AddSpecialist = () => {
       handleSubmit={handleSubmit}
       error={error}
       showMessage={showMessage}
+      messageText='The specialist was added!'
     />
   );
 };

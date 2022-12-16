@@ -8,7 +8,7 @@ import SubmitButton from './SubmitButton';
 import ChoiceField from './Fields/ChoiceField';
 import WorkingTimeField from './Fields/WorkingTimeField';
 
-const Form = ({ formFields, formTitle, data, setData, handleSubmit, error, showMessage }) => {
+const Form = ({ formFields, formTitle, data, setData, handleSubmit, error, showMessage, messageText }) => {
   const handleTextField = (event, fieldTitle, typeField) => {
     const textValue = typeField === 'file' ? event.target.files[0] : event.target.value;
     setData({ ...data, [fieldTitle]: textValue });
@@ -22,7 +22,7 @@ const Form = ({ formFields, formTitle, data, setData, handleSubmit, error, showM
     <Box mt={3} sx={{ paddingLeft: '30%', width: '40%' }}>
       <FormTitle formTitle={formTitle} />
       <form onSubmit={handleSubmit}>
-        <Message showMessage={showMessage} messageText="The Specialist was added!" />
+        <Message showMessage={showMessage} messageText={messageText} />
 
         <Paper elevation={3} sx={{ padding: '6%' }}>
           <ErrorDetail error={error} />
@@ -48,6 +48,8 @@ const Form = ({ formFields, formTitle, data, setData, handleSubmit, error, showM
                   {Object.entries(fieldInfo.children).map(([weekDay, _]) => (
                     <WorkingTimeField
                       key={weekDay}
+                      data={data}
+                      setData={setData}
                       fieldTitle={fieldTitle}
                       error={error}
                       handler={handleWorkingTime}
