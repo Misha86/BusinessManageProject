@@ -10,7 +10,7 @@ const Loading = () => {
         justifyContent: 'center',
       }}
     >
-      <Typography component="p" variant="p" pt={'30%'}>
+      <Typography component="p" variant="p" pt={'20%'}>
         Loading...
       </Typography>
     </Box>
