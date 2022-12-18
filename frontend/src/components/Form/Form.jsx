@@ -8,7 +8,7 @@ import SubmitButton from './SubmitButton';
 import ChoiceField from './Fields/ChoiceField';
 import WorkingTimeField from './Fields/WorkingTimeField';
 
-const Form = ({ formFields, formTitle, data, setData, handleSubmit, error, showMessage, messageText }) => {
+const Form = ({ formFields, formTitle, data, setData, handleSubmit, error, showMessage, messageText}) => {
   const handleTextField = (event, fieldTitle, typeField) => {
     const textValue = typeField === 'file' ? event.target.files[0] : event.target.value;
     setData({ ...data, [fieldTitle]: textValue });
@@ -16,6 +16,7 @@ const Form = ({ formFields, formTitle, data, setData, handleSubmit, error, showM
 
   const handleWorkingTime = (fieldTitle, dayTimeIntervals) => {
     setData({ ...data, [fieldTitle]: { ...data[fieldTitle], ...dayTimeIntervals } });
+    
   };
 
   return (
@@ -36,13 +37,13 @@ const Form = ({ formFields, formTitle, data, setData, handleSubmit, error, showM
                   fieldInfo={fieldInfo}
                   handler={handleTextField}
                   value={data[fieldTitle] || ''}
-                  errorMessage={error[fieldTitle]}
+                  errorMessage={error?.[fieldTitle]}
                 />
               );
             } else if (fieldTitle === 'working_time') {
               return (
                 <div key={fieldTitle}>
-                  <Typography component="h6" variant="h6" mb={1} color={error[fieldTitle] ? 'error' : 'grey'}>
+                  <Typography component="h6" variant="h6" mb={1} color={error?.[fieldTitle] ? 'error' : 'grey'}>
                     {fieldInfo.label}
                   </Typography>
                   {Object.entries(fieldInfo.children).map(([weekDay, _]) => (
@@ -64,7 +65,7 @@ const Form = ({ formFields, formTitle, data, setData, handleSubmit, error, showM
                   key={fieldTitle}
                   fieldTitle={fieldTitle}
                   fieldInfo={fieldInfo}
-                  errorMessage={error[fieldTitle]}
+                  errorMessage={error?.[fieldTitle]}
                   handler={handleTextField}
                   type={fieldInfo.type}
                   value={fieldInfo.type !== 'file' ? data[fieldTitle] || '' : undefined}

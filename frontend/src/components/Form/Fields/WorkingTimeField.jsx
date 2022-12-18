@@ -8,7 +8,7 @@ import RemoveIntervalButton from '../UI/RemoveIntervalButton';
 import ErrorField from '../../Form/ErrorField';
 
 const WorkingTimeField = ({ weekDay, fieldTitle, error, handler, data }) => {
-  const errorMessage = error[fieldTitle]?.[weekDay];
+  const errorMessage = error?.[fieldTitle]?.[weekDay];
   const dayIntervals = data[fieldTitle]?.[weekDay];
 
   const [intervals, setIntervals] = useState(
