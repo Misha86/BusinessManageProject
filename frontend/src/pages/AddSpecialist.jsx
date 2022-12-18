@@ -2,53 +2,53 @@ import React, { useState, useEffect } from 'react';
 import Form from '../components/Form/Form';
 import { ManagerService } from '../services/auth.service';
 import { messageTimeout } from '../utils';
+import useFetching from '../hooks/useFetching';
+import Loading from '../components/Loading';
 
 const AddSpecialist = () => {
   const [userData, setUserData] = useState({});
-  const [error, setError] = useState({});
   const [showMessage, setShowMessage] = useState(false);
   const [formFields, setFormFields] = useState([]);
+  const [fetching, isLoading, error] = useFetching(async () => {
+    await ManagerService.addSpecialist(userData);
+    setShowMessage(true);
+    setUserData({});
+    messageTimeout(3000, setShowMessage);
+  });
+
+  const [fetchingFields, isLoadingFields] = useFetching(async () => {
+    const response = await ManagerService.getSpecialistFieldsOption();
+    const fields = response.data.fields;
+    fields['bio']['type'] = 'textarea';
+    setFormFields(fields);
+  });
 
   useEffect(() => {
-    const getFieldsInfo = async () => {
-      await ManagerService.getSpecialistFieldsOption()
-        .then((response) => {
-          const fields = response.data.fields;
-          fields['bio']['type'] = 'textarea';
-          setFormFields(fields);
-        })
-        .catch((error) => {
-          console.log(error.response.data);
-        });
-    };
-    getFieldsInfo();
+    fetchingFields();
   }, []);
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = (event) => {
     event.preventDefault();
-    try {
-      await ManagerService.addSpecialist(userData);
-      setUserData({});
-      setError({});
-      setShowMessage(true);
-      messageTimeout(7000, setShowMessage);
-    } catch (error) {
-      console.log(error.response.data);
-      setError(error.response.data);
-    }
+    fetching();
   };
 
   return (
-    <Form
-      formFields={formFields}
-      formTitle="Add Specialist"
-      data={userData}
-      setData={setUserData}
-      handleSubmit={handleSubmit}
-      error={error}
-      showMessage={showMessage}
-      messageText='The specialist was added!'
-    />
+    <>
+      {isLoading || isLoadingFields ? (
+        <Loading />
+      ) : (
+        <Form
+          formFields={formFields}
+          formTitle="Add Specialist"
+          data={userData}
+          setData={setUserData}
+          handleSubmit={handleSubmit}
+          error={error}
+          showMessage={showMessage}
+          messageText="The specialist was added!"
+        />
+      )}
+    </>
   );
 };
 
