@@ -15,8 +15,8 @@ export default class UserService {
     return auth?.user.groups;
   }
 
-  static async getSpecialists() {
-    const response = await this.api.get('/specialists/');
+  static async getSpecialists(page=1, pageSize=0) {
+    const response = await this.api.get('/specialists/', { params: { page: page,  page_size: pageSize} });
     return response;
   }
 }
