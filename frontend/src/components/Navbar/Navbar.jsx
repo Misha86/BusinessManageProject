@@ -15,9 +15,8 @@ const Navbar = () => {
   const { auth, isLoading } = useContext(AuthContext);
 
   useEffect(() => {
-    const roles = UserService.getUserGroups()
     const getLinks = async () => {
-      if (!isLoading) {
+      const roles = await UserService.getUserGroups()
         if (roles && roles.includes('Manager')) {
           setPages(managerLinks);
         } else if (roles && roles.includes('Admin')) {
@@ -25,7 +24,6 @@ const Navbar = () => {
         } else {
           setPages(loginLinks);
         }
-      }
     };
     getLinks();
   }, [auth, isLoading]);

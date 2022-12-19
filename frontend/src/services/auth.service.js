@@ -74,8 +74,8 @@ export class ManagerService {
     return response;
   };
 
-  static getSpecialistFieldsOption() {
-    const response = instance.options('/specialists/')
+  static async getSpecialistFieldsOption() {
+    const response = await instance.options('/specialists/')
     return response;
   };
 

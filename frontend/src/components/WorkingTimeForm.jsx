@@ -3,7 +3,7 @@ import { getEmptySchedule, messageTimeout } from '../utils';
 import { weekDays } from '../utils';
 import Form from './Form/Form';
 import useFetching from '../hooks/useFetching';
-import Loading from './Loading';
+import Loading from './Loader';
 
 const WorkingTimeForm = ({ formTitle, service, messageText, serviceFields }) => {
   const [data, setData] = useState({ working_time: getEmptySchedule(weekDays) });

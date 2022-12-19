@@ -3,7 +3,7 @@ import Form from '../components/Form/Form';
 import { ManagerService } from '../services/auth.service';
 import { messageTimeout } from '../utils';
 import useFetching from '../hooks/useFetching';
-import Loading from '../components/Loading';
+import Loader from '../components/Loader';
 
 const AddSpecialist = () => {
   const [userData, setUserData] = useState({});
@@ -35,7 +35,7 @@ const AddSpecialist = () => {
   return (
     <>
       {isLoading || isLoadingFields ? (
-        <Loading />
+        <Loader />
       ) : (
         <Form
           formFields={formFields}

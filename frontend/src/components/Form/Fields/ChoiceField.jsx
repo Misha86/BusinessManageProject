@@ -10,8 +10,7 @@ const ChoiceField = ({ fieldTitle, fieldInfo, errorMessage, handler , value}) =>
 
   return (
     <div>
-
-      <ErrorField errorMessage={errorMessage}/>
+      <ErrorField errorMessage={errorMessage} />
 
       <FormControl variant="standard" sx={{ minWidth: '100%' }}>
         <InputLabel id={`${fieldInfo.label}-standard-label`}>{fieldInfo.label}</InputLabel>
