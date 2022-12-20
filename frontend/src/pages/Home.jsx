@@ -4,11 +4,8 @@ import useFetching from '../hooks/useFetching';
 import Loader from '../components/Loader';
 import SpecialistList from '../components/SpecialistList';
 import Pagination from '@mui/material/Pagination';
-import Stack from '@mui/material/Stack';
-import { Grid, Container, Typography } from '@mui/material';
-import InputLabel from '@mui/material/InputLabel';
-import FormControl from '@mui/material/FormControl';
-import NativeSelect from '@mui/material/NativeSelect';
+import { Grid, Container } from '@mui/material';
+import PageSizeForm from '../components/PageSizeForm';
 
 const Home = () => {
   const [specialists, setSpecialists] = useState([]);
@@ -22,10 +19,9 @@ const Home = () => {
     setPages(response.data.pages);
   });
 
-  // if (Object.keys(error).length !==  0) {
-  //   console.log(error);
-  //   setPage(1);
-  // }
+  useEffect(() => {
+    !!error && setPage(1);
+  }, [error]);
 
   useEffect(() => {
     fetching(page, pageSize);
@@ -33,10 +29,6 @@ const Home = () => {
 
   const handlePageChange = (event, value) => {
     setPage(value);
-  };
-
-  const handlePageSize = (event) => {
-    setPageSize(event.target.value);
   };
 
   return (
@@ -47,6 +39,7 @@ const Home = () => {
         <Container maxWidth="xl">
           <Grid container spacing={3}>
             <SpecialistList specialists={specialists} />
+
             <Grid container item rowSpacing={1} mb={2} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
               <Grid item xs={12} sm={8} md={5}>
                 <Pagination
@@ -60,24 +53,7 @@ const Home = () => {
               </Grid>
 
               <Grid>
-                <FormControl fullWidth onChange={handlePageSize}>
-                  <InputLabel variant="standard" htmlFor="uncontrolled-native" onChange={handlePageSize}>
-                    Items
-                  </InputLabel>
-                  <NativeSelect
-                    defaultValue={pageSize}
-                    inputProps={{
-                      name: 'items',
-                      id: 'uncontrolled-native',
-                    }}
-                  >
-                    <option value={5}>5</option>
-                    <option value={10}>10</option>
-                    <option value={20}>20</option>
-                    <option value={30}>30</option>
-                    <option value={50}>50</option>
-                  </NativeSelect>
-                </FormControl>
+                <PageSizeForm setPageSize={setPageSize} pageSize={pageSize} optionArray={[5, 10, 20, 30, 50]} />
               </Grid>
             </Grid>
           </Grid>
