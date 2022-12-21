@@ -9,7 +9,7 @@ import PageSizeForm from '../components/PageSizeForm';
 
 const Home = () => {
   const [specialists, setSpecialists] = useState([]);
-  const [pageSize, setPageSize] = useState(5);
+  const [pageSize, setPageSize] = useState(10);
   const [page, setPage] = useState(1);
   const [pages, setPages] = useState(1);
 
@@ -53,7 +53,7 @@ const Home = () => {
               </Grid>
 
               <Grid>
-                <PageSizeForm setPageSize={setPageSize} pageSize={pageSize} optionArray={[5, 10, 20, 30, 50]} />
+                <PageSizeForm setPageSize={setPageSize} pageSize={pageSize} optionArray={[10, 20, 30, 50]} />
               </Grid>
             </Grid>
           </Grid>
