@@ -6,6 +6,8 @@ import SpecialistList from '../components/SpecialistList';
 import Pagination from '@mui/material/Pagination';
 import { Grid, Container, Typography } from '@mui/material';
 import SelectForm from '../components/SelectForm';
+import Filter from '../components/Filter';
+
 
 const Home = () => {
   const [specialists, setSpecialists] = useState([]);
@@ -13,32 +15,41 @@ const Home = () => {
   const [page, setPage] = useState(1);
   const [pages, setPages] = useState(1);
   const [orderValue, setOrderValue] = useState('');
+  const [positionItem, setPositionItem] = useState(null);
 
-  const [fetching, isLoading, error] = useFetching(async (page, pageSize, orderValue) => {
-    const response = await UserService.getSpecialists(page, pageSize, orderValue);
+  const [fetching, isLoading, error] = useFetching(async (page, pageSize, orderValue, position) => {
+    const response = await UserService.getSpecialists(page, pageSize, orderValue, position);
     setSpecialists(response.data.results);
     setPages(response.data.pages);
   });
+
+  const pageSizeOptions = [
+    [10, 10],
+    [20, 20],
+    [30, 30],
+    [50, 50],
+  ];
+
+  const sortByOptions = [
+    ['email', 'Email'],
+    ['position', 'Position'],
+    ['first_name', 'Name'],
+  ];
+
+  const positionsOptions = [
+    { label: 'Position 1', position: 'position_1' },
+    { label: 'Position 2', position: 'position_2' },
+    { label: 'Position 3', position: 'position_3' },
+  ];
 
   useEffect(() => {
     !!error && setPage(1);
   }, [error]);
 
   useEffect(() => {
-    fetching(page, pageSize, orderValue);
-  }, [page, pageSize, pages, orderValue]);
-
-  const handlePageChange = (event, value) => {
-    setPage(value);
-  };
-
-  const handlePageSize = (event) => {
-    setPageSize(event.target.value);
-  };
-
-  const handleOrderValue = (event) => {
-    setOrderValue(event.target.value);
-  };
+    const position = positionItem ? positionItem.position : '';
+    fetching(page, pageSize, orderValue, position);
+  }, [page, pageSize, pages, orderValue, positionItem]);
 
   return (
     <>
@@ -55,29 +66,18 @@ const Home = () => {
 
             <Grid container item spacing={2}>
               <Grid item xs={3} sm={2} md={1}>
-                <SelectForm
-                  handler={handlePageSize}
-                  defaultValue={pageSize}
-                  optionArray={[
-                    [10, 10],
-                    [20, 20],
-                    [30, 30],
-                    [50, 50],
-                  ]}
-                  label="Item"
-                />
+                <SelectForm setData={setPageSize} defaultValue={pageSize} optionArray={pageSizeOptions} label="Item" />
               </Grid>
               <Grid item xs={4} sm={3} md={2}>
                 <SelectForm
-                  handler={handleOrderValue}
+                  setData={setOrderValue}
                   defaultValue={orderValue}
-                  optionArray={[
-                    ['email', 'Email'],
-                    ['position', 'Position'],
-                    ['first_name', 'Name'],
-                  ]}
+                  optionArray={sortByOptions}
                   label="Sort By"
                 />
+              </Grid>
+              <Grid item xs={6} sm={4} md={3}>
+                <Filter fields={positionsOptions} setData={setPositionItem} data={positionItem} />
               </Grid>
             </Grid>
 
@@ -90,23 +90,13 @@ const Home = () => {
                   variant="outlined"
                   shape="rounded"
                   page={page}
-                  onChange={handlePageChange}
+                  onChange={(e, value) => setPage(value)}
                   color="primary"
                 />
               </Grid>
 
               <Grid>
-                <SelectForm
-                  handler={handlePageSize}
-                  defaultValue={pageSize}
-                  optionArray={[
-                    [10, 10],
-                    [20, 20],
-                    [30, 30],
-                    [50, 50],
-                  ]}
-                  label="Item"
-                />
+                <SelectForm setData={setPageSize} defaultValue={pageSize} optionArray={pageSizeOptions} label="Item" />
               </Grid>
             </Grid>
           </Grid>

@@ -3,9 +3,9 @@ import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
 import NativeSelect from '@mui/material/NativeSelect';
 
-const SelectForm = ({ defaultValue, optionArray, handler, label }) => {
+const SelectForm = ({ defaultValue, optionArray, setData, label }) => {
   return (
-    <FormControl fullWidth onChange={handler}>
+    <FormControl fullWidth onChange={e => setData(e.target.value)}>
       <InputLabel variant="standard" htmlFor="uncontrolled-native">
         {label}
       </InputLabel>
