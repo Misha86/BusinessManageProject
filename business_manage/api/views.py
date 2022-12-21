@@ -2,7 +2,8 @@
 
 from django.contrib.auth import logout
 from django.utils import timezone
-from rest_framework import generics, status
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, generics, status
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -12,7 +13,10 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from .models import Appointment, CustomUser, SpecialistSchedule
 from .permissions import IsBusinessOwnerOrAdmin, IsBusinessOwnerOrManager, ReadOnly
 from .serializers.appointment_serializers import AppointmentSerializer
-from .serializers.customuser_serializers import SpecialistSerializer, CreateSpecialistSerializer
+from .serializers.customuser_serializers import (
+    CreateSpecialistSerializer,
+    SpecialistSerializer,
+)
 from .serializers.location_serializers import LocationSerializer
 from .serializers.schedule_serializers import (
     SpecialistScheduleDetailSerializer,
@@ -31,10 +35,13 @@ from .services.schedule_services import get_free_time_intervals, get_working_day
 class SpecialistList(generics.ListCreateAPIView):
     """SpecialistList class for creating and reviewing specialists."""
 
-    queryset = us.get_all_specialists()
+    queryset = us.get_all_specialists().order_by("email")
     serializer_class = CreateSpecialistSerializer
     permission_classes = [ReadOnly | IsBusinessOwnerOrManager]
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+
     filterset_fields = ["position"]
+    ordering_fields = ["email", "position", "first_name"]
 
     def post(self, request, *args, **kwargs):
         """Post method for creating specialists."""

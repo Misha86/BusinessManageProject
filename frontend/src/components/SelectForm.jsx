@@ -3,26 +3,22 @@ import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
 import NativeSelect from '@mui/material/NativeSelect';
 
-const PageSizeForm = ({ pageSize, optionArray, setPageSize }) => {
-  const handlePageSize = (event) => {
-    setPageSize(event.target.value);
-  };
-
+const SelectForm = ({ defaultValue, optionArray, handler, label }) => {
   return (
-    <FormControl fullWidth onChange={handlePageSize}>
+    <FormControl fullWidth onChange={handler}>
       <InputLabel variant="standard" htmlFor="uncontrolled-native">
-        Items
+        {label}
       </InputLabel>
       <NativeSelect
-        defaultValue={pageSize}
+        defaultValue={defaultValue}
         inputProps={{
-          name: 'items',
+          name: `${label}`,
           id: 'uncontrolled-native',
         }}
       >
         {optionArray.map((value) => (
-          <option key={value} value={value}>
-            {value}
+          <option key={value} value={value[0]}>
+            {value[1]}
           </option>
         ))}
       </NativeSelect>
@@ -30,4 +26,4 @@ const PageSizeForm = ({ pageSize, optionArray, setPageSize }) => {
   );
 };
 
-export default PageSizeForm;
+export default SelectForm;
