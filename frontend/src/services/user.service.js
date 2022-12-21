@@ -8,17 +8,22 @@ export default class UserService {
   static getUser() {
     const auth = JSON.parse(localStorage.getItem('auth'));
     return auth?.user;
-  }
+  };
 
   static getUserGroups() {
     const auth = JSON.parse(localStorage.getItem('auth'));
     return auth?.user.groups;
-  }
+  };
 
   static async getSpecialists(page=1, pageSize=0, orderValue='', position='') {
     const response = await this.api.get('/specialists/', {
       params: { page: page, page_size: pageSize, position: position, ordering: orderValue },
     });
+    return response;
+  };
+
+  static async getSpecialist(id) {
+    const response = await this.api.get(`/specialists/${id}`);
     return response;
   }
 }

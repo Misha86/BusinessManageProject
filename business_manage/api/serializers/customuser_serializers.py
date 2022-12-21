@@ -89,6 +89,7 @@ class CreateSpecialistSerializer(serializers.ModelSerializer):
 
         model = CustomUser
         fields = [
+            "id",
             "email",
             "first_name",
             "last_name",

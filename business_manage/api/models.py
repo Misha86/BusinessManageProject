@@ -164,7 +164,7 @@ class CustomUser(AbstractBaseUser, Base, PermissionsMixin):
     date_joined = models.DateTimeField("date joined", default=timezone.now)
     patronymic = models.CharField("patronymic", max_length=150, blank=True)
     position = models.CharField("position", max_length=150, help_text=help_texts["required"])
-    bio = models.TextField("bio", max_length=255, blank=True, null=True)
+    bio = models.TextField("bio", max_length=500, blank=True, null=True)
     avatar = models.ImageField(
         "avatar", blank=True, default="default_avatar.jpeg", upload_to="images", help_text=help_texts["avatar"]
     )

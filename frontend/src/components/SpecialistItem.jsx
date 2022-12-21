@@ -1,9 +1,11 @@
 import React from 'react';
-import { Card, CardActionArea, CardMedia, CardContent, Typography, Box } from '@mui/material';
+import { Card, CardActionArea, CardMedia, CardContent, Typography, Box, Paper } from '@mui/material';
+import { Link } from 'react-router-dom';
 
 const SpecialistItem = ({specialist}) => {
   return (
-    <Card>
+    <Paper elevation={3} >
+    <Card component={Link} to={`/specialists/${specialist.id}`}>
       <CardActionArea>
         <CardMedia component="img" height="auto" image={specialist.avatar} alt={specialist.email} />
         <CardContent>
@@ -16,6 +18,7 @@ const SpecialistItem = ({specialist}) => {
         </CardContent>
       </CardActionArea>
     </Card>
+    </Paper>
   );
 };
 

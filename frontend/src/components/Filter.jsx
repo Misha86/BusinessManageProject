@@ -9,6 +9,7 @@ const Filter = ({ fields, setData, data }) => {
       onChange={(event, newValue) => setData(newValue)}
       value={data}
       options={fields}
+      isOptionEqualToValue={(option, value) => option.position === value.position}
       renderInput={(params) => <TextField {...params} variant="standard" label="Position filter" />}
     />
   );

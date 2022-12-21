@@ -20,6 +20,7 @@ const AddSpecialist = () => {
     const response = await ManagerService.getSpecialistFieldsOption();
     const fields = response.data.fields;
     fields['bio']['type'] = 'textarea';
+    delete fields.id
     setFormFields(fields);
   });
 
