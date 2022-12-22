@@ -10,6 +10,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 
+from .filters import SpecialistFilter
 from .models import Appointment, CustomUser, SpecialistSchedule
 from .permissions import IsBusinessOwnerOrAdmin, IsBusinessOwnerOrManager, ReadOnly
 from .serializers.appointment_serializers import AppointmentSerializer
@@ -38,9 +39,9 @@ class SpecialistList(generics.ListCreateAPIView):
     queryset = us.get_all_specialists().order_by("email")
     serializer_class = CreateSpecialistSerializer
     permission_classes = [ReadOnly | IsBusinessOwnerOrManager]
-    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
 
-    filterset_fields = ["position"]
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+    filterset_class = SpecialistFilter
     ordering_fields = ["email", "position", "first_name"]
 
     def post(self, request, *args, **kwargs):
