@@ -8,16 +8,25 @@ export default class UserService {
   static getUser() {
     const auth = JSON.parse(localStorage.getItem('auth'));
     return auth?.user;
-  };
+  }
 
   static getUserGroups() {
     const auth = JSON.parse(localStorage.getItem('auth'));
     return auth?.user.groups;
-  };
+  }
 
-  static async getSpecialists(page=1, pageSize=0, orderValue='', position='', date='') {
+  static async getSpecialists(page, pageSize, orderValue, position, date) {
+    const argParams = {
+      page: page,
+      page_size: pageSize,
+      position: position,
+      ordering: orderValue,
+      date: date,
+    };
+    const filteredParams = Object.fromEntries(Object.entries(argParams).filter(([key, value]) => !!value));
+
     const response = await this.api.get('/specialists/', {
-      params: { page: page, page_size: pageSize, position: position, ordering: orderValue, date: date},
+      params: filteredParams,
     });
     return response;
   };
