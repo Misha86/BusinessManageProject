@@ -1,6 +1,8 @@
 """Module for project signals."""
 
-from django.db.models.signals import post_save
+import os
+
+from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 from PIL import Image
 
@@ -21,3 +23,9 @@ def cropper(sender, instance, created, **kwargs):
                 crop_data = (0, crop_height_delta, image.width, (crop_height_delta + image.width))
             cropped_image = image.crop(crop_data)
             cropped_image.save(instance.avatar.path)
+
+
+@receiver(post_delete, sender=CustomUser)
+def delete_avatar(sender, instance, *args, **kwargs):
+    """Remove a avatar after delete specialist."""
+    os.remove(instance.avatar.path)
