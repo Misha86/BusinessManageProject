@@ -56,7 +56,6 @@ const Home = () => {
   }, [positionItem]);
 
   useEffect(() => {
-    console.log('position');
     fetching(page, pageSize, sortValue, position, stringDate);
   }, [page, pageSize, sortValue, positionItem, dateData]);
 
@@ -84,7 +83,7 @@ const Home = () => {
                 <Filter fields={positionsOptions} setData={setPositionItem} data={positionItem} />
               </Grid>
               <Grid item xs={6} sm={4} md={3}>
-                <CalendarField setDateData={setDateData} dateData={dateData} />
+                <CalendarField setDateData={setDateData} dateData={dateData} label="Working date" />
               </Grid>
             </Grid>
 

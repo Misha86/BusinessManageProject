@@ -7,7 +7,7 @@ import SpecialistSchedule from './SpecialistSchedule';
 const SpecialistInfoData = ({ specialist }) => {
   const fullName = `${specialist.first_name} ${specialist.last_name}`;
   return (
-    <Grid container rowSpacing={2} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
+    <>
       <Grid item xs display="flex" mt={1} justifyContent="center" alignItems="center">
         <SpecialistFullName fullName={fullName} />
       </Grid>
@@ -24,23 +24,18 @@ const SpecialistInfoData = ({ specialist }) => {
               {`${specialist.position}`.toUpperCase()}
             </Typography>
           </Grid>
-          <Grid item>
-            <Typography variant="subtitle1" component="p" sx={{ textAlign: 'justify' }}>
-              <b>BIO: </b>
-              {specialist.bio}
-            </Typography>
-          </Grid>
-          <Grid item container direction="column">
+          {specialist.bio && (
             <Grid item>
-              <Typography variant="subtitle1" component="p">
-                <b>SCHEDULE: </b>
+              <Typography variant="subtitle1" component="p" sx={{ textAlign: 'justify' }}>
+                <b>BIO: </b>
+                {specialist.bio}
               </Typography>
             </Grid>
-            <SpecialistSchedule specialist={specialist}/>
-          </Grid>
+          )}
+          <SpecialistSchedule specialist={specialist} />
         </Grid>
       </Grid>
-    </Grid>
+    </>
   );
 };
 

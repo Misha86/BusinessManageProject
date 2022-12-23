@@ -1,11 +1,26 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Grid, Typography } from '@mui/material';
 
 const SpecialistSchedule = ({ specialist }) => {
+  const workingDays = useMemo(() => {
+    if (specialist.schedule) {
+      const daysIntervals = Object.entries(specialist.schedule?.working_time).filter(
+        ([day, intervals]) => !!intervals.length
+      );
+      return daysIntervals.length ? daysIntervals : null;
+    }
+  }, [specialist]);
+
   return (
-    <>
-      {specialist.schedule?.working_time &&
-        Object.entries(specialist.schedule?.working_time).map(([day, intervals]) => (
+    <Grid item container direction="column">
+      <Grid item>
+        <Typography variant="subtitle1" component="p">
+          <b>SCHEDULE: </b>
+          {!workingDays && 'No working days'}
+        </Typography>
+      </Grid>
+      {workingDays &&
+        workingDays.map(([day, intervals]) => (
           <Grid item key={day}>
             <Typography variant="subtitle1" component="p" sx={{ textAlign: 'justify' }}>
               <b>{day}: </b>
@@ -13,7 +28,7 @@ const SpecialistSchedule = ({ specialist }) => {
             </Typography>
           </Grid>
         ))}
-    </>
+    </Grid> 
   );
 };
 

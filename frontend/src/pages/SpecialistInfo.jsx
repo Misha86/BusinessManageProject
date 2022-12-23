@@ -3,12 +3,18 @@ import { useParams } from 'react-router-dom';
 import useFetching from '../hooks/useFetching';
 import UserService from '../services/user.service';
 import Loader from '../components/Loader';
-import { Container } from '@mui/material';
+import { Container, Grid } from '@mui/material';
 import SpecialistInfoData from '../components/SpecialistInfoData/SpecialistInfoData';
+import { useNavigate } from 'react-router-dom';
+import CalendarField from '../components/UI/CalendarField';
 
 const SpecialistInfo = () => {
   const { id } = useParams();
+  const router = useNavigate();
+
   const [specialist, setSpecialist] = useState({});
+  const [dateData, setDateData] = useState(null);
+
   const [fetching, isLoading, error] = useFetching(async (id) => {
     const response = await UserService.getSpecialist(id);
     setSpecialist(response.data);
@@ -20,7 +26,7 @@ const SpecialistInfo = () => {
 
   useEffect(() => {
     if (error) {
-      window.location.replace('/');
+      router('/');
     }
   }, [error]);
 
@@ -30,7 +36,12 @@ const SpecialistInfo = () => {
         <Loader />
       ) : (
         <Container maxWidth="xl">
-          <SpecialistInfoData specialist={specialist} />
+          <Grid container rowSpacing={2} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
+            <SpecialistInfoData specialist={specialist} />
+            <Grid item xs={6} sm={4} md={3} mb={2} >
+              <CalendarField setDateData={setDateData} dateData={dateData} label="Check free time" />
+            </Grid>
+          </Grid>
         </Container>
       )}
     </>

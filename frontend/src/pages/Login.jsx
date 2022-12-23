@@ -45,6 +45,7 @@ const Login = () => {
       handleSubmit={handleSubmit}
       error={error}
       formTitle="Login"
+      messageText="Success login!"
     />
   );
 };
