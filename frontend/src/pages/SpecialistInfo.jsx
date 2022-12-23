@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import useFetching from '../hooks/useFetching';
+import useWorkingDays from '../hooks/useWorkingDays';
 import useStringDate from '../hooks/useStringDate';
 import UserService from '../services/user.service';
 import Loader from '../components/Loader';
@@ -11,6 +12,7 @@ import CalendarField from '../components/UI/CalendarField';
 import ErrorDetail from '../components/Form/ErrorDetail';
 import TimeIntervals from '../components/TimeIntervals';
 
+
 const SpecialistInfo = () => {
   const { id } = useParams();
   const router = useNavigate();
@@ -19,6 +21,7 @@ const SpecialistInfo = () => {
   const [freeTime, setFreeTime] = useState(null);
   const [dateData, setDateData] = useState(null);
 
+  const workingDays = useWorkingDays(specialist)
   const stringDate = useStringDate(dateData);
   const [fetching, isLoading, error] = useFetching(async (id) => {
     const response = await UserService.getSpecialist(id);
@@ -58,9 +61,11 @@ const SpecialistInfo = () => {
                 <ErrorDetail error={errorFreeTime} />
               </Grid>
               <Grid container item spacing={2}>
-                <Grid item>
-                  <CalendarField setDateData={setDateData} dateData={dateData} label="Check free time" />
-                </Grid>
+                {(specialist?.schedule && workingDays) && (
+                  <Grid item>
+                    <CalendarField setDateData={setDateData} dateData={dateData} label="Check free time" />
+                  </Grid>
+                )}
 
                 {freeTime && (
                   <Grid item>

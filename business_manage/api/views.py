@@ -106,6 +106,7 @@ class SpecialistScheduleDetail(generics.RetrieveUpdateDestroyAPIView):
             CustomUser,
             id=specialist_id,
             groups__name__icontains="Specialist",
+            schedule__isnull=False
         )
         return specialist.schedule
 
@@ -115,7 +116,7 @@ class SpecialistDateScheduleView(APIView):
 
     def get(self, request, s_id, a_date):
         """GET method for retrieving schedule."""
-        specialist = get_object_or_404(CustomUser, id=s_id)
+        specialist = get_object_or_404(CustomUser, id=s_id, schedule__isnull=False)
         name = specialist.get_full_name()
         if not specialist.is_specialist:
             return Response(

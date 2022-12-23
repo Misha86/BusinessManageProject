@@ -6,6 +6,7 @@ import SpecialistSchedule from './SpecialistSchedule';
 
 const SpecialistInfoData = ({ specialist }) => {
   const fullName = `${specialist.first_name} ${specialist.last_name}`;
+  
   return (
     <>
       <Grid item xs display="flex" mt={1} justifyContent="center" alignItems="center">

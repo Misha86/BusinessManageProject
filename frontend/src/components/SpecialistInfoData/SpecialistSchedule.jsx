@@ -1,15 +1,9 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { Grid, Typography } from '@mui/material';
+import useWorkingDays from '../../hooks/useWorkingDays';
 
 const SpecialistSchedule = ({ specialist }) => {
-  const workingDays = useMemo(() => {
-    if (specialist.schedule) {
-      const daysIntervals = Object.entries(specialist.schedule?.working_time).filter(
-        ([day, intervals]) => !!intervals.length
-      );
-      return daysIntervals.length ? daysIntervals : null;
-    }
-  }, [specialist]);
+  const workingDays = useWorkingDays(specialist)
 
   return (
     <Grid item container direction="column">
@@ -19,6 +13,7 @@ const SpecialistSchedule = ({ specialist }) => {
           {!workingDays && 'No working days'}
         </Typography>
       </Grid>
+      
       {workingDays &&
         workingDays.map(([day, intervals]) => (
           <Grid item key={day}>
