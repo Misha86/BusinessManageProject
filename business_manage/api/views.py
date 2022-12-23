@@ -142,8 +142,8 @@ class SpecialistDateScheduleView(APIView):
         free_time_intervals = get_free_time_intervals(schedule_intervals, a_intervals)
 
         all_intervals = {
-            "appointments intervals": a_intervals,
-            "free intervals": free_time_intervals,
+            "appointments_intervals": a_intervals,
+            "free_intervals": free_time_intervals,
         }
         return Response(
             all_intervals,

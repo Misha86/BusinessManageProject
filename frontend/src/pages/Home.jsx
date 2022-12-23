@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import UserService from '../services/user.service';
 import useFetching from '../hooks/useFetching';
+import useStringDate from '../hooks/useStringDate';
 import Loader from '../components/Loader';
 import SpecialistList from '../components/SpecialistList';
 import Pagination from '@mui/material/Pagination';
@@ -18,6 +19,7 @@ const Home = () => {
   const [positionItem, setPositionItem] = useState(null);
   const [dateData, setDateData] = useState(null);
 
+  const stringDate = useStringDate(dateData);
   const [fetching, isLoading, error] = useFetching(async (page, pageSize, orderValue, position, date) => {
     const response = await UserService.getSpecialists(page, pageSize, orderValue, position, date);
     setSpecialists(response.data.results);
@@ -46,10 +48,6 @@ const Home = () => {
   useEffect(() => {
     !!error && setPage(1);
   }, [error]);
-
-  const stringDate = useMemo(() => {
-    return dateData ? `${dateData?.get('y')}-${dateData?.get('M') + 1}-${dateData?.get('D')}` : '';
-  }, [dateData]);
 
   const position = useMemo(() => {
     return positionItem ? positionItem.position : '';
