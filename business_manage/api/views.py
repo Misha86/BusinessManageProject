@@ -4,6 +4,7 @@ from django.contrib.auth import logout
 from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, generics, status
+from rest_framework.exceptions import ValidationError
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -99,15 +100,18 @@ class SpecialistScheduleDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = SpecialistScheduleDetailSerializer
     permission_classes = [ReadOnly | IsBusinessOwnerOrManager]
 
+    def has_schedule(self, specialist):
+        """Check if specialist has a schedule."""
+        if not hasattr(specialist, "schedule"):
+            raise ValidationError(
+                {"detail": "Specialist has no schedule."},
+            )
+
     def get_object(self):
         """Get schedule for specific specialist."""
         specialist_id = self.kwargs["pk"]
-        specialist = get_object_or_404(
-            CustomUser,
-            id=specialist_id,
-            groups__name__icontains="Specialist",
-            schedule__isnull=False
-        )
+        specialist = get_object_or_404(CustomUser, id=specialist_id, groups__name__icontains="Specialist")
+        self.has_schedule(specialist)
         return specialist.schedule
 
 
@@ -116,8 +120,14 @@ class SpecialistDateScheduleView(APIView):
 
     def get(self, request, s_id, a_date):
         """GET method for retrieving schedule."""
-        specialist = get_object_or_404(CustomUser, id=s_id, schedule__isnull=False)
+        specialist = get_object_or_404(
+            CustomUser,
+            id=s_id,
+            groups__name__icontains="Specialist",
+            schedule__isnull=False,
+        )
         name = specialist.get_full_name()
+
         if not specialist.is_specialist:
             return Response(
                 {"detail": f"User {name} is not specialist."},
