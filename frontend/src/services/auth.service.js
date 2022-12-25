@@ -33,7 +33,6 @@ export class AuthService {
 }
 
 export class ManagerService {
-  static api = instance;
 
   static addSpecialist(specialistData) {
     const response = instance.post(
@@ -89,3 +88,26 @@ export class ManagerService {
     return response;
   };
 }
+
+export class AdminService {
+
+  static async appointmentFieldsOption() {
+    const response = await instance.options('/appointments/')
+    return response;
+  };
+
+  static addAppointment(appointmentData) {
+    const response = instance.post(
+      '/appointments/',
+      { ...appointmentData },
+      {
+        headers: {
+          'Content-Type':  'application/json',
+        },
+      }
+    );
+    return response;
+  };
+
+}
+

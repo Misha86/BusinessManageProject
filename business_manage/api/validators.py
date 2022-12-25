@@ -12,8 +12,8 @@ from rest_framework.exceptions import ValidationError
 from .utils import string_interval_to_time_interval, string_to_time
 
 
-def validate_rounded_minutes(time_value: time, week_day: str) -> None:
-    """Validate time value.
+def validate_rounded_minutes_base(time_value: time) -> str | None:
+    """Base function for validate time value.
 
     Time must have zero seconds and minutes multiples of 5
     """
@@ -22,12 +22,25 @@ def validate_rounded_minutes(time_value: time, week_day: str) -> None:
             time_value = time_value.time()
 
         if time_value.minute % 5 or time_value.second != 0:
-            raise ValidationError(
-                {
-                    week_day: "Time value must have zero "
-                    "seconds and minutes multiples of 5."
-                }
-            )
+            return "error"
+
+
+def validate_rounded_minutes_working_time(time_value: time, week_day: str) -> None:
+    """Validate time value.
+
+    Time must have zero seconds and minutes multiples of 5
+    """
+    if validate_rounded_minutes_base(time_value):
+        raise ValidationError({week_day: "Time value must have zero " "seconds and minutes multiples of 5."})
+
+
+def validate_rounded_minutes(time_value: time) -> None:
+    """Validate time value.
+
+    Time must have zero seconds and minutes multiples of 5
+    """
+    if validate_rounded_minutes_base(time_value):
+        raise ValidationError("Time value must have zero " "seconds and minutes multiples of 5.")
 
 
 def validate_rounded_minutes_seconds(delta_time_value: timedelta) -> None:
@@ -36,11 +49,7 @@ def validate_rounded_minutes_seconds(delta_time_value: timedelta) -> None:
     Time must have zero seconds and minutes multiples of 5
     """
     if isinstance(delta_time_value, timezone.timedelta) and (delta_time_value.seconds / 60) % 5:
-        raise ValidationError(
-            {
-                f"{delta_time_value}": "Duration value must have zero seconds and minutes multiples of 5."
-            }
-        )
+        raise ValidationError("Duration value must have zero seconds and minutes multiples of 5.")
 
 
 def validate_match_time_format(field_name: str, str_interval: list[str]) -> None:
@@ -58,9 +67,7 @@ def validate_start_end_time(field_name: str, time_interval: list[time]) -> None:
             start_time, end_time = time_interval
         except ValueError as ex:
             raise ValidationError(
-                {
-                    field_name: "Time range should be contain start and end time together or empty range."
-                }
+                {field_name: "Time range should be contain start and end time together or empty range."}
             ) from ex
 
         if start_time >= end_time:
@@ -76,7 +83,7 @@ def validate_working_time_interval(week_day: str, str_interval: list[str]) -> No
     validate_start_end_time(week_day, time_interval)
 
     for time_data in time_interval:
-        validate_rounded_minutes(time_data, week_day)
+        validate_rounded_minutes_working_time(time_data, week_day)
 
 
 def validate_working_time(json: dict[str, list[str]]) -> None:
@@ -125,9 +132,7 @@ def validate_specialist(user_data):
 def validate_datetime_is_future(value):
     """Datetime values should have future date."""
     if timezone.now() > value:
-        raise ValidationError(
-            {value.strftime("%H:%M:%S"): f"DateTime value {value} should have future datetime."}
-        )
+        raise ValidationError("DateTime value should have future datetime.")
 
 
 def validate_days_name(value):

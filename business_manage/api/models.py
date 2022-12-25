@@ -1,19 +1,18 @@
 """Module for all project models."""
-from django.contrib.auth.base_user import BaseUserManager, AbstractBaseUser
-from django.contrib.auth.models import PermissionsMixin, Group
-from django.db import models
-from django.utils import timezone
-
 from api.validators import (
+    validate_datetime_is_future,
+    validate_days_name,
     validate_rounded_minutes,
     validate_rounded_minutes_seconds,
-    validate_working_time,
     validate_specialist,
-    validate_datetime_is_future,
+    validate_working_time,
     validate_working_time_intervals,
     validate_working_time_values,
-    validate_days_name,
 )
+from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
+from django.contrib.auth.models import Group, PermissionsMixin
+from django.db import models
+from django.utils import timezone
 
 
 class Base(models.Model):
@@ -285,7 +284,7 @@ class Appointment(Base):
         "duration",
         blank=False,
         validators=[validate_rounded_minutes_seconds],
-        help_text="Input only hours and minutes HH:MM:00",
+        help_text="Input only hours and minutes HH:MM",
     )
     specialist = models.ForeignKey(
         CustomUser,

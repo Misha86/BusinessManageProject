@@ -10,7 +10,7 @@ import SpecialistInfoData from '../components/SpecialistInfoData/SpecialistInfoD
 import { useNavigate } from 'react-router-dom';
 import CalendarField from '../components/UI/CalendarField';
 import ErrorDetail from '../components/Form/ErrorDetail';
-import TimeIntervals from '../components/TimeIntervals';
+import TimeIntervals from '../components/SpecialistInfoData/TimeIntervals';
 
 
 const SpecialistInfo = () => {
@@ -60,7 +60,7 @@ const SpecialistInfo = () => {
               <Grid item>
                 <ErrorDetail error={errorFreeTime} />
               </Grid>
-              <Grid container item spacing={2}>
+              <Grid container item spacing={2} mb={3}>
                 {(specialist?.schedule && workingDays) && (
                   <Grid item>
                     <CalendarField setDateData={setDateData} dateData={dateData} label="Check free time" />

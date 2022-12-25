@@ -1,8 +1,8 @@
 import { FormControl, FormHelperText, TextField } from '@mui/material';
 import ErrorField from '../ErrorField';
 
-const FormField = ({ fieldTitle, fieldInfo, errorMessage, handler, type, value, multiline }) => {
 
+const FormField = ({ fieldTitle, fieldInfo, errorMessage, handler, type, value, multiline, props }) => {
   const fileProps = { accept: 'image/png, image/jpeg' };
 
   return (
@@ -24,6 +24,7 @@ const FormField = ({ fieldTitle, fieldInfo, errorMessage, handler, type, value, 
           value={value}
           rows="4"
           multiline={multiline}
+          {...props}
         />
         <FormHelperText error={!!errorMessage} id={`${fieldTitle}-helper-text`}>
           {fieldInfo.help_text}

@@ -76,17 +76,17 @@ def is_appointment_fit_location_time(a_interval: list[datetime], location: Locat
 def validate_free_time_interval(a_interval: list[datetime], specialist: CustomUser, location: Location) -> None:
     """Check time interval for creating new appointment."""
     if not is_appointment_fit_datetime(a_interval, specialist, location):
-        raise ValidationError({"datetime interval": "Appointments have already created for this datetime."})
+        raise ValidationError({"detail": "Appointments have already created for this datetime."})
 
     specialist_name = specialist.get_full_name()
     if not is_specialist_schedule(specialist):
-        raise ValidationError({"schedule": f"{specialist_name} hasn't had schedule jet."})
+        raise ValidationError({"specialist": f"{specialist_name} hasn't had schedule jet."})
 
     if not is_appointment_fit_specialist_time(a_interval, specialist):
-        raise ValidationError({"time interval": f"{specialist_name} doesn't work at this time interval."})
+        raise ValidationError({"specialist": f"{specialist_name} doesn't work at this time interval."})
 
     if not is_appointment_fit_location_time(a_interval, location):
-        raise ValidationError({"time interval": f"{location.name} doesn't work at this time interval."})
+        raise ValidationError({"location": f"{location.name} doesn't work at this time interval."})
 
 
 def get_appointments_time_intervals(specialist: CustomUser, date: datetime) -> list[list[str]]:

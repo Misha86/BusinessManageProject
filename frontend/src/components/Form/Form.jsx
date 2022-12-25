@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Paper, Box, Typography } from '@mui/material';
 import FormField from './Fields/FormField';
 import Message from '../Message';
@@ -7,16 +7,22 @@ import ErrorDetail from './ErrorDetail';
 import SubmitButton from './SubmitButton';
 import ChoiceField from './Fields/ChoiceField';
 import WorkingTimeField from './Fields/WorkingTimeField';
+import dayjs from 'dayjs';
+import DateTimeField from './Fields/DateTimeField';
 
-const Form = ({ formFields, formTitle, data, setData, handleSubmit, error, showMessage, messageText}) => {
+const Form = ({ formFields, formTitle, data, setData, handleSubmit, error, showMessage, messageText }) => {
+
   const handleTextField = (event, fieldTitle, typeField) => {
     const textValue = typeField === 'file' ? event.target.files[0] : event.target.value;
     setData({ ...data, [fieldTitle]: textValue });
   };
 
+  const handleDateTimeField = (newValue, fieldTitle) => {
+    setData({ ...data, [fieldTitle]: newValue });
+  };
+
   const handleWorkingTime = (fieldTitle, dayTimeIntervals) => {
     setData({ ...data, [fieldTitle]: { ...data[fieldTitle], ...dayTimeIntervals } });
-    
   };
 
   return (
@@ -59,6 +65,17 @@ const Form = ({ formFields, formTitle, data, setData, handleSubmit, error, showM
                   ))}
                 </div>
               );
+            } else if (fieldInfo.type === 'datetime') {
+              return (
+                <DateTimeField
+                  key={fieldTitle}
+                  fieldTitle={fieldTitle}
+                  fieldInfo={fieldInfo}
+                  value={data[fieldTitle]}
+                  handler={handleDateTimeField}
+                  errorMessage={error?.[fieldTitle]}
+                />
+              );
             } else {
               return (
                 <FormField
@@ -70,6 +87,7 @@ const Form = ({ formFields, formTitle, data, setData, handleSubmit, error, showM
                   type={fieldInfo.type}
                   value={fieldInfo.type !== 'file' ? data[fieldTitle] || '' : undefined}
                   multiline={fieldInfo.type === 'textarea' && true}
+                  props={fieldInfo.props}
                 />
               );
             }

@@ -14,11 +14,11 @@ const SpecialistInfoData = ({ specialist }) => {
       </Grid>
 
       <Grid container item spacing={3}>
-        <Grid item xs={6} sm={5} md={5}>
+        <Grid item sm={6} md={5}>
           <SpecialistAvatar avatar={specialist.avatar} alt={fullName} />
         </Grid>
 
-        <Grid container item xs={12} spacing={2} sm={7} md={7} direction="column">
+        <Grid container item xs={12} spacing={2} sm={6} md={7} direction="column">
           <Grid item>
             <Typography variant="subtitle1" component="p">
               <b>POSITION: </b>
