@@ -144,7 +144,7 @@ class SpecialistDateScheduleView(APIView):
 
         if not any(schedule_intervals):
             return Response(
-                {"detail": f"{name} is not working on this day"},
+                {"detail": f"{name} is not working on this day."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 

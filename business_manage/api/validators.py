@@ -22,7 +22,7 @@ def validate_rounded_minutes_base(time_value: time) -> str | None:
             time_value = time_value.time()
 
         if time_value.minute % 5 or time_value.second != 0:
-            return "error"
+            return "Time value must have zero seconds and minutes multiples of 5."
 
 
 def validate_rounded_minutes_working_time(time_value: time, week_day: str) -> None:
@@ -30,8 +30,8 @@ def validate_rounded_minutes_working_time(time_value: time, week_day: str) -> No
 
     Time must have zero seconds and minutes multiples of 5
     """
-    if validate_rounded_minutes_base(time_value):
-        raise ValidationError({week_day: "Time value must have zero " "seconds and minutes multiples of 5."})
+    if error_message := validate_rounded_minutes_base(time_value):
+        raise ValidationError({week_day: error_message})
 
 
 def validate_rounded_minutes(time_value: time) -> None:
@@ -39,8 +39,8 @@ def validate_rounded_minutes(time_value: time) -> None:
 
     Time must have zero seconds and minutes multiples of 5
     """
-    if validate_rounded_minutes_base(time_value):
-        raise ValidationError("Time value must have zero " "seconds and minutes multiples of 5.")
+    if error_message := validate_rounded_minutes_base(time_value):
+        raise ValidationError(error_message)
 
 
 def validate_rounded_minutes_seconds(delta_time_value: timedelta) -> None:
@@ -126,7 +126,7 @@ def validate_specialist(user_data):
         user = user_data
     if not user.is_specialist:
         full_name = user.get_full_name()
-        raise ValidationError({full_name: f"{full_name} should be specialist."})
+        raise ValidationError({"specialist": f"{full_name} should be specialist."})
 
 
 def validate_datetime_is_future(value):

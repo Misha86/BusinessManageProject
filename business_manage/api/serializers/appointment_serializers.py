@@ -15,8 +15,7 @@ class AppointmentSerializer(serializers.ModelSerializer):
 
     is_active = serializers.BooleanField(initial=True, default=True)
     specialist = serializers.ChoiceField(
-        # choices=CustomUser.specialists.filter(schedule__isnull=False)
-        choices=CustomUser.specialists.all()
+        choices=CustomUser.specialists.filter(schedule__isnull=False)
         .order_by("first_name", "last_name")
         .annotate(full_name=Concat("last_name", Value(" ["), "email", Value("]"), output_field=CharField()))
         .values_list("id", "full_name"),

@@ -7,14 +7,11 @@ const useStringDateTime = (dateTimeData) => {
   const hours = dateTimeData?.get('h');
   const minutes = dateTimeData?.get('m');
 
-
   const stringDateTime = useMemo(() => {
     return dateTimeData
-      ? `${year}-${month}-${date}T${hours}:${(minutes.toString().length === 1) ? ('0' + minutes) : minutes}:00`
+      ? `${year}-${month}-${date}T${hours}:${minutes.toString().length === 1 ? '0' + minutes : minutes}:00`
       : '';
   }, [dateTimeData]);
-
-  console.log(stringDateTime)
 
   return stringDateTime;
 };
