@@ -7,11 +7,9 @@ import ErrorDetail from './ErrorDetail';
 import SubmitButton from './SubmitButton';
 import ChoiceField from './Fields/ChoiceField';
 import WorkingTimeField from './Fields/WorkingTimeField';
-import dayjs from 'dayjs';
 import DateTimeField from './Fields/DateTimeField';
 
 const Form = ({ formFields, formTitle, data, setData, handleSubmit, error, showMessage, messageText }) => {
-
   const handleTextField = (event, fieldTitle, typeField) => {
     const textValue = typeField === 'file' ? event.target.files[0] : event.target.value;
     setData({ ...data, [fieldTitle]: textValue });
@@ -26,9 +24,9 @@ const Form = ({ formFields, formTitle, data, setData, handleSubmit, error, showM
   };
 
   return (
-    <Box mt={3} sx={{ paddingLeft: '30%', width: '40%' }}>
+    <Box mt={3} sx={{ paddingLeft: '30%', width: '40%' }} mb={4}>
       <FormTitle formTitle={formTitle} />
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} mb={3}>
         <Message showMessage={showMessage} messageText={messageText} />
 
         <Paper elevation={3} sx={{ padding: '6%' }}>

@@ -9,6 +9,7 @@ import { Grid, Container, Typography } from '@mui/material';
 import SelectForm from '../components/SelectForm';
 import Filter from '../components/Filter';
 import CalendarField from '../components/UI/CalendarField';
+import { pageSizeOptions, sortOptions, positionsOptions } from '../utils';
 
 const Home = () => {
   const [specialists, setSpecialists] = useState([]);
@@ -26,25 +27,6 @@ const Home = () => {
     setPages(response.data.pages);
   });
 
-  const pageSizeOptions = [
-    [10, 10],
-    [20, 20],
-    [30, 30],
-    [50, 50],
-  ];
-
-  const sortOptions = [
-    ['email', 'Email'],
-    ['position', 'Position'],
-    ['first_name', 'Name'],
-  ];
-
-  const positionsOptions = [
-    { label: 'Position 1', position: 'position_1' },
-    { label: 'Position 2', position: 'position_2' },
-    { label: 'Position 3', position: 'position_3' },
-  ];
-
   useEffect(() => {
     !!error && setPage(1);
   }, [error]);
@@ -54,8 +36,8 @@ const Home = () => {
   }, [positionItem]);
 
   useEffect(() => {
-    fetching(page, pageSize, sortValue, position, stringDate);
-  }, [page, pageSize, sortValue, positionItem, dateData]);
+      fetching(page, pageSize, sortValue, position, stringDate);
+  }, [page, pageSize, sortValue, positionItem, stringDate]);
 
   return (
     <>

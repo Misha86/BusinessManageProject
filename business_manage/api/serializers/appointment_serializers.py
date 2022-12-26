@@ -41,7 +41,7 @@ class AppointmentSerializer(serializers.ModelSerializer):
         location = get_object_or_404(Location, id=attrs.get("location"))
         duration = attrs.get("duration")
         end_time = start_time + duration
-        validate_start_end_time("time range", [start_time, end_time])
+        validate_start_end_time("start_time", [start_time, end_time])
         validate_free_time_interval([start_time, end_time], specialist, location)
         attrs.update(dict(specialist=specialist, location=location))
         return attrs

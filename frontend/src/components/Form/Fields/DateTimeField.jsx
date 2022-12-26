@@ -12,8 +12,7 @@ const DateTimeField = ({ fieldTitle, fieldInfo, errorMessage, handler, value, pr
   const [newValue, setNewValue] = useState(null);
   const stringDateTime = useStringDateTime(newValue);
 
-//   console.log(newValue);
-//   console.log(value, 'value');
+  console.log(value)
 
   useEffect(() => {
     if (!!stringDateTime) {
@@ -27,14 +26,14 @@ const DateTimeField = ({ fieldTitle, fieldInfo, errorMessage, handler, value, pr
 
       <DateTimePicker
         label={fieldInfo.label}
-        renderInput={(params) => <TextField {...params} variant="standard" />}
-        value={value || ''}
+        renderInput={(params) => <TextField {...params} variant="standard" required={fieldInfo.required}   />}
+        value={newValue}
         onChange={(newValue) => {
           setNewValue(newValue);
         }}
         minDate={dayjs()}
         maxDate={dayjs().add(45, 'day')}
-        required={fieldInfo.required}   
+         
         size="small"
         minutesStep={5}
         minTime={dayjs('7:00', 'H:mm')}

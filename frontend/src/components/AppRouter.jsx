@@ -3,6 +3,7 @@ import { Route, Routes } from 'react-router-dom';
 import { AuthContext } from '../context';
 import { publicRoutes, ManagerRoutes, AdminRoutes } from '../router/router';
 import UserService from '../services/user.service';
+import Home from '../pages/Home';
 
 const AppRouter = () => {
   const { auth } = useContext(AuthContext);
@@ -21,6 +22,7 @@ const AppRouter = () => {
 
   return (
     <Routes>
+     <Route index element={<Home />} />
       {routers.map((router) => (
         <Route path={router.path} element={<router.component />} exact={router.exact} key={router.path} />
       ))}
