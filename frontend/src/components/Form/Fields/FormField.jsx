@@ -1,14 +1,12 @@
 import { FormControl, FormHelperText, TextField } from '@mui/material';
 import ErrorField from '../ErrorField';
 
-
 const FormField = ({ fieldTitle, fieldInfo, errorMessage, handler, type, value, multiline, props }) => {
   const fileProps = { accept: 'image/png, image/jpeg' };
 
   return (
     <div>
-
-      <ErrorField errorMessage={errorMessage}/>
+      <ErrorField errorMessage={errorMessage} />
 
       <FormControl sx={{ width: '100%' }}>
         <TextField
@@ -16,7 +14,9 @@ const FormField = ({ fieldTitle, fieldInfo, errorMessage, handler, type, value, 
           label={fieldInfo.label}
           required={fieldInfo.required}
           inputProps={fileProps}
-          onChange={(e) => {handler(e, fieldTitle, type)}}
+          onChange={(e) => {
+            handler(e, fieldTitle, type);
+          }}
           type={type || 'text'}
           variant="standard"
           size="small"
@@ -26,10 +26,10 @@ const FormField = ({ fieldTitle, fieldInfo, errorMessage, handler, type, value, 
           multiline={multiline}
           {...props}
         />
-        <FormHelperText error={!!errorMessage} id={`${fieldTitle}-helper-text`}>
-          {fieldInfo.help_text}
-        </FormHelperText>
       </FormControl>
+      <FormHelperText error={!!errorMessage} id={`${fieldTitle}-helper-text`}>
+        {fieldInfo.help_text}
+      </FormHelperText>
     </div>
   );
 };

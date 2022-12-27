@@ -54,7 +54,7 @@ const Home = () => {
 
             <Grid container item spacing={2}>
               <Grid item xs={3} sm={2} md={1}>
-                <SelectForm setData={setPageSize} defaultValue={pageSize} optionArray={pageSizeOptions} label="Item" />
+                <SelectForm setData={setPageSize} defaultValue={pageSize} optionArray={pageSizeOptions} label="Items" />
               </Grid>
               <Grid item xs={4} sm={3} md={2}>
                 <SelectForm setData={setSortValue} defaultValue={sortValue} optionArray={sortOptions} label="Sort By" />
@@ -87,7 +87,7 @@ const Home = () => {
                     setData={setPageSize}
                     defaultValue={pageSize}
                     optionArray={pageSizeOptions}
-                    label="Item"
+                    label="Items"
                   />
                 </Grid>
               </Grid>

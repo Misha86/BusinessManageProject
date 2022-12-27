@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import TextField from '@mui/material/TextField';
+import { TextField, FormControl, FormHelperText } from '@mui/material';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -19,25 +19,34 @@ const DateTimeField = ({ fieldTitle, fieldInfo, errorMessage, handler, value, pr
   }, [stringDateTime]);
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="uk">
+    <div>
       <ErrorField errorMessage={errorMessage} />
 
-      <DateTimePicker
-        label={fieldInfo.label}
-        renderInput={(params) => <TextField {...params} variant="standard" required={fieldInfo.required} />}
-        value={value || null}
-        onChange={(newValue) => {
-          setNewValue(newValue);
-        }}
-        minDate={dayjs()}
-        maxDate={dayjs().add(45, 'day')}
-        size="small"
-        minutesStep={5}
-        minTime={dayjs('7:00', 'H:mm')}
-        maxTime={dayjs('22:00', 'H:mm')}
-        {...props}
-      />
-    </LocalizationProvider>
+      <FormControl sx={{ width: '100%' }}>
+        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="uk">
+          <DateTimePicker
+            label={fieldInfo.label}
+            renderInput={(params) => (
+              <TextField {...params} error={!!errorMessage} variant="standard" required={fieldInfo.required} />
+            )}
+            value={value || null}
+            onChange={(newValue) => {
+              setNewValue(newValue);
+            }}
+            minDate={dayjs()}
+            maxDate={dayjs().add(45, 'day')}
+            size="small"
+            minutesStep={5}
+            minTime={dayjs('7:00', 'H:mm')}
+            maxTime={dayjs('22:00', 'H:mm')}
+            {...props}
+          />
+        </LocalizationProvider>
+      </FormControl>
+      <FormHelperText error={!!errorMessage} id={`${fieldTitle}-helper-text`}>
+        {fieldInfo.help_text}
+      </FormHelperText>
+    </div>
   );
 };
 

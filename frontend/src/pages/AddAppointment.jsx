@@ -5,7 +5,6 @@ import { messageTimeout } from '../utils';
 import useFetching from '../hooks/useFetching';
 import Loader from '../components/Loader';
 
-
 const AddAppointment = () => {
   const [appointmentData, setAppointmentData] = useState({});
   const [showMessage, setShowMessage] = useState(false);
@@ -15,9 +14,7 @@ const AddAppointment = () => {
     setShowMessage(true);
     setAppointmentData({});
     messageTimeout(3000, setShowMessage);
-  }); 
-
-  // console.log(appointmentData);
+  });
 
   const [fetchingFields, isLoadingFields] = useFetching(async () => {
     const response = await AdminService.appointmentFieldsOption();

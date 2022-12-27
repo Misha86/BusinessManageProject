@@ -39,9 +39,11 @@ const Form = ({ formFields, formTitle, data, setData, handleSubmit, error, showM
                 <ChoiceField
                   key={fieldTitle}
                   fieldTitle={fieldTitle}
+                  data={data}
+                  setData={setData}
                   fieldInfo={fieldInfo}
                   handler={handleTextField}
-                  value={data[fieldTitle] || ''}
+                  value={data[fieldTitle] || null}
                   errorMessage={error?.[fieldTitle]}
                 />
               );

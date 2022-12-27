@@ -270,10 +270,13 @@ class Appointment(Base):
         note (TextField): Additional note for a specialist
     """
 
+    help_texts = {"required": "This field is required"}
+
     is_active = models.BooleanField("active", default=True)
     start_time = models.DateTimeField(
         "Start time",
         validators=[validate_rounded_minutes, validate_datetime_is_future],
+        help_text=help_texts["required"]
     )
     end_time = models.DateTimeField(
         "End time",
@@ -293,9 +296,9 @@ class Appointment(Base):
         verbose_name="Specialist",
         validators=[validate_specialist],
     )
-    customer_firstname = models.CharField("customer firstname", max_length=150)
-    customer_lastname = models.CharField("customer lastname", max_length=150)
-    customer_email = models.EmailField("customer email", max_length=100)
+    customer_firstname = models.CharField("customer firstname", max_length=150, help_text=help_texts["required"])
+    customer_lastname = models.CharField("customer lastname", max_length=150, help_text=help_texts["required"])
+    customer_email = models.EmailField("customer email", max_length=100, help_text=help_texts["required"])
     location = models.ForeignKey(
         Location,
         related_name="location_appointments",
