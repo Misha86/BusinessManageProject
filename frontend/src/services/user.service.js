@@ -32,12 +32,12 @@ export default class UserService {
   };
 
   static async getSpecialist(id) {
-    const response = await this.api.get(`/specialists/${id}`);
+    const response = await this.api.get(`/specialists/${id}/`);
     return response;
   };
 
   static async getSpecialistFreeTime(id, date) {
-    const response = await this.api.get(`/specialists/${id}/schedule/${date}`);
+    const response = await this.api.get(`/specialists/${id}/schedule/${date}/`);
     return response;
   };
 }

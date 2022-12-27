@@ -39,7 +39,7 @@ const SpecialistInfo = () => {
   }, []);
 
   useEffect(() => {
-    fetchingFreeTime(id, stringDate);
+    dateData && fetchingFreeTime(id, stringDate);
   }, [dateData]);
 
   useEffect(() => {

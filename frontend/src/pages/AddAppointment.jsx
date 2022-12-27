@@ -4,7 +4,6 @@ import { AdminService } from '../services/auth.service';
 import { messageTimeout } from '../utils';
 import useFetching from '../hooks/useFetching';
 import Loader from '../components/Loader';
-import dayjs from 'dayjs';
 
 
 const AddAppointment = () => {
