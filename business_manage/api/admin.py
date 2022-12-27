@@ -2,8 +2,7 @@
 
 from django.contrib import admin
 from django.contrib.auth.models import Group
-from django.contrib.auth.admin import (UserAdmin as BaseUserAdmin,
-                                       GroupAdmin as BaseGroupAdmin)
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin, GroupAdmin as BaseGroupAdmin
 from .forms import CustomUserChangeForm, CustomUserCreationForm
 from .models import CustomUser, Location, Appointment, SpecialistSchedule
 
@@ -12,7 +11,8 @@ admin.site.unregister(Group)
 
 @admin.register(CustomUser)
 class CustomUserAdmin(BaseUserAdmin):
-    """Class for specifing CustomUser fields in admin."""
+    """Class for specifying CustomUser fields in admin."""
+
     form = CustomUserChangeForm
     add_form = CustomUserCreationForm
 
@@ -20,17 +20,26 @@ class CustomUserAdmin(BaseUserAdmin):
     list_filter = ("groups", "position")
     fieldsets = (
         (None, {"fields": ("email", "password", "groups")}),
-        ("Personal info", {"fields": (
-            "first_name", "last_name", "patronymic", "position", "bio", "avatar")
-        }),
+        ("Personal info", {"fields": ("first_name", "last_name", "patronymic", "position", "bio", "avatar")}),
         ("Permissions", {"fields": ("is_active",)}),
     )
     add_fieldsets = (
-        (None, {
-            "classes": ("wide",),
-            "fields": ("email", "first_name", "last_name", "patronymic",
-                       "position", "groups", "avatar", "is_active"),
-        }),
+        (
+            None,
+            {
+                "classes": ("wide",),
+                "fields": (
+                    "email",
+                    "first_name",
+                    "last_name",
+                    "patronymic",
+                    "position",
+                    "groups",
+                    "avatar",
+                    "is_active",
+                ),
+            },
+        ),
         ("Set only for Admins and Managers", {"fields": ("password1", "password2")}),
     )
     search_fields = ("email",)
@@ -40,6 +49,7 @@ class CustomUserAdmin(BaseUserAdmin):
 
 class CustomUserInline(admin.TabularInline):
     """Class allows to add CustomUser in Group admin page."""
+
     model = CustomUser.groups.through
     extra = 1
 
@@ -47,6 +57,7 @@ class CustomUserInline(admin.TabularInline):
 @admin.register(Group)
 class CustomGroupAdmin(BaseGroupAdmin):
     """Extends BaseGroupAdmin class adding CustomUserInline class."""
+
     inlines = [
         CustomUserInline,
     ]
@@ -55,6 +66,7 @@ class CustomGroupAdmin(BaseGroupAdmin):
 @admin.register(Location)
 class LocationAdmin(admin.ModelAdmin):
     """Class for specifing Location fields in admin."""
+
     model = Location
     fields = ["name", "address", "working_time"]
 
@@ -62,11 +74,15 @@ class LocationAdmin(admin.ModelAdmin):
 @admin.register(Appointment)
 class AppointmentAdmin(admin.ModelAdmin):
     """Class for specifing Appointment fields in admin."""
+
     model = Appointment
+    list_display = ("__str__", "specialist", "location", "start_time", "end_time")
+    list_filter = ("specialist", "location")
 
 
 @admin.register(SpecialistSchedule)
 class SpecialistScheduleAdmin(admin.ModelAdmin):
     """Class for specifing SpecialistSchedule fields in admin."""
+
     model = SpecialistSchedule
     list_display = ("specialist", "working_time", "id", "created_at")

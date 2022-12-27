@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Paper, Box, Typography } from '@mui/material';
 import FormField from './Fields/FormField';
 import Message from '../Message';
@@ -8,6 +8,7 @@ import SubmitButton from './SubmitButton';
 import ChoiceField from './Fields/ChoiceField';
 import WorkingTimeField from './Fields/WorkingTimeField';
 import DateTimeField from './Fields/DateTimeField';
+import TimeDurationField from './Fields/TimeDurationField';
 
 const Form = ({ formFields, formTitle, data, setData, handleSubmit, error, showMessage, messageText }) => {
   const handleTextField = (event, fieldTitle, typeField) => {
@@ -74,7 +75,19 @@ const Form = ({ formFields, formTitle, data, setData, handleSubmit, error, showM
                   errorMessage={error?.[fieldTitle]}
                 />
               );
-            } else {
+            } else if (fieldTitle === 'duration') {
+              return (
+                <TimeDurationField
+                  key={fieldTitle}
+                  fieldTitle={fieldTitle}
+                  fieldInfo={fieldInfo}
+                  value={data[fieldTitle]}
+                  handler={handleDateTimeField}
+                  errorMessage={error?.[fieldTitle]}
+                />
+              );
+            } 
+            else {
               return (
                 <FormField
                   key={fieldTitle}

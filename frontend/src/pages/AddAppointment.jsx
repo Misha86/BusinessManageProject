@@ -24,6 +24,7 @@ const AddAppointment = () => {
     const fields = response.data.fields;
     fields['note']['type'] = 'textarea';
     delete fields.end_time;
+    delete fields.is_active;
     setFormFields(fields);
   });
 

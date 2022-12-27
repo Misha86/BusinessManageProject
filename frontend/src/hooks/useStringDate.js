@@ -2,10 +2,9 @@ import { useMemo, useState } from 'react';
 
 const useStringDate = (dateData) => {
   const [savedDate, setSavedDate] = useState(null);
-
   let validDate;
 
-  if (dateData?.isValid()) {
+  if (!dateData || dateData?.isValid()) {
     validDate = dateData;
   }
   if (validDate === undefined) {
