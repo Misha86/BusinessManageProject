@@ -79,11 +79,6 @@ class SpecialistSerializer(CustomUserSerializer):
 class CreateSpecialistSerializer(serializers.ModelSerializer):
     """Serializer to create a specific user."""
 
-    position = serializers.ChoiceField(
-        choices=[("position_1", "Position 1"), ("position_2", "Position 2"), ("position_3", "Position 3")],
-        help_text="This field is required",
-    )
-
     class Meta:
         """Class with a model and model fields for serialization."""
 

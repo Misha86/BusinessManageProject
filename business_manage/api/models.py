@@ -155,6 +155,14 @@ class CustomUser(AbstractBaseUser, Base, PermissionsMixin):
         avatar (image, optional): Avatar of the user
     """
 
+    class PositionChoices(models.TextChoices):
+        """This class is used for user position."""
+
+        POSITION_1 = "position_1", "Position_1"
+        POSITION_2 = "position_2", "Position_2"
+        POSITION_3 = "position_3", "Position_3"
+        POSITION_4 = "position_4", "Position_4"
+
     help_texts = {"required": "This field is required", "avatar": "Get Avatar to the profile"}
 
     email = models.EmailField(max_length=100, unique=True, help_text=help_texts["required"])
@@ -162,7 +170,8 @@ class CustomUser(AbstractBaseUser, Base, PermissionsMixin):
     last_name = models.CharField("last name", max_length=150, help_text=help_texts["required"])
     date_joined = models.DateTimeField("date joined", default=timezone.now)
     patronymic = models.CharField("patronymic", max_length=150, blank=True)
-    position = models.CharField("position", max_length=150, help_text=help_texts["required"])
+    position = models.CharField("position", choices=PositionChoices.choices, max_length=10,
+                                help_text=help_texts["required"])
     bio = models.TextField("bio", max_length=500, blank=True, null=True)
     avatar = models.ImageField(
         "avatar", blank=True, default="default_avatar.jpeg", upload_to="images", help_text=help_texts["avatar"]
