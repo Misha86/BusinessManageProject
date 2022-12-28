@@ -9,7 +9,7 @@ import useStringTime from '../../../hooks/useStringTime';
 
 const TimeDurationField = ({ fieldTitle, fieldInfo, errorMessage, handler, value, props }) => {
   const [newValue, setNewValue] = useState(null);
-  const stringTime = useStringTime(newValue);
+  const stringTime = useStringTime(newValue, true);
 
   const fieldValue = useMemo(() => {
     const timeValue = dayjs(value, 'H:mm');

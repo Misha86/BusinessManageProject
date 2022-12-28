@@ -16,7 +16,6 @@ const WorkingTimeField = ({ weekDay, fieldTitle, error, handler, data }) => {
   );
   const { countOfTimeIntervals } = useContext(WorkingFormContext);
 
-
   useEffect(() => {
     const timeIntervals = intervals.filter((interval) => interval.length > 0);
     const dayTimeIntervals = {
@@ -33,9 +32,11 @@ const WorkingTimeField = ({ weekDay, fieldTitle, error, handler, data }) => {
 
   return (
     <Grid container spacing={1}>
-      <Grid item xs={12} md={12}>
-        <ErrorField errorMessage={errorMessage} />
-      </Grid>
+      {!!errorMessage && (
+        <Grid item xs={12} md={12} >
+          <ErrorField errorMessage={errorMessage} />
+        </Grid>
+      )}
 
       <Grid justifyContent="flex-end" item xs={4} md={2}>
         <Grid item xs={12} md={12}>
@@ -61,24 +62,20 @@ const WorkingTimeField = ({ weekDay, fieldTitle, error, handler, data }) => {
           </Grid>
         )}
 
-        {intervals.map((_, intervalIndex) => (
-          <Grid container item spacing={1} mb={1} key={intervalIndex}>
-            {['Start time', 'End time'].map((title, timeIndex) => (
-              <Grid item xs={12} md={6} key={`${intervalIndex}-${timeIndex}`}>
-                <PaperStyled>
-                  <TimeIntervalField
-                    timeIndex={timeIndex}
-                    title={title}
-                    intervalIndex={intervalIndex}
-                    intervals={intervals}
-                    setIntervals={setIntervals}
-                    error={!!errorMessage}
-                  />
-                </PaperStyled>
-              </Grid>
-            ))}
-          </Grid>
-        ))}
+        <Grid container item spacing={1} mb={1}>
+          {intervals.map((_, intervalIndex) => (
+            <Grid item xs={12} md={12} key={intervalIndex}>
+              <PaperStyled>
+                <TimeIntervalField
+                  intervalIndex={intervalIndex}
+                  intervals={intervals}
+                  setIntervals={setIntervals}
+                  error={!!errorMessage}
+                />
+              </PaperStyled>
+            </Grid>
+          ))}
+        </Grid>
       </Grid>
     </Grid>
   );
