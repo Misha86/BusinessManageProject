@@ -29,4 +29,5 @@ export const positionsOptions = [
   { label: 'Position 1', position: 'position_1' },
   { label: 'Position 2', position: 'position_2' },
   { label: 'Position 3', position: 'position_3' },
+  { label: 'Position 4', position: 'position_4' },
 ];

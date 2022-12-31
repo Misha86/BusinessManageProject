@@ -28,4 +28,5 @@ def cropper(sender, instance, created, **kwargs):
 @receiver(post_delete, sender=CustomUser)
 def delete_avatar(sender, instance, *args, **kwargs):
     """Remove a avatar after delete specialist."""
-    os.remove(instance.avatar.path)
+    if instance.avatar and os.path.exists(instance.avatar.path) and instance.avatar.name != "default_avatar.jpeg":
+        os.remove(instance.avatar.path)
