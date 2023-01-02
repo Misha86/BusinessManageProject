@@ -47,7 +47,8 @@ class CustomUserFactory(factory.django.DjangoModelFactory):
 
         model = CustomUser
 
-    email = factory.LazyAttributeSequence(lambda u, n: f"{u.first_name.lower()}.{u.last_name.lower()}_{n}@example.com")
+    email = factory.LazyAttributeSequence(
+        lambda u, n: f"{u.first_name.lower()}.{u.last_name.lower()}_{n}@example.com")
     first_name = factory.Faker("first_name_male")
     last_name = factory.Faker("last_name_male")
     avatar = factory.django.ImageField(from_path=get_image_path())
@@ -73,8 +74,6 @@ class CustomUserFactory(factory.django.DjangoModelFactory):
             # Simple build, do nothing.
             return
         if extracted:
-            print(extracted)
-
             # A list of groups were passed in, use them
             for group in extracted:
                 self.groups.add(group)
