@@ -140,4 +140,4 @@ def validate_days_name(value):
     week_days = list(map(str.capitalize, calendar.HTMLCalendar.cssclasses))
     for name in value.keys():
         if name not in week_days:
-            raise ValidationError({f"{name}": f"Day name should be one of these {week_days}."})
+            raise ValidationError(f"Day name should be one of these {week_days}.")

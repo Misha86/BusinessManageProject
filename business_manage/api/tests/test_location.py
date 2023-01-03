@@ -10,7 +10,7 @@ from ..models import Location, CustomUser
 from ..serializers.location_serializers import LocationSerializer
 from ..services.customuser_services import add_user_to_group_specialist
 from ..utils import generate_working_time
-from api.factories import factories
+from api.factories.factories import LocationFactory
 
 
 class LocationModelTest(TestCase):
@@ -18,7 +18,7 @@ class LocationModelTest(TestCase):
 
     def setUp(self):
         """This method adds needed info for tests."""
-        self.location = factories.LocationFactory(__sequence=0)
+        self.location = LocationFactory(__sequence=0)
 
     def test_create_location_valid_data(self):
         """Test for creating location with valid data."""
@@ -37,170 +37,165 @@ class LocationModelTest(TestCase):
 
         Working days must be named such names [Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
         """
-        location = factories.LocationFactory.build(working_time={"Invalid Day": ["10:20", "11:20"]})
+        location = LocationFactory.build(working_time={"Invalid Day": ["10:20", "11:20"]})
 
         with self.assertRaises(ValidationError) as ex:
             location.full_clean()
 
         message = ex.exception.args[0]
 
-        self.assertEqual(message, {
-            "location":
-                "Day name should be one of these ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']."
-        })
+        self.assertEqual(message, "Day name should be one of these ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].")
 
 
-# class LocationSerializerTest(TestCase):
-#     """Class LocationSerializerTest for testing Location serializers."""
-#
-#     def setUp(self):
-#         """This method adds needed info for tests."""
-#         self.l_serializer = LocationSerializer
-#         working_time = generate_working_time("10:30", "10:50")
-#         self.valid_data = get_data(working_time=working_time)
-#
-#     def test_serialize_valid_data(self):
-#         """Check serializer with valid data."""
-#         serializer = self.l_serializer(data=self.valid_data)
-#
-#         serializer.is_valid(raise_exception=True)
-#         self.assertEqual(serializer.validated_data["name"], self.valid_data["name"])
-#         self.assertEqual(serializer.validated_data["address"], self.valid_data["address"])
-#         self.assertEqual(serializer.validated_data["working_time"], self.valid_data["working_time"])
-#
-#     def test_serialize_invalid_working_time_minutes(self):
-#         """Check serializer with invalid working time when minutes don't multiples of 5."""
-#         for i in range(1, 5):
-#             invalid_time = f"10:5{i}"
-#             invalid_data = get_data(working_time={"Mon": ["10:30", invalid_time]})
-#
-#             with self.subTest(i=i):
-#                 serializer = self.l_serializer(data=invalid_data)
-#
-#                 with self.assertRaises(ValidationError) as ex:
-#                     serializer.is_valid(raise_exception=True)
-#
-#                 message = ex.exception.args[0]
-#                 self.assertEqual(
-#                     message,
-#                     {
-#                         "working_time": {
-#                             f"{invalid_time}:00": [
-#                                 ErrorDetail(
-#                                     string="Time value must have zero seconds and "
-#                                            "minutes multiples of 5.",
-#                                     code="invalid"
-#                                 )
-#                             ]
-#                         }
-#                     }
-#                 )
-#
-#     def test_serialize_invalid_working_time_seconds_exist(self):
-#         """Check serializer with invalid working time when seconds exist."""
-#         invalid_time = "10:50:10"
-#         invalid_data = get_data(working_time={"Mon": ["10:30", invalid_time]})
-#         serializer = self.l_serializer(data=invalid_data)
-#
-#         with self.assertRaises(ValidationError) as ex:
-#             serializer.is_valid(raise_exception=True)
-#
-#         message = ex.exception.args[0]
-#         self.assertEqual(
-#             message,
-#             {
-#                 "working_time": {
-#                     "Mon": [
-#                         ErrorDetail(string="unconverted data remains: :10", code="invalid")
-#                     ]
-#                 }
-#             }
-#         )
-#
-#     def test_serialize_invalid_working_time_range(self):
-#         """Invalid time range.
-#
-#         Check serializer with invalid working time when start time
-#         more or equal than end time.
-#         """
-#         start_time = "10:50"
-#         invalid_end_time = "10:40"
-#         for invalid_time_range in [invalid_end_time, start_time]:
-#             invalid_data = get_data(working_time={"Mon": [start_time, invalid_end_time]})
-#
-#             with self.subTest(invalid_time_range=invalid_time_range):
-#                 serializer = self.l_serializer(data=invalid_data)
-#
-#                 with self.assertRaises(ValidationError) as ex:
-#                     serializer.is_valid(raise_exception=True)
-#
-#                 message = ex.exception.args[0]
-#                 self.assertEqual(
-#                     message,
-#                     {
-#                         "working_time": {
-#                             "Mon": [
-#                                 ErrorDetail(string="Start time should be more than end time.",
-#                                             code="invalid")
-#                             ]
-#                         }
-#                     }
-#                 )
-#
-#     def test_serialize_invalid_working_time_not_end_time(self):
-#         """Check serializer with invalid working time when end time doesn't exist."""
-#         invalid_data = get_data(working_time={"Mon": ["10:40"]})
-#
-#         serializer = self.l_serializer(data=invalid_data)
-#
-#         with self.assertRaises(ValidationError) as ex:
-#             serializer.is_valid(raise_exception=True)
-#         message = ex.exception.args[0]
-#         self.assertEqual(
-#             message,
-#             {
-#                 "working_time": {
-#                     "Mon": [
-#                         ErrorDetail(
-#                             string="Time range should be contain start and "
-#                                    "end time together or empty range.", code="invalid"
-#                         )
-#                     ]
-#                 }
-#             }
-#         )
-#
-#     def test_serialize_invalid_working_time_time_is_empty_string(self):
-#         """Invalid time range.
-#
-#         Check serializer with invalid working time when start time or
-#         end time is empty string.
-#         """
-#         for invalid_time_range in [["", "10:40"], ["10:40", ""]]:
-#             invalid_data = get_data(working_time={"Mon": invalid_time_range})
-#
-#             with self.subTest(invalid_time_range=invalid_time_range):
-#                 serializer = self.l_serializer(data=invalid_data)
-#
-#                 with self.assertRaises(ValidationError) as ex:
-#                     serializer.is_valid(raise_exception=True)
-#                 message = ex.exception.args[0]
-#
-#                 self.assertEqual(
-#                     message,
-#                     {
-#                         "working_time": {
-#                             "Mon": [
-#                                 ErrorDetail(
-#                                     string="time data '' does not match format '%H:%M'",
-#                                     code="invalid"
-#                                 )
-#                             ]
-#                         }
-#                     }
-#                 )
-#
-#
+class LocationSerializerTest(TestCase):
+    """Class LocationSerializerTest for testing Location serializers."""
+
+    def setUp(self):
+        """This method adds needed info for tests."""
+        self.l_serializer = LocationSerializer
+        self.valid_data = LocationFactory.build().__dict__
+
+    def test_serialize_valid_data(self):
+        """Check serializer with valid data."""
+        serializer = self.l_serializer(data=self.valid_data)
+
+        serializer.is_valid(raise_exception=True)
+        self.assertEqual(serializer.validated_data["name"], self.valid_data["name"])
+        self.assertEqual(serializer.validated_data["address"], self.valid_data["address"])
+        self.assertEqual(serializer.validated_data["working_time"], self.valid_data["working_time"])
+
+    def test_serialize_invalid_working_time_minutes(self):
+        """Check serializer with invalid working time when minutes don't multiples of 5."""
+        for i in range(1, 5):
+            invalid_time = f"10:5{i}"
+            invalid_data = LocationFactory.build(working_time={"Mon": ["10:30", invalid_time]}).__dict__
+
+            with self.subTest(i=i):
+                serializer = self.l_serializer(data=invalid_data)
+
+                with self.assertRaises(ValidationError) as ex:
+                    serializer.is_valid(raise_exception=True)
+
+                message = ex.exception.args[0]
+                self.assertEqual(
+                    message,
+                    {
+                        "working_time": {
+                            "Mon": [
+                                ErrorDetail(
+                                    string="Time value must have zero seconds and "
+                                           "minutes multiples of 5.",
+                                    code="invalid"
+                                )
+                            ]
+                        }
+                    }
+                )
+
+    def test_serialize_invalid_working_time_seconds_exist(self):
+        """Check serializer with invalid working time when seconds exist."""
+        invalid_time = "10:50:10"''
+        invalid_data = LocationFactory.build(working_time={"Mon": ["10:30", invalid_time]}).__dict__
+        serializer = self.l_serializer(data=invalid_data)
+
+        with self.assertRaises(ValidationError) as ex:
+            serializer.is_valid(raise_exception=True)
+
+        message = ex.exception.args[0]
+        self.assertEqual(
+            message,
+            {
+                "working_time": {
+                    "Mon": [
+                        ErrorDetail(string="unconverted data remains: :10", code="invalid")
+                    ]
+                }
+            }
+        )
+
+    def test_serialize_invalid_working_time_range(self):
+        """Invalid time range.
+
+        Check serializer with invalid working time when start time
+        more or equal than end time.
+        """
+        start_time = "10:50"
+        invalid_end_time = "10:40"
+        for invalid_time_range in [invalid_end_time, start_time]:
+            invalid_data = LocationFactory.build(working_time={"Mon": [start_time, invalid_end_time]}).__dict__
+            with self.subTest(invalid_time_range=invalid_time_range):
+                serializer = self.l_serializer(data=invalid_data)
+
+                with self.assertRaises(ValidationError) as ex:
+                    serializer.is_valid(raise_exception=True)
+
+                message = ex.exception.args[0]
+                self.assertEqual(
+                    message,
+                    {
+                        "working_time": {
+                            "Mon": [
+                                ErrorDetail(string="Start time should be more than end time.",
+                                            code="invalid")
+                            ]
+                        }
+                    }
+                )
+
+    def test_serialize_invalid_working_time_not_end_time(self):
+        """Check serializer with invalid working time when end time doesn't exist."""
+        invalid_data = LocationFactory.build(working_time={"Mon": ["10:40"]}).__dict__
+
+        serializer = self.l_serializer(data=invalid_data)
+
+        with self.assertRaises(ValidationError) as ex:
+            serializer.is_valid(raise_exception=True)
+        message = ex.exception.args[0]
+        self.assertEqual(
+            message,
+            {
+                "working_time": {
+                    "Mon": [
+                        ErrorDetail(
+                            string="Time range should be contain start and "
+                                   "end time together or empty range.", code="invalid"
+                        )
+                    ]
+                }
+            }
+        )
+
+    def test_serialize_invalid_working_time_time_is_empty_string(self):
+        """Invalid time range.
+
+        Check serializer with invalid working time when start time or
+        end time is empty string.
+        """
+        for invalid_time_range in [["", "10:40"], ["10:40", ""]]:
+            invalid_data = LocationFactory.build(working_time={"Mon": invalid_time_range}).__dict__
+
+            with self.subTest(invalid_time_range=invalid_time_range):
+                serializer = self.l_serializer(data=invalid_data)
+
+                with self.assertRaises(ValidationError) as ex:
+                    serializer.is_valid(raise_exception=True)
+                message = ex.exception.args[0]
+
+                self.assertEqual(
+                    message,
+                    {
+                        "working_time": {
+                            "Mon": [
+                                ErrorDetail(
+                                    string="time data '' does not match format '%H:%M'",
+                                    code="invalid"
+                                )
+                            ]
+                        }
+                    }
+                )
+
+
 # class LocationViewTest(TestCase):
 #     """Class LocationViewTest for testing Location view."""
 #
