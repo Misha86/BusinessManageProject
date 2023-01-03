@@ -9,6 +9,8 @@ from ..models import CustomUser
 from ..serializers.customuser_serializers import SpecialistSerializer
 from ..services.customuser_services import add_user_to_group_specialist
 from api.factories import factories
+from rest_framework.test import APITestCase
+from rest_framework import status
 
 
 class CustomUserModelTest(TestCase):
@@ -168,45 +170,40 @@ class CustomUserSerializerTest(TestCase):
         self.assertEqual(serializer.errors, {"non_field_errors": ["No data provided"]})
 
 
-# class CustomUserViewTest(TestCase):
-#     """Class CustomUserViewTest for testing CustomUser view."""
-#
-#     def setUp(self):
-#         """This method adds needed info for tests."""
-#         self.client = APIClient()
-#         self.valid_data = get_user_data()
-#         self.specialist_data = get_user_data(position="dentist", email="specialist@com.ua")
-#         self.get_specialists_url_name = "api:specialists-list-create"
-#
-#     def test_get_all_specialists(self):
-#         """Test for getting all specialists."""
-#         user = CustomUser.objects.create_user(**self.valid_data)
-#         add_user_to_group_specialist(user)
-#         response = self.client.get(reverse(self.get_specialists_url_name), format="json")
-#         results = response.data["results"]
-#         self.assertEqual(response.status_code, 200)
-#         self.assertEqual(len(results), 1)
-#
-#     def test_create_specialists_by_admin_fail(self):
-#         """Test for creating specialist by admin."""
-#         admin = CustomUser.objects.create_admin(password="password", **self.valid_data)
-#         self.client.force_authenticate(admin)
-#         response = self.client.post(reverse(self.get_specialists_url_name),
-#                                     self.specialist_data, format="json")
-#         self.assertEqual(response.status_code, 403)
-#
-#     def test_create_specialists_by_manager_success(self):
-#         """Test for creating specialist by manager."""
-#         manager = CustomUser.objects.create_manager(password="password", **self.valid_data)
-#         self.client.force_authenticate(manager)
-#         response = self.client.post(reverse(self.get_specialists_url_name),
-#                                     self.specialist_data, format="json")
-#         self.assertEqual(response.status_code, 201)
-#
-#     def test_create_specialists_by_superuser_success(self):
-#         """Test for creating specialist by superuser."""
-#         manager = CustomUser.objects.create_superuser(password="password", **self.valid_data)
-#         self.client.force_authenticate(manager)
-#         response = self.client.post(reverse(self.get_specialists_url_name),
-#                                     self.specialist_data, format="json")
-#         self.assertEqual(response.status_code, 201)
+class CustomUserViewTest(APITestCase):
+    """Class CustomUserViewTest for testing CustomUser view."""
+
+    def setUp(self):
+        """This method adds needed info for tests."""
+        self.get_specialists_url_name = "api:specialists-list-create"
+        fake_data = factories.SpecialistFactory.build()
+        self.specialist_data = {k: getattr(fake_data, k) for k in ["first_name", "last_name", "email", "position"]}
+
+    def tearDown(self):
+        """This method deletes all users and cleans avatars' data."""
+        CustomUser.objects.all().delete()
+
+    def test_get_all_specialists(self):
+        """Test for getting all specialists."""
+        factories.SpecialistFactory.create_batch(3)
+        response = self.client.get(reverse(self.get_specialists_url_name))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data["results"]), 3)
+
+    def test_create_specialists_by_admin_fail(self):
+        """Test for creating specialist by admin."""
+        self.client.force_authenticate(factories.AdminFactory())
+        response = self.client.post(reverse(self.get_specialists_url_name), self.specialist_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_create_specialists_by_manager_success(self):
+        """Test for creating specialist by manager."""
+        self.client.force_authenticate(factories.ManagerFactory())
+        response = self.client.post(reverse(self.get_specialists_url_name), self.specialist_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_create_specialists_by_superuser_success(self):
+        """Test for creating specialist by superuser."""
+        self.client.force_authenticate(factories.SuperuserFactory())
+        response = self.client.post(reverse(self.get_specialists_url_name), self.specialist_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
