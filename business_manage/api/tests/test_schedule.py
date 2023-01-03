@@ -1,87 +1,68 @@
-# """The module includes tests for Schedule model, serializers and views."""
-#
-# from datetime import datetime, timedelta
-# from django.db import IntegrityError
-# from django.test import TestCase
-# from django.utils.timezone import get_current_timezone
-# from rest_framework.exceptions import ValidationError, ErrorDetail
-#
-# from ..models import CustomUser, SpecialistSchedule, Location, Appointment
-# from ..serializers.schedule_serializers import SpecialistScheduleSerializer
-# from ..services.customuser_services import add_user_to_group_specialist
-# from ..utils import generate_working_time_intervals, string_to_time, generate_working_time, time_to_string
-# from rest_framework.reverse import reverse
-# from rest_framework.test import APIClient
-#
-#
-# def get_appointment_data(specialist):
-#     """Get data to create appointment."""
-#     start_time = datetime.combine(
-#         datetime.now().date() + timedelta(days=1), string_to_time("12:15"), tzinfo=get_current_timezone()
-#     )
-#     duration = timedelta(minutes=20)
-#
-#     working_time = generate_working_time("9:00", "20:00")
-#     location = Location.objects.create(name="office #1", working_time=working_time)
-#     valid_data = {
-#         "start_time": start_time,
-#         "duration": duration,
-#         "specialist": specialist,
-#         "location": location,
-#         "customer_firstname": "customer_firstname",
-#         "customer_lastname": "customer_lastname",
-#         "customer_email": "customer@com.ua",
-#     }
-#     return valid_data
-#
-#
-# def get_user_data(**kwargs):
-#     """Get data to create user."""
-#     user_data = {"email": "specialist@com.ua", "first_name": "Fn", "last_name": "Ln"}
-#     return {**user_data, **kwargs}
-#
-#
-# class SpecialistScheduleModelTest(TestCase):
-#     """Class SpecialistScheduleModelTest for testing SpecialistSchedule model."""
-#
-#     def setUp(self):
-#         """This method adds needed info for tests."""
-#         self.user_data = get_user_data()
-#         self.specialist = CustomUser.objects.create_user(**self.user_data)
-#         add_user_to_group_specialist(self.specialist)
-#
-#         self.working_time = generate_working_time_intervals("10:00", "20:00")
-#
-#     def test_create_schedule_valid_data(self):
-#         """Test for creating schedule with valid data."""
-#         schedule = SpecialistSchedule.objects.create(specialist=self.specialist, working_time=self.working_time)
-#
-#         self.assertEqual(schedule.specialist, self.specialist)
-#         self.assertEqual(schedule.working_time, self.working_time)
-#         self.assertIsInstance(schedule.working_time, dict)
-#
-#     def test_create_schedule_not_specialist_error(self):
-#         """Test for creating schedule user is not specialist."""
-#         self.user_data.update(dict(email="user@com.ua"))
-#         user = CustomUser.objects.create_user(**self.user_data)
-#         schedule = SpecialistSchedule.objects.create(specialist=user, working_time=self.working_time)
-#
-#         full_name = user.get_full_name()
-#
-#         with self.assertRaises(ValidationError) as ex:
-#             schedule.full_clean()
-#         message = ex.exception.args[0]
-#         self.assertEqual(
-#             message, {f"{full_name}": ErrorDetail(string=f"{full_name} should be specialist.", code="invalid")}
-#         )
-#
-#     def test_create_schedule_working_time_invalid(self):
-#         """Test for creating schedule user is not specialist."""
-#         working_time = None
-#         with self.assertRaises(IntegrityError):
-#             SpecialistSchedule.objects.create(specialist=self.specialist, working_time=working_time)
-#
-#
+"""The module includes tests for Schedule model, serializers and views."""
+
+from datetime import datetime, timedelta
+from django.db import IntegrityError
+from django.test import TestCase
+from django.utils.timezone import get_current_timezone
+from rest_framework.exceptions import ValidationError, ErrorDetail
+
+from ..models import CustomUser, SpecialistSchedule, Location, Appointment
+from ..serializers.schedule_serializers import SpecialistScheduleSerializer
+from ..services.customuser_services import add_user_to_group_specialist
+from ..utils import generate_working_time_intervals, string_to_time, generate_working_time, time_to_string
+from rest_framework.reverse import reverse
+from rest_framework.test import APIClient
+from rest_framework.test import APITestCase
+from rest_framework import status
+from api.factories.factories import (
+    AdminFactory,
+    LocationFactory,
+    ManagerFactory,
+    SpecialistFactory,
+    SuperuserFactory,
+CustomUserFactory,
+SpecialistScheduleFactory
+)
+
+
+class SpecialistScheduleModelTest(TestCase):
+    """Class SpecialistScheduleModelTest for testing SpecialistSchedule model."""
+
+    def setUp(self):
+        """This method adds needed info for tests."""
+        self.schedule = SpecialistScheduleFactory
+
+    def tearDown(self):
+        """This method deletes all users and cleans avatars' data."""
+        CustomUser.objects.all().delete()
+
+    def test_create_schedule_valid_data(self):
+        """Test for creating schedule with valid data."""
+        specialist = SpecialistFactory()
+        schedule = self.schedule(specialist=specialist)
+
+        self.assertIsNone(schedule.full_clean())
+        self.assertEqual(schedule.specialist, specialist)
+        self.assertIsInstance(schedule.working_time, dict)
+
+    def test_create_schedule_not_specialist_error(self):
+        """Test for creating schedule user is not specialist."""
+        user = CustomUserFactory()
+        schedule = self.schedule(specialist=user)
+        full_name = user.get_full_name()
+        with self.assertRaises(ValidationError) as ex:
+            schedule.full_clean()
+        message = ex.exception.args[0]
+        self.assertEqual(
+            message, {"specialist": ErrorDetail(string=f"{full_name} should be specialist.", code="invalid")}
+        )
+
+    def test_create_schedule_working_time_invalid(self):
+        """Test for creating schedule with invalid working time."""
+        with self.assertRaises(IntegrityError):
+            self.schedule(working_time_null=True)
+
+
 # class SpecialistScheduleSerializerTest(TestCase):
 #     """Class SpecialistScheduleSerializerTest for testing SpecialistSchedule serializers."""
 #

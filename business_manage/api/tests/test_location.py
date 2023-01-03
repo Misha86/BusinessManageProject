@@ -1,18 +1,21 @@
 """The module includes tests for Location model, serializers and views."""
 
+from api.factories.factories import (
+    AdminFactory,
+    LocationFactory,
+    ManagerFactory,
+    SpecialistFactory,
+    SuperuserFactory,
+)
 from django.db import IntegrityError
 from django.test import TestCase
-from rest_framework.exceptions import ValidationError, ErrorDetail
-from rest_framework.reverse import reverse
-from rest_framework.test import APIClient
-
-from ..models import Location, CustomUser
-from ..serializers.location_serializers import LocationSerializer
-from ..services.customuser_services import add_user_to_group_specialist
-from ..utils import generate_working_time
-from api.factories.factories import LocationFactory, SpecialistFactory, AdminFactory, ManagerFactory, SuperuserFactory
-from rest_framework.test import APITestCase
 from rest_framework import status
+from rest_framework.exceptions import ErrorDetail, ValidationError
+from rest_framework.reverse import reverse
+from rest_framework.test import APITestCase
+
+from ..models import CustomUser, Location
+from ..serializers.location_serializers import LocationSerializer
 
 
 class LocationModelTest(TestCase):
@@ -27,8 +30,8 @@ class LocationModelTest(TestCase):
         self.assertIsNone(self.location.full_clean())
         self.assertEqual(self.location.name, "Location_0")
 
-    def test_location_name_uniqe(self):
-        """Test for creating location with uniqe name."""
+    def test_location_name_unique(self):
+        """Test for creating location with unique name."""
         with self.assertRaises(IntegrityError) as ex:
             Location.objects.create(name=self.location.name)
         message = ex.exception
@@ -86,18 +89,17 @@ class LocationSerializerTest(TestCase):
                         "working_time": {
                             "Mon": [
                                 ErrorDetail(
-                                    string="Time value must have zero seconds and "
-                                           "minutes multiples of 5.",
-                                    code="invalid"
+                                    string="Time value must have zero seconds and " "minutes multiples of 5.",
+                                    code="invalid",
                                 )
                             ]
                         }
-                    }
+                    },
                 )
 
     def test_serialize_invalid_working_time_seconds_exist(self):
         """Check serializer with invalid working time when seconds exist."""
-        invalid_time = "10:50:10"''
+        invalid_time = "10:50:10" ""
         invalid_data = self.build(working_time={"Mon": ["10:30", invalid_time]}).__dict__
         serializer = self.l_serializer(data=invalid_data)
 
@@ -106,14 +108,7 @@ class LocationSerializerTest(TestCase):
 
         message = ex.exception.args[0]
         self.assertEqual(
-            message,
-            {
-                "working_time": {
-                    "Mon": [
-                        ErrorDetail(string="unconverted data remains: :10", code="invalid")
-                    ]
-                }
-            }
+            message, {"working_time": {"Mon": [ErrorDetail(string="unconverted data remains: :10", code="invalid")]}}
         )
 
     def test_serialize_invalid_working_time_range(self):
@@ -137,12 +132,9 @@ class LocationSerializerTest(TestCase):
                     message,
                     {
                         "working_time": {
-                            "Mon": [
-                                ErrorDetail(string="Start time should be more than end time.",
-                                            code="invalid")
-                            ]
+                            "Mon": [ErrorDetail(string="Start time should be more than end time.", code="invalid")]
                         }
-                    }
+                    },
                 )
 
     def test_serialize_invalid_working_time_not_end_time(self):
@@ -160,12 +152,12 @@ class LocationSerializerTest(TestCase):
                 "working_time": {
                     "Mon": [
                         ErrorDetail(
-                            string="Time range should be contain start and "
-                                   "end time together or empty range.", code="invalid"
+                            string="Time range should be contain start and end time together or empty range.",
+                            code="invalid",
                         )
                     ]
                 }
-            }
+            },
         )
 
     def test_serialize_invalid_working_time_time_is_empty_string(self):
@@ -188,14 +180,9 @@ class LocationSerializerTest(TestCase):
                     message,
                     {
                         "working_time": {
-                            "Mon": [
-                                ErrorDetail(
-                                    string="time data '' does not match format '%H:%M'",
-                                    code="invalid"
-                                )
-                            ]
+                            "Mon": [ErrorDetail(string="time data '' does not match format '%H:%M'", code="invalid")]
                         }
-                    }
+                    },
                 )
 
 

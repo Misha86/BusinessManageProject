@@ -83,9 +83,17 @@ class SpecialistFactory(CustomUserFactory):
     """Factory class for creating specialists."""
 
     position = factory.fuzzy.FuzzyChoice(CustomUser.PositionChoices)
-    schedule = factory.RelatedFactory(
-        "api.factories.factories.SpecialistScheduleFactory", factory_related_name="specialist"
-    )
+
+    class Params:
+        """Extra params for factory.
+
+        If add_schedule=True Schedule is creating for specialist.
+        """
+        add_schedule = factory.Trait(
+            schedule=factory.RelatedFactory(
+                "api.factories.factories.SpecialistScheduleFactory", factory_related_name="specialist"
+            )
+        )
 
     @factory.post_generation
     def add_to_specialist_group(self, create, extracted, **kwargs):
@@ -183,8 +191,16 @@ class SpecialistScheduleFactory(factory.django.DjangoModelFactory):
         """Class Meta for the definition of the SpecialistSchedule model."""
 
         model = SpecialistSchedule
+        django_get_or_create = ("specialist",)
 
     specialist = factory.SubFactory(SpecialistFactory)
+
+    class Params:
+        """Extra params for factory.
+
+        working_time_null = False, Working time is becoming None.
+        """
+        working_time_null = False
 
     @factory.lazy_attribute
     def working_time(self):
@@ -192,4 +208,4 @@ class SpecialistScheduleFactory(factory.django.DjangoModelFactory):
         start_hour = f"{randint(6, 9)}:{choice(range(5, 60, 5))}"
         end_hour = f"{randint(13, 20)}:{choice(range(5, 60, 5))}"
 
-        return generate_working_time_intervals(start_hour, end_hour)
+        return None if self.working_time_null else generate_working_time_intervals(start_hour, end_hour)
