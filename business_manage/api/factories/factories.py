@@ -151,8 +151,8 @@ class LocationFactory(factory.django.DjangoModelFactory):
     @factory.lazy_attribute
     def working_time(self):
         """Generates location working time."""
-        start_hour = f"{randint(6, 9)}:{choice(range(5, 60, 5))}"
-        end_hour = f"{randint(13, 20)}:{choice(range(5, 60, 5))}"
+        start_hour = f"{randint(10, 11)}:{choice(range(10, 60, 5))}"
+        end_hour = f"{randint(16, 20)}:{choice(range(10, 60, 5))}"
 
         return generate_working_time(start_hour, end_hour)
 
@@ -167,15 +167,15 @@ class AppointmentFactory(factory.django.DjangoModelFactory):
 
     duration = timedelta(minutes=20)
     start_time = factory.fuzzy.FuzzyDateTime(
-        timezone.now(),
-        timezone.now() + timedelta(days=10),
-        force_hour=11,
+        timezone.localtime(timezone.now()),
+        timezone.localtime(timezone.now()) + timedelta(days=10),
+        force_hour=13,
         force_minute=30,
         force_second=0,
         force_microsecond=0,
     )
     end_time = factory.LazyAttribute(lambda o: o.start_time + o.duration)
-    specialist = factory.SubFactory(SpecialistFactory)
+    specialist = factory.SubFactory(SpecialistFactory, add_schedule=True)
     location = factory.SubFactory(LocationFactory)
     customer_email = factory.LazyAttributeSequence(
         lambda c, n: f"{c.customer_firstname.lower()}.{c.customer_lastname.lower()}_{n}@example.com"
@@ -205,7 +205,7 @@ class SpecialistScheduleFactory(factory.django.DjangoModelFactory):
     @factory.lazy_attribute
     def working_time(self):
         """Generates location working time."""
-        start_hour = f"{randint(6, 9)}:{choice(range(5, 60, 5))}"
-        end_hour = f"{randint(13, 20)}:{choice(range(5, 60, 5))}"
+        start_hour = f"{randint(10, 11)}:{choice(range(10, 60, 5))}"
+        end_hour = f"{randint(16, 20)}:{choice(range(10, 60, 5))}"
 
         return None if self.working_time_null else generate_working_time_intervals(start_hour, end_hour)

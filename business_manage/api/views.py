@@ -126,13 +126,6 @@ class SpecialistDateScheduleView(APIView):
             groups__name__icontains="Specialist",
             schedule__isnull=False,
         )
-        name = specialist.get_full_name()
-
-        if not specialist.is_specialist:
-            return Response(
-                {"detail": f"User {name} is not specialist."},
-                status=status.HTTP_404_NOT_FOUND,
-            )
 
         if a_date.date() < timezone.now().date():
             return Response(
@@ -144,7 +137,7 @@ class SpecialistDateScheduleView(APIView):
 
         if not any(schedule_intervals):
             return Response(
-                {"detail": f"{name} is not working on this day."},
+                {"detail": f"{specialist.get_full_name()} is not working on this day."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
