@@ -1,16 +1,15 @@
 """The module includes tests for CustomUser models, serializers and views."""
 
+from api.factories import factories
 from django.contrib.auth.hashers import check_password
-from rest_framework.reverse import reverse
-from rest_framework.test import APIClient
-from django.contrib.auth.models import Group
 from django.test import TestCase
+from rest_framework import status
+from rest_framework.reverse import reverse
+from rest_framework.test import APITestCase
+
 from ..models import CustomUser
 from ..serializers.customuser_serializers import SpecialistSerializer
 from ..services.customuser_services import add_user_to_group_specialist
-from api.factories import factories
-from rest_framework.test import APITestCase
-from rest_framework import status
 
 
 class CustomUserModelTest(TestCase):
@@ -31,7 +30,10 @@ class CustomUserModelTest(TestCase):
         self.assertTrue(user.first_name)
         self.assertTrue(user.last_name)
         self.assertEqual(user.position, "")
-        self.assertEqual(user.email, f"{user.first_name.lower()}.{user.last_name.lower()}_{0}@example.com")
+        self.assertEqual(
+            user.email,
+            f"{user.first_name.lower()}.{user.last_name.lower()}_0@example.com",
+        )
         self.assertEqual(user.avatar.url, f"/media/{user.avatar.name}")
         self.assertTrue(check_password(password, user.password))
         self.assertEqual(user.get_full_name(), f"{user.first_name} {user.last_name}".title())
@@ -132,7 +134,6 @@ class CustomUserSerializerTest(TestCase):
     def setUp(self):
         """This method adds needed info for tests."""
         self.sp_serializer = SpecialistSerializer
-        self.groups = factories.GroupFactory.groups_for_test()
         self.data = factories.SpecialistFactory.build().__dict__
 
     def tearDown(self):
@@ -159,9 +160,19 @@ class CustomUserSerializerTest(TestCase):
     def test_empty_serializer(self):
         """Check serializer without data."""
         serializer = self.sp_serializer()
-        self.assertEqual(serializer.data,
-                         {"email": "", "first_name": "", "last_name": "", "patronymic": "",
-                          "position": None, "bio": "", "avatar": None, "is_active": True})
+        self.assertEqual(
+            serializer.data,
+            {
+                "email": "",
+                "first_name": "",
+                "last_name": "",
+                "patronymic": "",
+                "position": None,
+                "bio": "",
+                "avatar": None,
+                "is_active": True,
+            },
+        )
 
     def test_validate_none_data(self):
         """Check serializer with data equal None."""

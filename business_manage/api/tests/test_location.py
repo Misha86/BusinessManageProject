@@ -1,70 +1,55 @@
-# """The module includes tests for Location model, serializers and views."""
-#
-# from django.db import IntegrityError
-# from django.test import TestCase
-# from rest_framework.exceptions import ValidationError, ErrorDetail
-# from rest_framework.reverse import reverse
-# from rest_framework.test import APIClient
-#
-# from ..models import Location, CustomUser
-# from ..serializers.location_serializers import LocationSerializer
-# from ..services.customuser_services import add_user_to_group_specialist
-# from ..utils import generate_working_time
-#
-#
-# def get_data(**kwargs):
-#     """Get data to create location."""
-#     data = {
-#         "name": "LName",
-#         "address": "234 New st.",
-#         "working_time": generate_working_time(),
-#     }
-#     return {**data, **kwargs}
-#
-#
-# class LocationModelTest(TestCase):
-#     """Class LocationModelTest for testing Location models."""
-#
-#     def setUp(self):
-#         """This method adds needed info for tests."""
-#         self.valid_data = get_data()
-#         self.location = Location.objects.create(**self.valid_data)
-#
-#     def test_create_location_valid_data(self):
-#         """Test for creating location with valid data."""
-#         self.assertEqual(self.location.name, self.valid_data.get("name"))
-#         self.assertEqual(self.location.address, self.valid_data.get("address"))
-#         self.assertEqual(self.location.working_time, self.valid_data.get("working_time"))
-#
-#     def test_location_name_uniqe(self):
-#         """Test for creating location with uniqe name."""
-#         with self.assertRaises(IntegrityError) as ex:
-#             Location.objects.create(**self.valid_data)
-#         message = ex.exception
-#         self.assertEqual(str(message), "UNIQUE constraint failed: api_location.name")
-#
-#     def test_location_working_day_error(self):
-#         """Test for location working time field.
-#
-#         Working days must be named such names [Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-#         """
-#         invalid_key = "Invalid"
-#         invalid_data = get_data(working_time={invalid_key: ["10:20", "11:20"]},
-#                                 name="Name")
-#
-#         location = Location.objects.create(**invalid_data)
-#
-#         with self.assertRaises(ValidationError) as ex:
-#             location.full_clean()
-#
-#         message = ex.exception.args[0]
-#
-#         self.assertEqual(message, {
-#             invalid_key:
-#                 "Day name should be one of these ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']."
-#         })
-#
-#
+"""The module includes tests for Location model, serializers and views."""
+
+from django.db import IntegrityError
+from django.test import TestCase
+from rest_framework.exceptions import ValidationError, ErrorDetail
+from rest_framework.reverse import reverse
+from rest_framework.test import APIClient
+
+from ..models import Location, CustomUser
+from ..serializers.location_serializers import LocationSerializer
+from ..services.customuser_services import add_user_to_group_specialist
+from ..utils import generate_working_time
+from api.factories import factories
+
+
+class LocationModelTest(TestCase):
+    """Class LocationModelTest for testing Location models."""
+
+    def setUp(self):
+        """This method adds needed info for tests."""
+        self.location = factories.LocationFactory(__sequence=0)
+
+    def test_create_location_valid_data(self):
+        """Test for creating location with valid data."""
+        self.assertIsNone(self.location.full_clean())
+        self.assertEqual(self.location.name, "Location_0")
+
+    def test_location_name_uniqe(self):
+        """Test for creating location with uniqe name."""
+        with self.assertRaises(IntegrityError) as ex:
+            Location.objects.create(name=self.location.name)
+        message = ex.exception
+        self.assertEqual(str(message), "UNIQUE constraint failed: api_location.name")
+
+    def test_location_working_day_error(self):
+        """Test for location working time field.
+
+        Working days must be named such names [Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+        """
+        location = factories.LocationFactory.build(working_time={"Invalid Day": ["10:20", "11:20"]})
+
+        with self.assertRaises(ValidationError) as ex:
+            location.full_clean()
+
+        message = ex.exception.args[0]
+
+        self.assertEqual(message, {
+            "location":
+                "Day name should be one of these ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']."
+        })
+
+
 # class LocationSerializerTest(TestCase):
 #     """Class LocationSerializerTest for testing Location serializers."""
 #
