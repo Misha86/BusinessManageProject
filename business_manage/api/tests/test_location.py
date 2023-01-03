@@ -10,7 +10,9 @@ from ..models import Location, CustomUser
 from ..serializers.location_serializers import LocationSerializer
 from ..services.customuser_services import add_user_to_group_specialist
 from ..utils import generate_working_time
-from api.factories.factories import LocationFactory
+from api.factories.factories import LocationFactory, SpecialistFactory, AdminFactory, ManagerFactory, SuperuserFactory
+from rest_framework.test import APITestCase
+from rest_framework import status
 
 
 class LocationModelTest(TestCase):
@@ -53,22 +55,23 @@ class LocationSerializerTest(TestCase):
     def setUp(self):
         """This method adds needed info for tests."""
         self.l_serializer = LocationSerializer
-        self.valid_data = LocationFactory.build().__dict__
+        self.build = LocationFactory.build
 
     def test_serialize_valid_data(self):
         """Check serializer with valid data."""
-        serializer = self.l_serializer(data=self.valid_data)
+        valid_data = self.build().__dict__
+        serializer = self.l_serializer(data=valid_data)
 
         serializer.is_valid(raise_exception=True)
-        self.assertEqual(serializer.validated_data["name"], self.valid_data["name"])
-        self.assertEqual(serializer.validated_data["address"], self.valid_data["address"])
-        self.assertEqual(serializer.validated_data["working_time"], self.valid_data["working_time"])
+        self.assertEqual(serializer.validated_data["name"], valid_data["name"])
+        self.assertEqual(serializer.validated_data["address"], valid_data["address"])
+        self.assertEqual(serializer.validated_data["working_time"], valid_data["working_time"])
 
     def test_serialize_invalid_working_time_minutes(self):
         """Check serializer with invalid working time when minutes don't multiples of 5."""
         for i in range(1, 5):
             invalid_time = f"10:5{i}"
-            invalid_data = LocationFactory.build(working_time={"Mon": ["10:30", invalid_time]}).__dict__
+            invalid_data = self.build(working_time={"Mon": ["10:30", invalid_time]}).__dict__
 
             with self.subTest(i=i):
                 serializer = self.l_serializer(data=invalid_data)
@@ -95,7 +98,7 @@ class LocationSerializerTest(TestCase):
     def test_serialize_invalid_working_time_seconds_exist(self):
         """Check serializer with invalid working time when seconds exist."""
         invalid_time = "10:50:10"''
-        invalid_data = LocationFactory.build(working_time={"Mon": ["10:30", invalid_time]}).__dict__
+        invalid_data = self.build(working_time={"Mon": ["10:30", invalid_time]}).__dict__
         serializer = self.l_serializer(data=invalid_data)
 
         with self.assertRaises(ValidationError) as ex:
@@ -122,7 +125,7 @@ class LocationSerializerTest(TestCase):
         start_time = "10:50"
         invalid_end_time = "10:40"
         for invalid_time_range in [invalid_end_time, start_time]:
-            invalid_data = LocationFactory.build(working_time={"Mon": [start_time, invalid_end_time]}).__dict__
+            invalid_data = self.build(working_time={"Mon": [start_time, invalid_end_time]}).__dict__
             with self.subTest(invalid_time_range=invalid_time_range):
                 serializer = self.l_serializer(data=invalid_data)
 
@@ -144,7 +147,7 @@ class LocationSerializerTest(TestCase):
 
     def test_serialize_invalid_working_time_not_end_time(self):
         """Check serializer with invalid working time when end time doesn't exist."""
-        invalid_data = LocationFactory.build(working_time={"Mon": ["10:40"]}).__dict__
+        invalid_data = self.build(working_time={"Mon": ["10:40"]}).__dict__
 
         serializer = self.l_serializer(data=invalid_data)
 
@@ -172,7 +175,7 @@ class LocationSerializerTest(TestCase):
         end time is empty string.
         """
         for invalid_time_range in [["", "10:40"], ["10:40", ""]]:
-            invalid_data = LocationFactory.build(working_time={"Mon": invalid_time_range}).__dict__
+            invalid_data = self.build(working_time={"Mon": invalid_time_range}).__dict__
 
             with self.subTest(invalid_time_range=invalid_time_range):
                 serializer = self.l_serializer(data=invalid_data)
@@ -196,63 +199,46 @@ class LocationSerializerTest(TestCase):
                 )
 
 
-# class LocationViewTest(TestCase):
-#     """Class LocationViewTest for testing Location view."""
-#
-#     def setUp(self):
-#         """This method adds needed info for tests."""
-#         self.client = APIClient()
-#         self.user = CustomUser.objects
-#         self.valid_data = get_data(
-#             working_time=generate_working_time("10:30", "10:50")
-#         )
-#
-#         self.user_data = {
-#             "password": "password",
-#             "email": "user@com.ua",
-#             "first_name": "first_name",
-#             "last_name": "last_name"
-#         }
-#         self.location_create_url = "api:locations-list-create"
-#
-#     def test_get_all_locations(self):
-#         """Test for getting all locations."""
-#         location = Location.objects.create(**self.valid_data)
-#         response = self.client.get(reverse(self.location_create_url), format="json")
-#         results = response.data["results"]
-#         self.assertEqual(response.status_code, 200)
-#         self.assertEqual(len(results), 1)
-#         self.assertEqual(results[0]["name"], location.name)
-#
-#     def test_create_location_by_specialist_fail(self):
-#         """Test for creating location by specialist is forbidden."""
-#         specialist = self.user.create_user(**self.user_data)
-#         add_user_to_group_specialist(specialist)
-#         self.client.force_authenticate(specialist)
-#         response = self.client.post(reverse(self.location_create_url),
-#                                     self.valid_data, format="json")
-#         self.assertEqual(response.status_code, 403)
-#
-#     def test_create_location_by_admin_fail(self):
-#         """Test for creating location by admin is forbidden."""
-#         admin = self.user.create_admin(**self.user_data)
-#         self.client.force_authenticate(admin)
-#         response = self.client.post(reverse(self.location_create_url),
-#                                     self.valid_data, format="json")
-#         self.assertEqual(response.status_code, 403)
-#
-#     def test_create_location_by_manager(self):
-#         """Test for creating location by manager is allowed."""
-#         manager = self.user.create_manager(**self.user_data)
-#         self.client.force_authenticate(manager)
-#         response = self.client.post(reverse(self.location_create_url),
-#                                     self.valid_data, format="json")
-#         self.assertEqual(response.status_code, 201)
-#
-#     def test_create_location_by_superuser(self):
-#         """Test for creating location by manager is allowed."""
-#         superuser = self.user.create_superuser(**self.user_data)
-#         self.client.force_authenticate(superuser)
-#         response = self.client.post(reverse(self.location_create_url),
-#                                     self.valid_data, format="json")
-#         self.assertEqual(response.status_code, 201)
+class LocationViewTest(APITestCase):
+    """Class LocationViewTest for testing Location view."""
+
+    def setUp(self):
+        """This method adds needed info for tests."""
+        self.valid_data = {k: v for k, v in LocationFactory.build().__dict__.items() if k in ["name", "working_time"]}
+
+        self.location_create_url = "api:locations-list-create"
+
+    def tearDown(self):
+        """This method deletes all users and cleans avatars' data."""
+        CustomUser.objects.all().delete()
+
+    def test_get_all_locations(self):
+        """Test for getting all locations."""
+        LocationFactory.create_batch(3)
+        response = self.client.get(reverse(self.location_create_url), format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data["results"]), 3)
+
+    def test_create_location_by_specialist_fail(self):
+        """Test for creating location by specialist is forbidden."""
+        self.client.force_authenticate(SpecialistFactory())
+        response = self.client.post(reverse(self.location_create_url), self.valid_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_create_location_by_admin_fail(self):
+        """Test for creating location by admin is forbidden."""
+        self.client.force_authenticate(AdminFactory())
+        response = self.client.post(reverse(self.location_create_url), self.valid_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_create_location_by_manager(self):
+        """Test for creating location by manager is allowed."""
+        self.client.force_authenticate(ManagerFactory())
+        response = self.client.post(reverse(self.location_create_url), self.valid_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_create_location_by_superuser(self):
+        """Test for creating location by manager is allowed."""
+        self.client.force_authenticate(SuperuserFactory())
+        response = self.client.post(reverse(self.location_create_url), self.valid_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
