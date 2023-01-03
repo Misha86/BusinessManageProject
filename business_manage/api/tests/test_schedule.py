@@ -1,27 +1,32 @@
 """The module includes tests for Schedule model, serializers and views."""
 
 from datetime import datetime, timedelta
-from django.db import IntegrityError
-from django.test import TestCase
-from django.utils.timezone import get_current_timezone
-from rest_framework.exceptions import ValidationError, ErrorDetail
 
-from ..models import CustomUser, SpecialistSchedule, Location, Appointment
-from ..serializers.schedule_serializers import SpecialistScheduleSerializer
-from ..services.customuser_services import add_user_to_group_specialist
-from ..utils import generate_working_time_intervals, string_to_time, generate_working_time, time_to_string
-from rest_framework.reverse import reverse
-from rest_framework.test import APIClient
-from rest_framework.test import APITestCase
-from rest_framework import status
 from api.factories.factories import (
     AdminFactory,
+    CustomUserFactory,
     LocationFactory,
     ManagerFactory,
     SpecialistFactory,
+    SpecialistScheduleFactory,
     SuperuserFactory,
-CustomUserFactory,
-SpecialistScheduleFactory
+)
+from django.db import IntegrityError
+from django.test import TestCase
+from django.utils.timezone import get_current_timezone
+from rest_framework import status
+from rest_framework.exceptions import ErrorDetail, ValidationError
+from rest_framework.reverse import reverse
+from rest_framework.test import APIClient, APITestCase
+
+from ..models import Appointment, CustomUser, Location, SpecialistSchedule
+from ..serializers.schedule_serializers import SpecialistScheduleSerializer
+from ..services.customuser_services import add_user_to_group_specialist
+from ..utils import (
+    generate_working_time,
+    generate_working_time_intervals,
+    string_to_time,
+    time_to_string,
 )
 
 
@@ -63,107 +68,97 @@ class SpecialistScheduleModelTest(TestCase):
             self.schedule(working_time_null=True)
 
 
-# class SpecialistScheduleSerializerTest(TestCase):
-#     """Class SpecialistScheduleSerializerTest for testing SpecialistSchedule serializers."""
-#
-#     def setUp(self):
-#         """This method adds needed info for tests."""
-#         self.user_data = get_user_data()
-#         self.specialist = CustomUser.objects.create_user(**self.user_data)
-#         add_user_to_group_specialist(self.specialist)
-#
-#         self.working_time = generate_working_time_intervals("10:00", "20:00")
-#
-#         self.valid_data = {"specialist": self.specialist.id, "working_time": self.working_time}
-#         self.schedule_serializer = SpecialistScheduleSerializer
-#
-#     def test_serialize_valid_data(self):
-#         """Check serializer with valid data."""
-#         serializer = self.schedule_serializer(data=self.valid_data)
-#         serializer.is_valid(raise_exception=True)
-#
-#         self.assertEqual(serializer.validated_data["specialist"].id, self.valid_data["specialist"])
-#         self.assertEqual(serializer.validated_data["working_time"], self.valid_data["working_time"])
-#
-#         schedule = serializer.save()
-#         self.assertEqual(serializer.data["specialist"], schedule.specialist.get_full_name())
-#
-#     def test_working_time_match_time_format(self):
-#         """Check a working time has match format."""
-#         for invalid_time in ["invalid", "", "1030"]:
-#             with self.subTest(invalid_time=invalid_time):
-#                 invalid_working_time = generate_working_time_intervals(invalid_time, "20:00")
-#                 self.valid_data.update(dict(working_time=invalid_working_time))
-#
-#                 with self.assertRaises(ValidationError) as ex:
-#                     serializer = self.schedule_serializer(data=self.valid_data)
-#                     serializer.is_valid(raise_exception=True)
-#
-#                 message = ex.exception.args[0]
-#
-#                 self.assertEqual(
-#                     message,
-#                     {
-#                         "working_time": {
-#                             "Mon": [
-#                                 ErrorDetail(
-#                                     string=f"time data '{invalid_time}' does not match format '%H:%M'", code="invalid"
-#                                 )
-#                             ]
-#                         }
-#                     },
-#                 )
-#
-#     def test_working_start_end_times(self):
-#         """Check a working start and end times.
-#
-#         End time should be more than start time.
-#         """
-#         invalid_interval = ["10:00", "9:00"]
-#         invalid_working_time = generate_working_time_intervals(*invalid_interval)
-#         self.valid_data.update(dict(working_time=invalid_working_time))
-#
-#         with self.assertRaises(ValidationError) as ex:
-#             serializer = self.schedule_serializer(data=self.valid_data)
-#             serializer.is_valid(raise_exception=True)
-#
-#         message = ex.exception.args[0]
-#         self.assertEqual(
-#             message,
-#             {"working_time": {"Mon": [ErrorDetail(string="Start time should be more than end time.", code="invalid")]}},
-#         )
-#
-#     def test_schedule_start_end_times_minutes_error(self):
-#         """Test for schedule start and end times format.
-#
-#         Time values must have minutes multiples of 5.
-#         """
-#         for minute in range(1, 5):
-#             invalid_time = f"10:0{minute}"
-#             invalid_working_time = generate_working_time_intervals(invalid_time, "11:00")
-#             self.valid_data.update(dict(working_time=invalid_working_time))
-#
-#             with self.subTest(time_value=minute):
-#                 serializer = self.schedule_serializer(data=self.valid_data)
-#                 with self.assertRaises(ValidationError) as ex:
-#                     serializer.is_valid(raise_exception=True)
-#
-#                 message = ex.exception.args[0]
-#                 self.assertEqual(
-#                     message,
-#                     {
-#                         "working_time": {
-#                             f"{invalid_time}:00": [
-#                                 ErrorDetail(
-#                                     string="Time value must have zero" " seconds and minutes multiples of 5.",
-#                                     code="invalid",
-#                                 )
-#                             ]
-#                         }
-#                     },
-#                 )
-#
-#
+class SpecialistScheduleSerializerTest(TestCase):
+    """Class SpecialistScheduleSerializerTest for testing SpecialistSchedule serializers."""
+
+    def setUp(self):
+        """This method adds needed info for tests."""
+        self.specialist = SpecialistFactory()
+        self.schedule_serializer = SpecialistScheduleSerializer
+        self.get_data = lambda w: {"specialist": self.specialist.id, "working_time": w}
+
+    def tearDown(self):
+        """This method deletes all users and cleans avatars' data."""
+        CustomUser.objects.all().delete()
+
+    def test_serialize_valid_data(self):
+        """Check serializer with valid data."""
+        working_time = SpecialistScheduleFactory.build().working_time
+        serializer = self.schedule_serializer(data=self.get_data(working_time))
+        serializer.is_valid(raise_exception=True)
+
+        self.assertEqual(serializer.validated_data["specialist"].id, self.specialist.id)
+        self.assertEqual(serializer.validated_data["working_time"], working_time)
+
+        schedule = serializer.save()
+        self.assertEqual(serializer.data["specialist"], schedule.specialist.get_full_name())
+
+    def test_working_time_match_time_format(self):
+        """Check a working time has match format."""
+        for invalid_time in ["invalid", "", "1030"]:
+            with self.subTest(invalid_time=invalid_time):
+                with self.assertRaises(ValidationError) as ex:
+                    serializer = self.schedule_serializer(data=self.get_data({"Mon": [[invalid_time, "20:00"]]}))
+                    serializer.is_valid(raise_exception=True)
+
+                message = ex.exception.args[0]
+
+                self.assertEqual(
+                    message,
+                    {
+                        "working_time": {
+                            "Mon": [
+                                ErrorDetail(
+                                    string=f"time data '{invalid_time}' does not match format '%H:%M'", code="invalid"
+                                )
+                            ]
+                        }
+                    },
+                )
+
+    def test_working_start_end_times(self):
+        """Check a working start and end times.
+
+        End time should be more than start time.
+        """
+        with self.assertRaises(ValidationError) as ex:
+            serializer = self.schedule_serializer(data=self.get_data({"Mon": [["10:00", "9:00"]]}))
+            serializer.is_valid(raise_exception=True)
+
+        message = ex.exception.args[0]
+        self.assertEqual(
+            message,
+            {"working_time": {"Mon": [ErrorDetail(string="Start time should be more than end time.", code="invalid")]}},
+        )
+
+    def test_schedule_start_end_times_minutes_error(self):
+        """Test for schedule start and end times format.
+
+        Time values must have minutes multiples of 5.
+        """
+        day = "Mon"
+        for minute in range(1, 5):
+            with self.subTest(time_value=minute):
+                serializer = self.schedule_serializer(data=self.get_data({day: [[f"10:0{minute}", "11:00"]]}))
+                with self.assertRaises(ValidationError) as ex:
+                    serializer.is_valid(raise_exception=True)
+
+                message = ex.exception.args[0]
+                self.assertEqual(
+                    message,
+                    {
+                        "working_time": {
+                            day: [
+                                ErrorDetail(
+                                    string="Time value must have zero seconds and minutes multiples of 5.",
+                                    code="invalid",
+                                )
+                            ]
+                        }
+                    },
+                )
+
+
 # class SpecialistScheduleViewTest(TestCase):
 #     """Class SpecialistScheduleViewTest for testing SpecialistSchedule views."""
 #

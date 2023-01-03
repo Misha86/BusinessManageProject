@@ -27,7 +27,7 @@ class SpecialistScheduleSerializer(SpecialistScheduleDetailSerializer):
     """Serializer to receive and create schedules for specialists."""
 
     default_error_messages = {
-        "specialist_exist": "Specialist with '{email}' doesn't exist.",
+        "specialist_exist": "Specialist with '{id}' doesn't exist.",
         "specialist_schedule": "Schedule with this specialist already exists.",
     }
 
@@ -36,7 +36,7 @@ class SpecialistScheduleSerializer(SpecialistScheduleDetailSerializer):
         choices=CustomUser.specialists.filter(schedule=None)
         .order_by("first_name", "last_name")
         .annotate(full_name=Concat("last_name", Value(" ["), "email", Value("]"), output_field=CharField()))
-        .values_list("email", "full_name"),
+        .values_list("id", "full_name"),
         help_text="This field is required",
     )
 
@@ -52,12 +52,12 @@ class SpecialistScheduleSerializer(SpecialistScheduleDetailSerializer):
         data["specialist"] = full_name
         return data
 
-    def validate_specialist(self, email):
+    def validate_specialist(self, id):
         """Check specialist existing, specialist schedule existing and return specialist instance."""
         try:
-            specialist = CustomUser.specialists.get(email=email)
+            specialist = CustomUser.specialists.get(id=id)
         except ObjectDoesNotExist:
-            self.fail("specialist_exist", email=email)
+            self.fail("specialist_exist", id=id)
 
         schedule = SpecialistSchedule.objects.filter(specialist=specialist)
 
