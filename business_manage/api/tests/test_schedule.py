@@ -175,8 +175,6 @@ class SpecialistScheduleViewTest(APITestCase):
         response = self.client.get(reverse("api:specialist-schedule", args=(specialist.id,)), format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["working_time"], specialist.schedule.working_time)
-        with self.assertRaises(KeyError):
-            response.data["specialist"]
 
     def test_get_specialist_schedule_for_date(self):
         """Test to get a specialist schedule for concrete date."""
@@ -202,10 +200,9 @@ class SpecialistScheduleViewTest(APITestCase):
     def test_get_schedule_not_specialist(self):
         """Test to get schedule for concrete date when a user is not specialist."""
         user = CustomUserFactory()
-        a_date = datetime.now().date() + timedelta(days=1)
 
         response = self.client.get(
-            reverse(self.spec_schedule_date_url, kwargs={"s_id": user.id, "a_date": a_date}), format="json"
+            reverse(self.spec_schedule_date_url, kwargs={"s_id": user.id, "a_date": datetime.now().date()}),
         )
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 

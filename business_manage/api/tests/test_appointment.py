@@ -1,17 +1,26 @@
-# """The module includes tests for Appointment model, serializers and views."""
-#
-# from django.test import TestCase
-# from django.utils.timezone import datetime, get_current_timezone, make_aware, timedelta
-# from rest_framework.exceptions import ErrorDetail, ValidationError
-# from rest_framework.reverse import reverse
-# from rest_framework.test import APIClient
-#
-# from ..models import Appointment, CustomUser, Location, SpecialistSchedule
-# from ..serializers.appointment_serializers import AppointmentSerializer
-# from ..services.customuser_services import add_user_to_group_specialist
-# from ..utils import generate_working_time_intervals, string_to_time
-#
-#
+"""The module includes tests for Appointment model, serializers and views."""
+
+from django.test import TestCase
+from django.utils.timezone import datetime, get_current_timezone, make_aware, timedelta
+from rest_framework.exceptions import ErrorDetail, ValidationError
+from rest_framework.reverse import reverse
+from rest_framework.test import APIClient
+
+from ..models import Appointment, CustomUser, Location, SpecialistSchedule
+from ..serializers.appointment_serializers import AppointmentSerializer
+from ..services.customuser_services import add_user_to_group_specialist
+from ..utils import generate_working_time_intervals, string_to_time
+from api.factories.factories import (
+    AppointmentFactory,
+    CustomUserFactory,
+    SpecialistFactory,
+    SpecialistScheduleFactory,
+    LocationFactory
+)
+from rest_framework.test import APITestCase
+from django.utils import timezone
+
+
 # def get_data_for_tests():
 #     """Set up data for tests."""
 #     user_data = {"email": "specialist@com.ua", "first_name": "Fn", "last_name": "Ln"}
@@ -49,177 +58,122 @@
 #     # valid data for serializers tests
 #     valid_data_s = {**valid_data, "specialist": specialist.pk, "location": location.pk}
 #     return user_data, specialist, user, location, valid_data, valid_data_s
-#
-#
-# class AppointmentModelTest(TestCase):
-#     """Class AppointmentModelTest for testing Appointment model."""
-#
-#     def setUp(self):
-#         """This method adds needed info for tests."""
-#         data_for_tests = get_data_for_tests()
-#         (self.user_data, self.specialist, self.user, self.location, self.valid_data, _) = data_for_tests
-#
-#         self.appointment = Appointment.objects.create(**self.valid_data)
-#
-#     def test_create_appointment_valid_data(self):
-#         """Test for creating appointment with valid data."""
-#         self.assertEqual(self.appointment.start_time, self.valid_data.get("start_time"))
-#         self.assertEqual(self.appointment.duration, self.valid_data.get("duration"))
-#         self.assertEqual(self.appointment.specialist, self.valid_data.get("specialist"))
-#         self.assertEqual(self.appointment.location, self.valid_data.get("location"))
-#         self.assertEqual(self.appointment.customer_firstname, self.valid_data.get("customer_firstname"))
-#         self.assertEqual(self.appointment.customer_lastname, self.valid_data.get("customer_lastname"))
-#         self.assertEqual(self.appointment.customer_email, self.valid_data.get("customer_email"))
-#
-#     def test_appointment_end_time(self):
-#         """Test for appointment end time.
-#
-#         End time should be more as start time.
-#         """
-#         start_time = self.appointment.start_time
-#         duration = self.appointment.duration
-#         end_time = start_time + duration
-#         self.assertEqual(self.appointment.end_time, end_time)
-#         self.assertGreater(self.appointment.end_time, start_time)
-#
-#     def test_appointment_user_specialist(self):
-#         """Test for appointment specialist.
-#
-#         User should be a specialist.
-#         """
-#         self.assertTrue(self.appointment.specialist.groups.filter(name="Specialist"))
-#
-#     def test_appointment_user_not_specialist_error(self):
-#         """Test for appointment specialist validator.
-#
-#         User should be a specialist (check by validator validate_specialist).
-#         """
-#         self.valid_data.update(dict(specialist=self.user))
-#         invalid_data = self.valid_data
-#         with self.assertRaises(ValidationError) as ex:
-#             appointment = Appointment(**invalid_data)
-#             full_name = appointment.specialist.get_full_name().title()
-#             appointment.full_clean()
-#         message = ex.exception.args[0]
-#         self.assertEqual(message, {full_name: f"{full_name} should be specialist."})
-#
-#     def test_appointment_start_end_times_minutes_error(self):
-#         """Test for appointment start and end times format.
-#
-#         Time values must have minutes multiples of 5.
-#         """
-#         for i in range(1, 5):
-#             invalid_minutes = datetime.strptime(f"21/11/2022 11:1{i}:00", "%d/%m/%Y %H:%M:%S")
-#             for time_value in ["start_time", "end_time"]:
-#                 self.valid_data.update({f"{time_value}": invalid_minutes})
-#
-#                 with self.subTest(time_value=time_value):
-#                     invalid_data = self.valid_data
-#
-#                     with self.assertRaises(ValidationError) as ex:
-#                         appointment = Appointment(**invalid_data)
-#                         appointment.full_clean()
-#
-#                     message = ex.exception.args[0]
-#                     self.assertEqual(
-#                         message,
-#                         {
-#                             invalid_minutes.strftime(
-#                                 "%H:%M:%S"
-#                             ): "Time value must have zero seconds and minutes multiples of 5."
-#                         },
-#                     )
-#
-#     def test_appointment_start_end_times_seconds_error(self):
-#         """Test for appointment start and end times format.
-#
-#         Time values must have zero seconds.
-#         """
-#         seconds = datetime.strptime("21/11/2022 11:10:10", "%d/%m/%Y %H:%M:%S")
-#         for time_value in ["start_time", "end_time"]:
-#             self.valid_data.update({f"{time_value}": seconds})
-#
-#             with self.subTest(time_value=time_value):
-#                 invalid_data = self.valid_data
-#
-#                 with self.assertRaises(ValidationError) as ex:
-#                     appointment = Appointment(**invalid_data)
-#                     appointment.full_clean()
-#
-#                 message = ex.exception.args[0]
-#                 self.assertEqual(
-#                     message,
-#                     {seconds.strftime("%H:%M:%S"): "Time value must have zero seconds and minutes multiples of 5."},
-#                 )
-#
-#     def test_appointment_duration_minutes_error(self):
-#         """Test for appointment duration format.
-#
-#         Duration value must have minutes multiples of 5.
-#         """
-#         for i in range(1, 5):
-#             invalid_minutes = timedelta(minutes=int(f"1{i}"))
-#             with self.subTest(invalid_minutes=invalid_minutes):
-#                 self.valid_data.update({"duration": invalid_minutes})
-#                 invalid_data = self.valid_data
-#
-#                 with self.assertRaises(ValidationError) as ex:
-#                     appointment = Appointment(**invalid_data)
-#                     appointment.full_clean()
-#
-#                 message = ex.exception.args[0]
-#                 self.assertEqual(
-#                     message, {str(invalid_minutes): "Duration value must have zero seconds and minutes multiples of 5."}
-#                 )
-#
-#     def test_appointment_duration_seconds_error(self):
-#         """Test for appointment duration format.
-#
-#         Duration value must have zero seconds..
-#         """
-#         seconds = timedelta(minutes=10, seconds=10)
-#         with self.subTest(seconds=seconds):
-#             self.valid_data.update({"duration": seconds})
-#             invalid_data = self.valid_data
-#
-#             with self.assertRaises(ValidationError) as ex:
-#                 appointment = Appointment(**invalid_data)
-#                 appointment.full_clean()
-#
-#             message = ex.exception.args[0]
-#             self.assertEqual(
-#                 message, {str(seconds): "Duration value must have zero seconds and minutes multiples of 5."}
-#             )
-#
-#     def test_appointment_time_range_past_datetime_error(self):
-#         """Test for appointment start and end times format.
-#
-#         DateTime values should have current or future date.
-#         """
-#         invalid_date = make_aware(datetime.strptime("21/11/1900 11:10:00", "%d/%m/%Y %H:%M:%S"))
-#         for date_time_value in ["start_time", "end_time"]:
-#             self.valid_data.update({f"{date_time_value}": invalid_date})
-#
-#             with self.subTest(date_time_value=date_time_value):
-#                 invalid_data = self.valid_data
-#
-#                 with self.assertRaises(ValidationError) as ex:
-#                     appointment = Appointment(**invalid_data)
-#                     appointment.full_clean()
-#
-#                 message = ex.exception.args[0]
-#                 self.assertEqual(
-#                     message,
-#                     {invalid_date.strftime("%H:%M:%S"): f"DateTime value {invalid_date} should have future datetime."},
-#                 )
-#
-#     def test_appointment_method_mark_as_completed(self):
-#         """Test for appointment mark_as_completed method."""
-#         self.appointment.mark_as_completed()
-#
-#         self.assertFalse(self.appointment.is_active)
-#
-#
+
+
+class AppointmentModelTest(TestCase):
+    """Class AppointmentModelTest for testing Appointment model."""
+
+    def setUp(self):
+        """This method adds needed info for tests."""
+
+        self.appointment = AppointmentFactory
+
+    def tearDown(self):
+        """This method deletes all users and cleans avatars' data."""
+        CustomUser.objects.all().delete()
+
+    def test_create_appointment_valid_data(self):
+        """Test for creating appointment with valid data."""
+        location = LocationFactory()
+        specialist = SpecialistFactory()
+        appointment = self.appointment(location=location, specialist=specialist)
+
+        self.assertIsNone(appointment.full_clean())
+        self.assertEqual(appointment.location, location)
+        self.assertEqual(appointment.specialist, specialist)
+        self.assertIsNotNone(appointment.customer_email)
+
+    def test_appointment_end_time(self):
+        """Test for appointment end time.
+
+        End time should be more as start time.
+        """
+        appointment = self.appointment()
+        start_time = appointment.start_time
+        duration = appointment.duration
+        end_time = start_time + duration
+        self.assertEqual(appointment.end_time, end_time)
+        self.assertGreater(appointment.end_time, start_time)
+
+    def test_appointment_user_specialist(self):
+        """Test for appointment specialist.
+
+        User should be a specialist.
+        """
+        self.assertTrue(self.appointment().specialist.groups.filter(name="Specialist"))
+
+    def test_appointment_user_not_specialist_error(self):
+        """Test for appointment specialist validator.
+
+        User should be a specialist (check by validator validate_specialist).
+        """
+        with self.assertRaises(ValidationError) as ex:
+            appointment = self.appointment(specialist=CustomUserFactory())
+            full_name = appointment.specialist.get_full_name().title()
+            appointment.full_clean()
+        message = ex.exception.args[0]
+        self.assertEqual(message, {"specialist": f"{full_name} should be specialist."})
+
+    def test_appointment_start_end_times_seconds_error(self):
+        """Test for appointment start and end times format.
+
+        Time values must have zero seconds.
+        """
+        seconds = make_aware(timezone.datetime.strptime("21/11/2023 15:10:10", "%d/%m/%Y %H:%M:%S"))
+
+        with self.assertRaises(ValidationError) as ex:
+            self.appointment(start_time=seconds).full_clean()
+
+        message = ex.exception.args[0]
+        self.assertEqual(
+            message,
+            "Time value must have zero seconds and minutes multiples of 5."
+        )
+
+    def test_appointment_duration_minutes_error(self):
+        """Test for appointment duration format.
+
+        Duration value must have minutes multiples of 5.
+        """
+        for i in range(1, 5):
+            with self.subTest(invalid_minutes=i):
+                with self.assertRaises(ValidationError) as ex:
+                    self.appointment(duration=timedelta(minutes=int(f"1{i}"))).full_clean(exclude=["end_time"])
+
+                message = ex.exception.args[0]
+                self.assertEqual(message, "Duration value must have zero seconds and minutes multiples of 5.")
+
+    def test_appointment_duration_seconds_error(self):
+        """Test for appointment duration format.
+
+        Duration value must have zero seconds..
+        """
+        with self.assertRaises(ValidationError) as ex:
+            self.appointment(duration=timedelta(minutes=10, seconds=10)).full_clean(exclude=["end_time"])
+
+        message = ex.exception.args[0]
+        self.assertEqual(message, "Duration value must have zero seconds and minutes multiples of 5.")
+
+    def test_appointment_time_range_past_datetime_error(self):
+        """Test for appointment start and end times format.
+
+        DateTime values should have current or future date.
+        """
+        invalid_date = make_aware(datetime.strptime("21/11/1900 11:10:00", "%d/%m/%Y %H:%M:%S"))
+        with self.assertRaises(ValidationError) as ex:
+            self.appointment(start_time=invalid_date).full_clean()
+
+        message = ex.exception.args[0]
+        self.assertEqual(
+            message, f"DateTime value should have future datetime.")
+
+    def test_appointment_method_mark_as_completed(self):
+        """Test for appointment mark_as_completed method."""
+        appointment = self.appointment()
+        appointment.mark_as_completed()
+
+        self.assertFalse(appointment.is_active)
+
 # class AppointmentSerializerTest(TestCase):
 #     """Class LocationSerializerTest for testing Location serializers."""
 #
@@ -397,4 +351,4 @@
 #         self.valid_data.update(dict(specialist=self.specialist.id, location=self.location.id))
 #
 #         response = self.client.post(reverse(self.create_ap_url), self.valid_data, format="json")
-#         self.assertEqual(response.status_code, 400)
+#         self.assertEqual(response.status_code, 40
