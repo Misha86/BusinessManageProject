@@ -123,47 +123,49 @@ class CustomUserModelTest(TestCase):
         message = ex.exception
         self.assertEqual(str(message), "Admin must have an password.")
 
-# class CustomUserSerializerTest(TestCase):
-#     """Class CustomUserSerializerTest for testing CustomUser serializers."""
-#
-#     valid_data = get_user_data(position="dentist")
-#
-#     expect_specialist_data = get_user_data(
-#         **{"position": "dentist",
-#            "groups": ["Specialist"],
-#            "avatar": "/media/default_avatar.jpeg",
-#            "is_active": True,
-#            "schedule": None},
-#     )
-#
-#     def setUp(self):
-#         """This method adds needed info for tests."""
-#         self.sp_serializer = SpecialistSerializer
-#         self.groups = Group.objects.all()
-#
-#     def test_valid_specialist_serializer(self):
-#         """Check serializer with valid data."""
-#         serializer = self.sp_serializer(data=self.valid_data)
-#         serializer.is_valid(raise_exception=True)
-#         user = serializer.save()
-#         add_user_to_group_specialist(user)
-#         self.assertEqual(serializer.data, self.expect_specialist_data)
-#         self.assertQuerysetEqual(self.groups.values_list("name", flat=True),
-#                                  self.expect_specialist_data["groups"])
-#
-#     def test_empty_serializer(self):
-#         """Check serializer without data."""
-#         serializer = self.sp_serializer()
-#         self.assertEqual(serializer.data,
-#                          {"email": "", "first_name": "", "last_name": "", "patronymic": "",
-#                           "position": "", "bio": "", "avatar": None, "is_active": True})
-#
-#     def test_validate_none_data(self):
-#         """Check serializer with data equal None."""
-#         data = None
-#         serializer = self.sp_serializer(data=data)
-#         self.assertFalse(serializer.is_valid())
-#         self.assertEqual(serializer.errors, {"non_field_errors": ["No data provided"]})
+
+class CustomUserSerializerTest(TestCase):
+    """Class CustomUserSerializerTest for testing CustomUser serializers."""
+
+    def setUp(self):
+        """This method adds needed info for tests."""
+        self.sp_serializer = SpecialistSerializer
+        self.groups = factories.GroupFactory.groups_for_test()
+        self.data = factories.SpecialistFactory.build().__dict__
+
+    def tearDown(self):
+        """This method deletes all users and cleans avatars' data."""
+        CustomUser.objects.all().delete()
+
+    def test_valid_specialist_serializer(self):
+        """Check serializer with valid data."""
+        serializer = self.sp_serializer(data=self.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        add_user_to_group_specialist(user)
+        self.assertEqual(serializer.data["first_name"], self.data["first_name"])
+        self.assertEqual(serializer.data["last_name"], self.data["last_name"])
+        self.assertEqual(serializer.data["email"], self.data["email"])
+        self.assertEqual(serializer.data["position"], self.data["position"])
+        self.assertEqual(serializer.data["bio"], self.data["bio"])
+        self.assertEqual(serializer.data["patronymic"], self.data["patronymic"])
+        self.assertEqual(serializer.data["is_active"], self.data["is_active"])
+        self.assertEqual(serializer.data["avatar"], f"/media/images/{self.data['avatar'].name}")
+        self.assertIn("Specialist", serializer.data["groups"])
+        self.assertIn(factories.GroupFactory(name="Specialist"), user.groups.all())
+
+    def test_empty_serializer(self):
+        """Check serializer without data."""
+        serializer = self.sp_serializer()
+        self.assertEqual(serializer.data,
+                         {"email": "", "first_name": "", "last_name": "", "patronymic": "",
+                          "position": None, "bio": "", "avatar": None, "is_active": True})
+
+    def test_validate_none_data(self):
+        """Check serializer with data equal None."""
+        serializer = self.sp_serializer(data=None)
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(serializer.errors, {"non_field_errors": ["No data provided"]})
 
 
 # class CustomUserViewTest(TestCase):
