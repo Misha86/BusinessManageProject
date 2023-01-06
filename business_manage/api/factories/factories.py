@@ -167,7 +167,7 @@ class AppointmentFactory(factory.django.DjangoModelFactory):
 
     duration = timedelta(minutes=20)
     start_time = factory.fuzzy.FuzzyDateTime(
-        timezone.localtime(timezone.now()),
+        timezone.localtime(timezone.now()) + timedelta(days=1),
         timezone.localtime(timezone.now()) + timedelta(days=10),
         force_hour=13,
         force_minute=30,
