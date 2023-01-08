@@ -257,6 +257,10 @@ class AppointmentViewTest(APITestCase):
             "customer_email": fake_data.customer_email,
         }
 
+    def tearDown(self):
+        """This method deletes all users and cleans avatars' data."""
+        CustomUser.objects.all().delete()
+
     def test_get_all_appointments(self):
         """Test for getting all appointments."""
         AppointmentFactory.create_batch(5)

@@ -11,6 +11,7 @@ from api.utils import generate_working_time, generate_working_time_intervals
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.utils import timezone
+from .fake_data import get_future_datetime
 
 
 class GroupFactory(factory.django.DjangoModelFactory):
@@ -166,14 +167,7 @@ class AppointmentFactory(factory.django.DjangoModelFactory):
         model = Appointment
 
     duration = timedelta(minutes=20)
-    start_time = factory.fuzzy.FuzzyDateTime(
-        timezone.localtime(timezone.now()) + timedelta(days=1),
-        timezone.localtime(timezone.now()) + timedelta(days=10),
-        force_hour=13,
-        force_minute=30,
-        force_second=0,
-        force_microsecond=0,
-    )
+    start_time = get_future_datetime()
     end_time = factory.LazyAttribute(lambda o: o.start_time + o.duration)
     specialist = factory.SubFactory(SpecialistFactory, add_schedule=True)
     location = factory.SubFactory(LocationFactory)
