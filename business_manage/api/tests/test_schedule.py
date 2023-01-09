@@ -148,6 +148,19 @@ class SpecialistScheduleSerializerTest(TestCase):
             {"specialist": [ErrorDetail(string=f"\"{user.id}\" is not a valid choice.", code="invalid_choice")]},
         )
 
+    def test_specialist_has_schedule(self):
+        """Check specialist has schedule."""
+        specialist = SpecialistFactory(add_schedule=True)
+        with self.assertRaises(ValidationError) as ex:
+            serializer = self.schedule_serializer(data=self.get_data({"Mon": [["10:00", "11:00"]]}, specialist.id))
+            serializer.is_valid(raise_exception=True)
+
+        message = ex.exception.args[0]
+        self.assertEqual(
+            message,
+            {"specialist": [ErrorDetail(string=f"\"{specialist.id}\" is not a valid choice.", code="invalid_choice")]},
+        )
+
     def test_schedule_start_end_times_minutes_error(self):
         """Test for schedule start and end times format.
 
