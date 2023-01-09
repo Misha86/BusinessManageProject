@@ -33,15 +33,31 @@ class SimpleJWTTest(APITestCase):
         """This method deletes all users and cleans avatars' data."""
         CustomUser.objects.all().delete()
 
-    def test_create_token_admin(self):
-        """Test for creating token by admin."""
-        password = "0987654321"
-        admin = AdminFactory(password=password)
-        response = self.client.post(reverse(self.create_tokens), {"email": admin.email, "password": password},
+    def check_token_creation(self, user, password=None):
+        """Base test."""
+        response = self.client.post(reverse(self.create_tokens), {"email": user.email, "password": password},
                                     format="json")
         access_token = AccessToken(response.data["access"])
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["user"],
-                         {'first_name': admin.first_name, 'last_name': admin.last_name, 'avatar': admin.avatar.url,
-                          'groups': list(admin.groups.all().values_list("name", flat=True))})
-        self.assertEqual(access_token['user_id'], admin.id)
+                         {'first_name': user.first_name, 'last_name': user.last_name, 'avatar': user.avatar.url,
+                          'groups': list(user.groups.all().values_list("name", flat=True))})
+        self.assertEqual(access_token['user_id'], user.id)
+
+    def test_create_token_admin(self):
+        """Test for creating token by admin."""
+        password = "0987654321"
+        admin = AdminFactory(password=password)
+        self.check_token_creation(admin, password)
+
+    def test_create_token_manger(self):
+        """Test for creating token by admin."""
+        password = "0987654321"
+        manager = ManagerFactory(password=password)
+        self.check_token_creation(manager, password)
+
+    def test_create_token_superuser(self):
+        """Test for creating token by admin."""
+        password = "0987654321"
+        superuser = SuperuserFactory(password=password)
+        self.check_token_creation(superuser, password)
