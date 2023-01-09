@@ -248,7 +248,7 @@ class CustomUserViewTest(APITestCase):
         self.assertEqual(response.data["count"], 10)
 
     def test_specialists_position_filter_not_exist_position(self):
-        """Test for filtering specialists by position when no exist such position ."""
+        """Test for filtering specialists by position when no exist such position."""
         filter_data = "invalid_position"
         factories.SpecialistFactory.create_batch(10, position="position_2")
 
@@ -257,6 +257,15 @@ class CustomUserViewTest(APITestCase):
         self.assertEqual(response.data, {"position": [
             ErrorDetail(string=f"Select a valid choice. {filter_data} is not one of the available choices.",
                         code="invalid_choice")]})
+
+    def test_specialists_position_filter_empty_results(self):
+        """Test for filtering specialists by position when no results."""
+        filter_data = "position_1"
+        factories.SpecialistFactory.create_batch(10, position="position_2")
+
+        response = self.client.get(f"{reverse(self.get_specialists_url_name)}?position={filter_data}")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["results"], [])
 
     def test_create_specialists_by_admin_fail(self):
         """Test for creating specialist by admin."""
