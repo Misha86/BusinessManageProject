@@ -1,7 +1,6 @@
 """The module includes tests for CustomUser models, serializers and views."""
 
 import math
-from datetime import timedelta
 
 from api.factories import factories, fake_data
 from django.contrib.auth.hashers import check_password
@@ -13,7 +12,8 @@ from rest_framework.test import APITestCase
 from ..models import CustomUser
 from ..serializers.customuser_serializers import SpecialistSerializer
 from ..services.customuser_services import add_user_to_group_specialist
-from ..utils import generate_working_time_intervals, time_to_string
+from ..utils import time_to_string
+from rest_framework.exceptions import ErrorDetail
 
 
 class CustomUserModelTest(TestCase):
@@ -246,6 +246,17 @@ class CustomUserViewTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(CustomUser.objects.all().count(), 20)
         self.assertEqual(response.data["count"], 10)
+
+    def test_specialists_position_filter_not_exist_position(self):
+        """Test for filtering specialists by position when no exist such position ."""
+        filter_data = "invalid_position"
+        factories.SpecialistFactory.create_batch(10, position="position_2")
+
+        response = self.client.get(f"{reverse(self.get_specialists_url_name)}?position={filter_data}")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data, {"position": [
+            ErrorDetail(string=f"Select a valid choice. {filter_data} is not one of the available choices.",
+                        code="invalid_choice")]})
 
     def test_create_specialists_by_admin_fail(self):
         """Test for creating specialist by admin."""
