@@ -236,6 +236,12 @@ class CustomUserViewTest(APITestCase):
         self.assertEqual(CustomUser.objects.all().count(), 20)
         self.assertEqual(response.data["count"], 10)
 
+    def test_specialists_date_schedule_filter_invalid_data(self):
+        """Test for filtering specialists by a specific working date when invalid filter data."""
+        response = self.client.get(f"{reverse(self.get_specialists_url_name)}?date=invalid")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["results"], [])
+
     def test_specialists_position_filter(self):
         """Test for filtering specialists by position."""
         filter_data = "position_1"
