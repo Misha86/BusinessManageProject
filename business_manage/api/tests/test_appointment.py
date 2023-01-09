@@ -130,6 +130,11 @@ class AppointmentModelTest(TestCase):
 
         self.assertFalse(appointment.is_active)
 
+    def test_repr_method(self):
+        """Test __repr__ method."""
+        appointment = AppointmentFactory()
+        self.assertEqual(repr(appointment), f"{appointment.__class__.__name__}(id={appointment.id})")
+
 
 class AppointmentSerializerTest(TestCase):
     """Class LocationSerializerTest for testing Location serializers."""
