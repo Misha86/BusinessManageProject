@@ -131,6 +131,11 @@ class CustomUserModelTest(TestCase):
         message = ex.exception
         self.assertEqual(str(message), "Admin must have an password.")
 
+    def test_repr_method(self):
+        """Test for creating admin without password, should be error."""
+        user = factories.CustomUserFactory()
+        self.assertEqual(repr(user), f"{user.__class__.__name__}(id={user.id})")
+
 
 class CustomUserSerializerTest(TestCase):
     """Class CustomUserSerializerTest for testing CustomUser serializers."""
