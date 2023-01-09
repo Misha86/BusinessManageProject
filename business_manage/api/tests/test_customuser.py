@@ -1,5 +1,8 @@
 """The module includes tests for CustomUser models, serializers and views."""
 
+import math
+from datetime import timedelta
+
 from api.factories import factories, fake_data
 from django.contrib.auth.hashers import check_password
 from django.test import TestCase
@@ -10,9 +13,7 @@ from rest_framework.test import APITestCase
 from ..models import CustomUser
 from ..serializers.customuser_serializers import SpecialistSerializer
 from ..services.customuser_services import add_user_to_group_specialist
-import math
-from ..utils import time_to_string, generate_working_time_intervals
-from datetime import timedelta
+from ..utils import generate_working_time_intervals, time_to_string
 
 
 class CustomUserModelTest(TestCase):
@@ -221,26 +222,27 @@ class CustomUserViewTest(APITestCase):
         filter_date = fake_data.get_future_datetime(start=1, end=2, force_minute=30).fuzz()
         outside_filter_date = fake_data.get_future_datetime(start=3, end=4, force_minute=30).fuzz()
         end_time = fake_data.get_future_datetime(force_minute=50).fuzz()
-        factories.SpecialistScheduleFactory.create_batch(10,
-                                                         working_time={filter_date.strftime("%a"): [
-                                                             [time_to_string(filter_date),
-                                                              time_to_string(end_time)]]})
-        factories.SpecialistScheduleFactory.create_batch(10,
-                                                         working_time={outside_filter_date.strftime("%a"): [
-                                                             [time_to_string(outside_filter_date),
-                                                              time_to_string(end_time)]]})
-        response = self.client.get(
-            f"{reverse(self.get_specialists_url_name)}?date={filter_date.strftime('%Y-%m-%d')}")
+        factories.SpecialistScheduleFactory.create_batch(
+            10, working_time={filter_date.strftime("%a"): [[time_to_string(filter_date), time_to_string(end_time)]]}
+        )
+        factories.SpecialistScheduleFactory.create_batch(
+            10,
+            working_time={
+                outside_filter_date.strftime("%a"): [[time_to_string(outside_filter_date), time_to_string(end_time)]]
+            },
+        )
+        response = self.client.get(f"{reverse(self.get_specialists_url_name)}?date={filter_date.strftime('%Y-%m-%d')}")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(CustomUser.objects.all().count(), 20)
         self.assertEqual(response.data["count"], 10)
 
     def test_specialists_position_filter(self):
         """Test for filtering specialists by position."""
-        factories.SpecialistFactory.create_batch(10, position="position_1")
+        filter_data = "position_1"
+        factories.SpecialistFactory.create_batch(10, position=filter_data)
         factories.SpecialistFactory.create_batch(10, position="position_2")
 
-        response = self.client.get(f"{reverse(self.get_specialists_url_name)}?position=position_1")
+        response = self.client.get(f"{reverse(self.get_specialists_url_name)}?position={filter_data}")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(CustomUser.objects.all().count(), 20)
         self.assertEqual(response.data["count"], 10)
