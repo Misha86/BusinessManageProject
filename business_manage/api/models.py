@@ -343,7 +343,7 @@ class Appointment(Base):
 
     def __repr__(self) -> str:
         """str: Returns a string representation of the appointment."""
-        return f"Appointment #{self.id}"
+        return f"{self.__class__.__name__}(id={self.id})"
 
 
 class SpecialistSchedule(Base):

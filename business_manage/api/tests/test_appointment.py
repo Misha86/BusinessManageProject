@@ -135,6 +135,11 @@ class AppointmentModelTest(TestCase):
         appointment = AppointmentFactory()
         self.assertEqual(repr(appointment), f"{appointment.__class__.__name__}(id={appointment.id})")
 
+    def test_str_method(self):
+        """Test __str__ method."""
+        appointment = AppointmentFactory()
+        self.assertEqual(str(appointment), f"{appointment.__class__.__name__} #{appointment.id}")
+
 
 class AppointmentSerializerTest(TestCase):
     """Class LocationSerializerTest for testing Location serializers."""
