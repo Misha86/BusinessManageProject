@@ -56,6 +56,7 @@ class LocationModelTest(TestCase):
         location = LocationFactory()
         self.assertEqual(repr(location), f"{location.__class__.__name__}(id={location.id})")
 
+
 class LocationSerializerTest(TestCase):
     """Class LocationSerializerTest for testing Location serializers."""
 

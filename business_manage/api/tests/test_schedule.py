@@ -69,7 +69,6 @@ class SpecialistScheduleModelTest(TestCase):
         self.assertEqual(str(schedule), f"Schedule for {schedule.specialist.get_full_name()} #{schedule.specialist.id}")
 
 
-
 class SpecialistScheduleSerializerTest(TestCase):
     """Class SpecialistScheduleSerializerTest for testing SpecialistSchedule serializers."""
 

@@ -6,6 +6,7 @@ from api.factories import factories, fake_data
 from django.contrib.auth.hashers import check_password
 from django.test import TestCase
 from rest_framework import status
+from rest_framework.exceptions import ErrorDetail
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
 
@@ -13,7 +14,6 @@ from ..models import CustomUser
 from ..serializers.customuser_serializers import SpecialistSerializer
 from ..services.customuser_services import add_user_to_group_specialist
 from ..utils import time_to_string
-from rest_framework.exceptions import ErrorDetail
 
 
 class CustomUserModelTest(TestCase):
@@ -265,9 +265,17 @@ class CustomUserViewTest(APITestCase):
 
         response = self.client.get(f"{reverse(self.get_specialists_url_name)}?position={filter_data}")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data, {"position": [
-            ErrorDetail(string=f"Select a valid choice. {filter_data} is not one of the available choices.",
-                        code="invalid_choice")]})
+        self.assertEqual(
+            response.data,
+            {
+                "position": [
+                    ErrorDetail(
+                        string=f"Select a valid choice. {filter_data} is not one of the available choices.",
+                        code="invalid_choice",
+                    )
+                ]
+            },
+        )
 
     def test_specialists_position_filter_empty_results(self):
         """Test for filtering specialists by position when no results."""

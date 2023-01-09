@@ -33,6 +33,10 @@ class Base(models.Model):
         abstract = True
         ordering = ["id"]
 
+    def __repr__(self):
+        """str: Returns class name and instance id."""
+        return f"{self.__class__.__name__}(id={self.id})"
+
 
 def check_password_existing(user_role: str, password: str) -> None:
     """Check if password exists."""
@@ -170,8 +174,9 @@ class CustomUser(AbstractBaseUser, Base, PermissionsMixin):
     last_name = models.CharField("last name", max_length=150, help_text=help_texts["required"])
     date_joined = models.DateTimeField("date joined", default=timezone.now)
     patronymic = models.CharField("patronymic", max_length=150, blank=True)
-    position = models.CharField("position", choices=PositionChoices.choices, max_length=10,
-                                help_text=help_texts["required"])
+    position = models.CharField(
+        "position", choices=PositionChoices.choices, max_length=10, help_text=help_texts["required"]
+    )
     bio = models.TextField("bio", max_length=500, blank=True, null=True)
     avatar = models.ImageField(
         "avatar", blank=True, default="default_avatar.jpeg", upload_to="images", help_text=help_texts["avatar"]
@@ -230,10 +235,6 @@ class CustomUser(AbstractBaseUser, Base, PermissionsMixin):
         """str: Returns full name of the user."""
         return f"{self.get_full_name()} #{self.id}"
 
-    def __repr__(self):
-        """str: Returns CustomUser name and its id."""
-        return f"{self.__class__.__name__}(id={self.id})"
-
 
 class Location(Base):
     """Class Location provides tools for creating and managing appointments places."""
@@ -258,10 +259,6 @@ class Location(Base):
         """str: Returns name of the location place."""
         return self.name
 
-    def __repr__(self):
-        """str: Returns Location name and its id."""
-        return f"{self.__class__.__name__}(id={self.id})"
-
 
 class Appointment(Base):
     """This class represents a basic Appointment (for an appointment system).
@@ -285,7 +282,7 @@ class Appointment(Base):
     start_time = models.DateTimeField(
         "Start time",
         validators=[validate_rounded_minutes, validate_datetime_is_future],
-        help_text=help_texts["required"]
+        help_text=help_texts["required"],
     )
     end_time = models.DateTimeField(
         "End time",
@@ -341,10 +338,6 @@ class Appointment(Base):
         """str: Returns a verbose title of the appointment."""
         return f"{self.__class__.__name__} #{self.id}"
 
-    def __repr__(self) -> str:
-        """str: Returns a string representation of the appointment."""
-        return f"{self.__class__.__name__}(id={self.id})"
-
 
 class SpecialistSchedule(Base):
     """This class represents a specialist schedule (for a schedule system).
@@ -381,7 +374,3 @@ class SpecialistSchedule(Base):
     def __str__(self) -> str:
         """str: Returns a specialist full name with id."""
         return f"Schedule for {self.specialist.get_full_name()} #{self.specialist.id}"
-
-    def __repr__(self) -> str:
-        """str: Returns a string representation of the schedule."""
-        return f"{self.__class__.__name__}(id={self.id})"

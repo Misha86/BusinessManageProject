@@ -1,24 +1,24 @@
 """The module includes tests for Appointment model, serializers and views."""
 
+from api.factories.factories import (
+    AdminFactory,
+    AppointmentFactory,
+    CustomUserFactory,
+    LocationFactory,
+    ManagerFactory,
+    SpecialistFactory,
+    SuperuserFactory,
+)
 from django.test import TestCase
+from django.utils import timezone
 from django.utils.timezone import datetime, get_current_timezone, make_aware, timedelta
 from rest_framework.exceptions import ErrorDetail, ValidationError
 from rest_framework.reverse import reverse
+from rest_framework.test import APITestCase
 
 from ..models import CustomUser
 from ..serializers.appointment_serializers import AppointmentSerializer
 from ..utils import string_to_time
-from api.factories.factories import (
-    AppointmentFactory,
-    CustomUserFactory,
-    SpecialistFactory,
-    LocationFactory,
-    AdminFactory,
-    ManagerFactory,
-    SuperuserFactory,
-)
-from rest_framework.test import APITestCase
-from django.utils import timezone
 
 
 class AppointmentModelTest(TestCase):
