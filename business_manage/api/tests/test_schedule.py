@@ -76,11 +76,14 @@ class SpecialistScheduleSerializerTest(TestCase):
         """This method adds needed info for tests."""
         self.specialist = SpecialistFactory()
         self.schedule_serializer = SpecialistScheduleSerializer
-        self.get_data = lambda w: {"specialist": self.specialist.id, "working_time": w}
 
     def tearDown(self):
         """This method deletes all users and cleans avatars' data."""
         CustomUser.objects.all().delete()
+
+    def get_data(self, working_time, specialist_id=None):
+        s_id = specialist_id if specialist_id else self.specialist.id
+        return {"specialist": s_id, "working_time": working_time}
 
     def test_serialize_valid_data(self):
         """Check serializer with valid data."""
@@ -130,6 +133,19 @@ class SpecialistScheduleSerializerTest(TestCase):
         self.assertEqual(
             message,
             {"working_time": {"Mon": [ErrorDetail(string="Start time should be more than end time.", code="invalid")]}},
+        )
+
+    def test_user_is_not_specialist(self):
+        """Check user is not specialist."""
+        user = CustomUserFactory()
+        with self.assertRaises(ValidationError) as ex:
+            serializer = self.schedule_serializer(data=self.get_data({"Mon": [["10:00", "11:00"]]}, user.id))
+            serializer.is_valid(raise_exception=True)
+
+        message = ex.exception.args[0]
+        self.assertEqual(
+            message,
+            {"specialist": [ErrorDetail(string=f"\"{user.id}\" is not a valid choice.", code="invalid_choice")]},
         )
 
     def test_schedule_start_end_times_minutes_error(self):
