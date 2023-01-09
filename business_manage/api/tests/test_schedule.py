@@ -58,6 +58,17 @@ class SpecialistScheduleModelTest(TestCase):
         with self.assertRaises(IntegrityError):
             self.schedule(working_time_null=True)
 
+    def test_repr_method(self):
+        """Test __repr__ method."""
+        schedule = SpecialistScheduleFactory()
+        self.assertEqual(repr(schedule), f"{schedule.__class__.__name__}(id={schedule.id})")
+
+    def test_str_method(self):
+        """Test __str__ method."""
+        schedule = SpecialistScheduleFactory()
+        self.assertEqual(str(schedule), f"Schedule for {schedule.specialist.get_full_name()} #{schedule.specialist.id}")
+
+
 
 class SpecialistScheduleSerializerTest(TestCase):
     """Class SpecialistScheduleSerializerTest for testing SpecialistSchedule serializers."""

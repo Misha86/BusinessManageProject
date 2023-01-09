@@ -339,7 +339,7 @@ class Appointment(Base):
 
     def __str__(self) -> str:
         """str: Returns a verbose title of the appointment."""
-        return f"Appointment #{self.id}"
+        return f"{self.__class__.__name__} #{self.id}"
 
     def __repr__(self) -> str:
         """str: Returns a string representation of the appointment."""
@@ -384,4 +384,4 @@ class SpecialistSchedule(Base):
 
     def __repr__(self) -> str:
         """str: Returns a string representation of the schedule."""
-        return f"Schedule #{self.id}"
+        return f"{self.__class__.__name__}(id={self.id})"
