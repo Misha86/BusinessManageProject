@@ -51,6 +51,10 @@ class LocationModelTest(TestCase):
 
         self.assertEqual(message, "Day name should be one of these ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].")
 
+    def test_repr_method(self):
+        """Test __repr__ method."""
+        location = LocationFactory()
+        self.assertEqual(repr(location), f"{location.__class__.__name__}(id={location.id})")
 
 class LocationSerializerTest(TestCase):
     """Class LocationSerializerTest for testing Location serializers."""

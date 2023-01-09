@@ -132,7 +132,7 @@ class CustomUserModelTest(TestCase):
         self.assertEqual(str(message), "Admin must have an password.")
 
     def test_repr_method(self):
-        """Test for creating admin without password, should be error."""
+        """Test __repr__ method."""
         user = factories.CustomUserFactory()
         self.assertEqual(repr(user), f"{user.__class__.__name__}(id={user.id})")
 
