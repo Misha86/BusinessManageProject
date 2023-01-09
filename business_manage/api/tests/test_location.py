@@ -103,7 +103,7 @@ class LocationSerializerTest(TestCase):
 
     def test_serialize_invalid_working_time_seconds_exist(self):
         """Check serializer with invalid working time when seconds exist."""
-        invalid_time = "10:50:10" ""
+        invalid_time = "10:50:10"
         invalid_data = self.build(working_time={"Mon": ["10:30", invalid_time]}).__dict__
         serializer = self.l_serializer(data=invalid_data)
 
