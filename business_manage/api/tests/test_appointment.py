@@ -19,6 +19,7 @@ from rest_framework.test import APITestCase
 from ..models import CustomUser
 from ..serializers.appointment_serializers import AppointmentSerializer
 from ..utils import string_to_time
+from rest_framework import status
 
 
 class AppointmentModelTest(TestCase):
@@ -276,7 +277,7 @@ class AppointmentViewTest(APITestCase):
         AppointmentFactory.create_batch(5)
         response = self.client.get(reverse(self.create_ap_url), format="json")
         results = response.data["results"]
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(results), 5)
 
     def test_create_appointment_by_specialist_fail(self):
@@ -285,7 +286,7 @@ class AppointmentViewTest(APITestCase):
         self.client.force_authenticate(specialist)
 
         response = self.client.post(reverse(self.create_ap_url), self.valid_data, format="json")
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_create_appointment_by_admin(self):
         """Test for creating appointment by admin."""
@@ -293,7 +294,7 @@ class AppointmentViewTest(APITestCase):
         self.client.force_authenticate(admin)
 
         response = self.client.post(reverse(self.create_ap_url), self.valid_data, format="json")
-        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_create_appointment_by_manager_fail(self):
         """Test for creating appointment by manager is forbidden."""
@@ -301,7 +302,7 @@ class AppointmentViewTest(APITestCase):
         self.client.force_authenticate(manager)
 
         response = self.client.post(reverse(self.create_ap_url), self.valid_data, format="json")
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_create_appointment_by_superuser(self):
         """Test for creating appointment by superuser."""
@@ -310,7 +311,7 @@ class AppointmentViewTest(APITestCase):
         self.client.force_authenticate(superuser)
 
         response = self.client.post(reverse(self.create_ap_url), self.valid_data, format="json")
-        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_create_appointment_not_specialist_schedule_error(self):
         """Create appointment for specialist without schedule."""
@@ -320,4 +321,4 @@ class AppointmentViewTest(APITestCase):
         self.valid_data.update(dict(specialist=specialist.id))
 
         response = self.client.post(reverse(self.create_ap_url), self.valid_data, format="json")
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
