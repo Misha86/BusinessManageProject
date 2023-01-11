@@ -10,7 +10,6 @@ from api.models import Appointment, CustomUser, Location, SpecialistSchedule
 from api.utils import generate_working_time, generate_working_time_intervals
 from django.conf import settings
 from django.contrib.auth.models import Group
-from django.utils import timezone
 from .fake_data import get_future_datetime
 
 

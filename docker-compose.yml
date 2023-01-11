@@ -1,4 +1,4 @@
-version: '3.7'
+version: '3.9'
 
 services:  
   app:
@@ -21,7 +21,7 @@ services:
       - .env
 
   db:
-    image: postgres:13-alpine
+    image: postgres:15.1-alpine
     ports:
       - "5432:5432"
     env_file:

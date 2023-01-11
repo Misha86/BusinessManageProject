@@ -1,31 +1,20 @@
 """The module includes serializers for Appointment model."""
 
-from rest_framework import serializers
-from api.models import Appointment
+from api.models import Appointment, CustomUser, Location
 from api.services.appointment_services import validate_free_time_interval
 from api.validators import validate_start_end_time
-from api.models import CustomUser, Location
-from django.db.models import CharField, Value
-from django.db.models.functions import Concat
 from django.shortcuts import get_object_or_404
+from rest_framework import serializers
+
+from ..utils import get_location_choices, get_specialist_choices
 
 
 class AppointmentSerializer(serializers.ModelSerializer):
     """Serializer to receive and create a specific appointments."""
 
     is_active = serializers.BooleanField(initial=True, default=True)
-    specialist = serializers.ChoiceField(
-        choices=CustomUser.specialists.filter(schedule__isnull=False)
-        .order_by("first_name", "last_name")
-        .annotate(full_name=Concat("last_name", Value(" ["), "email", Value("]"), output_field=CharField()))
-        .values_list("id", "full_name"),
-        help_text="This field is required",
-    )
-
-    location = serializers.ChoiceField(
-        choices=Location.objects.filter(working_time__isnull=False).order_by("name").values_list("id", "name"),
-        help_text="This field is required",
-    )
+    specialist = serializers.ChoiceField(choices=get_specialist_choices(), help_text="This field is required")
+    location = serializers.ChoiceField(choices=get_location_choices(Location), help_text="This field is required")
 
     class Meta:
         """Class with a model and model fields for serialization."""

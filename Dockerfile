@@ -1,4 +1,4 @@
-FROM python:3.9.12-alpine
+FROM python:3.10-alpine
 
 # Console output in real time and no *.pyc files
 ENV PYTHONUNBUFFERED 1
