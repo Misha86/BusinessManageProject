@@ -35,8 +35,7 @@ class GroupFactory(factory.django.DjangoModelFactory):
 def get_image_path():
     """Get path to the random image in the directory 'api/factories/avatars'."""
     images_dir = settings.BASE_DIR / "api/factories/avatars"
-    image = choice(os.listdir(images_dir))
-    return os.path.join(images_dir, image)
+    return [os.path.join(images_dir, image) for image in os.listdir(images_dir)]
 
 
 class CustomUserFactory(factory.django.DjangoModelFactory):
@@ -51,7 +50,7 @@ class CustomUserFactory(factory.django.DjangoModelFactory):
         lambda u, n: f"{u.first_name.lower()}.{u.last_name.lower()}_{n}@example.com")
     first_name = factory.Faker("first_name_male")
     last_name = factory.Faker("last_name_male")
-    avatar = factory.django.ImageField(from_path=get_image_path())
+    avatar = factory.django.ImageField(from_path=factory.fuzzy.FuzzyChoice(get_image_path()))
     bio = factory.Faker("paragraph", nb_sentences=5)
 
     @classmethod
