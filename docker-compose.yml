@@ -10,8 +10,8 @@ services:
       - .:/src
     command: sh -c "
       python business_manage/manage.py makemigrations && 
-      python business_manage/manage.py migrate && 
-      python business_manage/manage.py runserver 0.0.0.0:8000
+      python business_manage/manage.py migrate &&
+      gunicorn --bind 0.0.0.0:8000 business_manage.wsgi:application
       "
     depends_on: 
       - db
