@@ -29,5 +29,13 @@ services:
     volumes:
       - django_db:/var/lib/postgresql/data
 
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/frontend
+
 volumes:
   django_db:
