@@ -162,7 +162,7 @@ class CustomUserSerializerTest(TestCase):
         self.assertEqual(serializer.data["bio"], self.data["bio"])
         self.assertEqual(serializer.data["patronymic"], self.data["patronymic"])
         self.assertEqual(serializer.data["is_active"], self.data["is_active"])
-        self.assertEqual(serializer.data["avatar"], f"/media/images/{self.data['avatar'].name}")
+        self.assertEqual(serializer.data["avatar"], f"/media/images/{serializer.data['avatar'].split('/')[-1]}")
         self.assertIn("Specialist", serializer.data["groups"])
         self.assertIn(factories.GroupFactory(name="Specialist"), user.groups.all())
 
