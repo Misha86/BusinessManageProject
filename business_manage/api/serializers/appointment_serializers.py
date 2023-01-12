@@ -4,6 +4,7 @@ from api.models import Appointment, CustomUser, Location
 from api.services.appointment_services import validate_free_time_interval
 from api.validators import validate_start_end_time
 from django.shortcuts import get_object_or_404
+from django.utils.functional import lazy
 from rest_framework import serializers
 
 from ..utils import get_location_choices, get_specialist_choices
@@ -13,8 +14,10 @@ class AppointmentSerializer(serializers.ModelSerializer):
     """Serializer to receive and create a specific appointments."""
 
     is_active = serializers.BooleanField(initial=True, default=True)
-    specialist = serializers.ChoiceField(choices=get_specialist_choices(), help_text="This field is required")
-    location = serializers.ChoiceField(choices=get_location_choices(Location), help_text="This field is required")
+    specialist = serializers.ChoiceField(
+        choices=lazy(get_specialist_choices, list)(), help_text="This field is required"
+    )
+    location = serializers.ChoiceField(choices=lazy(get_location_choices, list)(), help_text="This field is required")
 
     class Meta:
         """Class with a model and model fields for serialization."""

@@ -4,6 +4,7 @@ from api.models import SpecialistSchedule
 from api.serializers.working_time_serializers import WorkingTimeSerializer
 from api.validators import validate_working_time_intervals, validate_working_time_values
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils.functional import lazy
 from rest_framework import serializers
 
 from ..models import CustomUser
@@ -30,7 +31,9 @@ class SpecialistScheduleSerializer(SpecialistScheduleDetailSerializer):
         "specialist_schedule": "Schedule with this specialist already exists.",
     }
 
-    specialist = serializers.ChoiceField(choices=get_specialist_choices(), help_text="This field is required")
+    specialist = serializers.ChoiceField(
+        choices=lazy(get_specialist_choices, list)(True), help_text="This field is required"
+    )
 
     class Meta(SpecialistScheduleDetailSerializer.Meta):
         """Class with a model and model fields for serialization."""

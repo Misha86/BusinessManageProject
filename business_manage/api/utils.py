@@ -3,9 +3,10 @@
 import calendar
 from datetime import datetime, time
 
-from django.contrib.auth import get_user_model
 from django.db.models import CharField, Value
 from django.db.models.functions import Concat
+
+from . import models
 
 
 def time_to_string(time_data):
@@ -48,20 +49,21 @@ def is_inside_interval(main_interval: list[time], inner_interval: list[time]) ->
     return (inner_interval[0] >= main_interval[0]) and (inner_interval[1] <= main_interval[1])
 
 
-def get_location_choices(model_class):
+def get_location_choices():
     """Get locations' data for choice field."""
     try:
-        return list(model_class.objects.filter(working_time__isnull=False).order_by("name").values_list("id", "name"))
+        return list(
+            models.Location.objects.filter(working_time__isnull=False).order_by("name").values_list("id", "name")
+        )
     except Exception:
         return []
 
 
-def get_specialist_choices():
+def get_specialist_choices(schedule_isnull=False):
     """Get specialists' data for choice field."""
     try:
-        user_model = get_user_model()
         return list(
-            user_model.specialists.filter(schedule__isnull=False)
+            models.CustomUser.specialists.filter(schedule__isnull=schedule_isnull)
             .order_by("first_name", "last_name")
             .annotate(full_name=Concat("last_name", Value(" ["), "email", Value("]"), output_field=CharField()))
             .values_list("id", "full_name")
