@@ -1,7 +1,7 @@
 # BusinessManageProject
 
 
-Project was created in order to bring customers closer to the service providers of the some business industry.    
+Project was created in order to bring customers closer to the service providers of some business industry.    
 I am trying to improve the interaction of the main participants in these processes. 
 The client is provided with tools for convenient searching the specialists of a business,
 filtering them according position and checking their schedules for concrete date. 
@@ -39,9 +39,9 @@ git clone https://github.com/Misha86/BusinessManageProject.git
 
 <a name="footnote">*</a> - to run the project you need an `.env` file in root folder
 
-### Required to install
+### Required to install for backend part
 
-- [![Python](https://docs.python.org/3.9/_static/py.svg)](https://www.python.org/downloads/release/python-3912/) 3.9.12
+- [![Python](https://docs.python.org/3.10/_static/py.svg)](https://www.python.org/downloads/release/python-3109/) 3.10
 - Project reqirements:
 ```
 pip install -r requirements.txt
@@ -60,9 +60,12 @@ POSTGRES_USER = '😊YOUR_DB_USER😊'
 POSTGRES_PASSWORD = '😊YOUR_DB_PASS😊'
 POSTGRES_HOST = '😊YOUR_DB_HOST😊'
 POSTGRES_PORT = '😊YOUR_DB_PORT😊'
+CORS_ALLOWED_ORIGINS='😊YOUR_FRONTEND_HOST😊'
+PYTHONPATH='😊YOUR_PATH_TO_ROOT_DACKEND_FOLDER😊'
+DJANGO_SETTINGS_MODULE='😊YOUR_BACKEND_SETTINGS_FILE😊'
 ```
 
-### How to run local
+### How to run local backend
 
 - Start the terminal.
 - Go to the directory "your way to the project" BusinessManageProject / business_manage
@@ -73,6 +76,19 @@ python manage.py migrate
 python manage.py runserver
 ```
 
+### Required to install for frontend part
+
+- [![Python](https://nodejs.org/static/images/logo.svg)](https://nodejs.org/uk/blog/release/v18.12.1/) v18.12.1
+
+### How to run local frontend
+
+- Start the terminal.
+- Go to the directory "your way to the project" BusinessManageProject / frontend
+- Run the following commands
+```
+npm install
+npm run start
+```
 ### How to run Docker
 
 - Go to the main directory - BusinessManageProject
@@ -96,6 +112,17 @@ python manage.py createadmin
 ```
 python manage.py createmanager
 ```
+- Create fake specialists for tests:    
+```
+python manage.py specialists --create --count 10 --add_schedule
+```
+`--create` - for creating specialists \
+`--count` - number of specialists \
+`--add_schedule` - add schedules for all specialists 
+- Delete all specialists:    
+```
+python manage.py specialists --delete_all
+```
 
 ### Setup using the docker
 
@@ -111,11 +138,19 @@ docker-compose run app python business_manage/manage.py createadmin
 ```
 docker-compose run app python business_manage/manage.py createmanager
 ```
+- Create fake specialists for tests:    
+```
+docker-compose run app python business_manage/manage.py specialists --create --count 10 --add_schedule
+```
+- Delete all specialists:    
+```
+docker-compose run app python business_manage/manage.py specialists --delete_all
+```
 
 ----
 
 ## Tests
-The project will use FakeFactory for tests in future
+The project uses Factory Boy for tests
 
 - Run project tests:
 ```
@@ -193,7 +228,8 @@ coverage run business_manage/manage.py test api
 ## Usage
 
 Endpoints from the project you can use in the frontend part, 
-Postman or Swagger. We use standard DRF API in this example.
+Postman or Swagger. I used the frontend part which consists of 
+React JS and its dependencies and Material UI for designing the site.
 
 - Run server 
 ```
@@ -201,9 +237,9 @@ python manage.py runserver
 ```
 or 
 ```
-docker-compose up
+docker-compose up --build
 ```
-- Open in the browser URL http://0.0.0.0:8000
+- Open in the browser URL http://0.0.0.0:8000 - DRF API 
 
 [![MainPage](README_STATIC/main_page.png)](http://0.0.0.0:8000)
 
