@@ -1,9 +1,9 @@
 """Management utility to create specialists."""
 
-from django.core.management.base import BaseCommand, CommandError
 from api.factories.factories import SpecialistFactory
 from api.models import CustomUser
 from django.conf import settings
+from django.core.management.base import BaseCommand, CommandError
 
 
 class Command(BaseCommand):
@@ -21,14 +21,13 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         """This method does all the logic for specialists' DB."""
-        if settings.DEBUG:
-            if options["create"]:
-                specialists_count = options["count"]
-                specialists_schedule = options["add_schedule"]
-                SpecialistFactory.create_batch(size=specialists_count, add_schedule=specialists_schedule)
-                self.stdout.write(self.style.SUCCESS(f"Successfully created {specialists_count} specialists"))
-            if options["delete_all"]:
-                CustomUser.specialists.all().delete()
-                self.stdout.write(self.style.SUCCESS(f"Successfully deleted all specialists"))
-        else:
+        if not settings.DEBUG:
             raise CommandError("Can't execute in production...")
+        if options["create"]:
+            specialists_count = options["count"]
+            specialists_schedule = options["add_schedule"]
+            SpecialistFactory.create_batch(size=specialists_count, add_schedule=specialists_schedule)
+            self.stdout.write(self.style.SUCCESS(f"Successfully created {specialists_count} specialists"))
+        if options["delete_all"]:
+            CustomUser.specialists.all().delete()
+            self.stdout.write(self.style.SUCCESS("Successfully deleted all specialists"))
