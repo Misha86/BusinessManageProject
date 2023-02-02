@@ -1,15 +1,14 @@
 # BusinessManageProject
 
-
-Project was created in order to bring customers closer to the service providers of some business industry.    
-I am trying to improve the interaction of the main participants in these processes. 
-The client is provided with tools for convenient searching the specialists of a business,
-filtering them according position and checking their schedules for concrete date. 
-In project is present three main role: an owner, an admin and a manger.
-Admin can make an appointments for clients to the specific specialist at the concrete his free working time. 
-Manger creates profile for the specialists, adds working locations and schedule for specialists.
-
-
+The project was created in order to bring customers closer to the service providers of some business industries.
+I am trying to improve the interaction of the main participants in these processes.
+The client is provided with tools for convenient searching for the specialists of a business,
+filtering them according to position and checking their schedules for a concrete date.
+Four main roles are present in the project:
+- Owners are superusers who have all permissions.
+- Admins can make appointments for clients with the specific specialist at the concrete his free working time.
+- Managers create profiles for the specialists, add working locations and schedule for specialists.
+- Specialists - company employees.
 
 ---
 Content
@@ -39,7 +38,7 @@ git clone https://github.com/Misha86/BusinessManageProject.git
 
 <a name="footnote">*</a> - to run the project you need an `.env` file in root folder
 
-### Required to install for backend part
+### Required to install for the backend part
 
 - [![Python](https://docs.python.org/3.10/_static/py.svg)](https://www.python.org/downloads/release/python-3109/) 3.10
 - Project reqirements:
@@ -65,22 +64,23 @@ PYTHONPATH='😊YOUR_PATH_TO_ROOT_DACKEND_FOLDER😊'
 DJANGO_SETTINGS_MODULE='😊YOUR_BACKEND_SETTINGS_FILE😊'
 ```
 
-### How to run local backend
+### How to run the backend locally
 
 - Start the terminal.
 - Go to the directory "your way to the project" BusinessManageProject / business_manage
 - Run the following commands
+
 ```
 python manage.py makemigrations
 python manage.py migrate
 python manage.py runserver
 ```
 
-### Required to install for frontend part
+### Required to install for the frontend part
 
-- [![Python](https://nodejs.org/static/images/logo.svg)](https://nodejs.org/uk/blog/release/v18.12.1/) v18.12.1
+- [![NodeJS](README_STATIC/nodejs-logo.svg)](https://nodejs.org/uk/blog/release/v18.12.1/) v18.12.1
 
-### How to run local frontend
+### How to run the frontend locally
 
 - Start the terminal.
 - Go to the directory "your way to the project" BusinessManageProject / frontend
@@ -97,8 +97,11 @@ npm run start
 docker-compose up --build
 ```
 
+<br/>
 
 ### Setup using the terminal
+
+##### Go to the business_manage directory
 
 - Create a superuser:    
 ```
@@ -123,6 +126,7 @@ python manage.py specialists --create --count 10 --add_schedule
 ```
 python manage.py specialists --delete_all
 ```
+<br/>
 
 ### Setup using the docker
 
@@ -227,40 +231,42 @@ coverage run business_manage/manage.py test api
 
 ## Usage
 
-Endpoints from the project you can use in the frontend part, 
-Postman or Swagger. I used the frontend part which consists of 
-React JS and its dependencies and Material UI for designing the site.
-
-- Run server 
+Endpoints in the project you can use in the frontend part, Postman or Swagger. I used the frontend part which consists of React JS, its dependencies and Material UI for designing the site.
+- Run server for the backend
 ```
-python manage.py runserver
+python manage.py business_manage/manage.py
+```
+- Run server for the frontend
+```
+cd frontend && npm start
 ```
 or 
 ```
 docker-compose up --build
 ```
-- Open in the browser URL http://0.0.0.0:8000 - DRF API 
+- Open in the browser URL http://localhost:8000 (list of specialists)
 
-[![MainPage](README_STATIC/main_page.png)](http://0.0.0.0:8000)
+[![MainPage](README_STATIC/main_page.png)](http://localhost:3000)
 
 ### Manager role
-Managers can add new specialists to the business, 
-create schedules, and add new working locations for the business.
+Managers can add new specialists to the business, create schedules, and add new working locations for the business.
 
 - Login as manager
+- Use URL <http://localhost:3000/login>
+
+![Login Page](README_STATIC/login_page.png)
 
 #### Create a new specialist
 
-- Use URL http://0.0.0.0:8000/api/specialists
+- Use URL <http://localhost:3000/add-specialist>
 
 ![CreateSpecialist](README_STATIC/create_specialist.png)
 
 - Fill form and sent request
 
-
 #### Create a schedule for specialist
 
-- Use URL http://0.0.0.0:8000/api/schedules
+- Use URL <http://localhost:3000/add-schedule>
 
 ![CreateSchedule](README_STATIC/create_schedule.png)
 
@@ -269,7 +275,7 @@ create schedules, and add new working locations for the business.
 
 #### Create a new location
 
-- Use URL http://0.0.0.0:8000/api/locations
+- Use URL <http://localhost:3000/add-location>
 
 ![CreateLocation](README_STATIC/create_location.png)
 
@@ -282,36 +288,20 @@ Admin adds an appointment for clients and specialists.
 
 #### Create a new appointment
 
-- Use URL http://0.0.0.0:8000/api/appointments
+- Use URL <http://localhost:3000/add-appointment>
 
 ![CreateAppointments](README_STATIC/create_appointment.png)
 
 - Fill form and sent request
 
 ### Customer role
-Customers can review a list of specialists, filter them by position,
-get the schedule for specific specialists and a concrete date.
+Customers can review a list of specialists, filter them by position and working date, get the schedule for specific specialists and a concrete date, view specialist page.
 
-#### Get all specialists
+#### Get specialist page
 
-- Use URL http://0.0.0.0:8000/api/specialists
+- Use URL <http://localhost:3000/specialists/(specialist_id)>
 
-![GetAllSpecialists](README_STATIC/specialist_list.png)
-
-
-#### Filter specialists by position
-
-- Use URL http://0.0.0.0:8000/api/specialists/?position=<<PositionTitle>>
-
-![FilterSpecialists](README_STATIC/filter_specialists.png)
-
-
-#### Get schedule for concrete date
-
-- Use URL http://0.0.0.0:8000/api/specialists/<<SpecialistId>>/schedule/<<Date>>
-
-![FilterSpecialists](README_STATIC/schedule_date.png)
-
+![GetAllSpecialists](README_STATIC/specialist_page.png)
 
 ----
 
